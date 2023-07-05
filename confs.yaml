@@ -1,0 +1,15 @@
+dataset_args:
+  dataset_name: ''
+  streaming: false
+
+model_args:
+  model_path: 'HooshvareLab/gpt2-fa'
+  vocab_size: 2000
+
+training_args:
+  lr: 0.001
+  seed: 32
+  batch_size: 2
+  scheduler_step: 10000
+  epochs: 10
+  pin_memory: false
