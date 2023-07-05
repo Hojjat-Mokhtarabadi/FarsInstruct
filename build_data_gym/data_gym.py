@@ -9,7 +9,7 @@ import os
 
 def save_data(result, dataset_name, template_name, split):
     df = pd.DataFrame.from_dict(result)
-    dir = f"../data/{dataset_name}"
+    dir = f"data/{dataset_name}"
     if os.path.exists(dir):
         df.to_csv(f"{dir}/{template_name}_{split}.csv")
     else:

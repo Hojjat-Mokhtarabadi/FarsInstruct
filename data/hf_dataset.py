@@ -5,10 +5,10 @@ from pathlib import Path
 from datasets import load_dataset
 import pkg_resources
 
-
+_DATA_PATH = Path('data')
 _MAIN_PATH = Path(pkg_resources.resource_filename(__name__, 'dataset.csv'))
 # _MAIN_PATH = Path(os.path.join('data', 'dataset.csv'))
-_all_files = list(_MAIN_PATH.rglob('*.*'))
+_all_files = list(_DATA_PATH.rglob('*.*'))
 
 def read_all_and_convert_t0_csv():
     _all_dfs = pd.DataFrame(columns=['inputs', 'outputs', 'type'])
@@ -20,7 +20,7 @@ def read_all_and_convert_t0_csv():
             # print(len(_all_dfs))
 
     _all_dfs = _all_dfs.drop(columns=['Unnamed: 0'])
-    _all_dfs.to_csv('dataset.csv', index=False, header=True)
+    _all_dfs.to_csv('data/dataset.csv', index=False, header=True)
 
 def explore_data():
     df = pd.read_csv('dataset.csv')
