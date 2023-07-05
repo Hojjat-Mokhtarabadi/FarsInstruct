@@ -2,7 +2,9 @@ from promptsource.templates import DatasetTemplates
 from datasets import load_dataset
 from argparse import ArgumentParser
 import pandas as pd
+from tqdm import tqdm
 import os
+
 
 
 def save_data(result, dataset_name, template_name, split):
@@ -40,7 +42,7 @@ class DataGym:
 
     def _build_zs_gym(self):
         inputs = []; outputs = []    
-        for idx, example in enumerate(self.data):
+        for example in tqdm(self.data, total=len(self.data)):
             result = self.template.apply(example)
             inputs.append(result[0])
             outputs.append(result[1])
@@ -55,7 +57,7 @@ class DataGym:
         inputs = []; outputs = []
         remove_instruction = lambda x: '\n'.join(x.split('\n')[3:])
 
-        for i in range(0, (len(self.data) - self.shots - 1), self.shots):
+        for i in tqdm(range(0, (len(self.data) - self.shots - 1), self.shots)):
             result_fs = ""
             output = ""
             for idx in range(i, i + self.shots):
