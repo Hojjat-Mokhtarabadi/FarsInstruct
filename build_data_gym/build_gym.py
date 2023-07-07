@@ -21,8 +21,6 @@ def load_prompted_datasets():
 
 def build_gym():
     prompted_datasets = load_prompted_datasets()
-
-    print(prompted_datasets)
     for item in prompted_datasets: 
         dataset_name = item['Dataset name']
         for template_name in item['Prompt names']:
