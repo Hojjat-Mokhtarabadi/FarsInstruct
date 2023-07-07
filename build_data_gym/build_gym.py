@@ -5,6 +5,7 @@ from promptsource.templates import TemplateCollection
         
 def load_prompted_datasets():
     template_collection = TemplateCollection(language='fa')
+    print(template_collection.keys)
     results = []
     for (dataset_name, subset_name) in template_collection.keys:
         dataset_templates = template_collection.get_dataset(dataset_name, subset_name, 'fa')
@@ -22,6 +23,7 @@ def load_prompted_datasets():
 def build_gym():
     prompted_datasets = load_prompted_datasets()
 
+    print(prompted_datasets)
     for item in prompted_datasets: 
         dataset_name = item['Dataset name']
         for template_name in item['Prompt names']:
