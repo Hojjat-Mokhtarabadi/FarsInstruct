@@ -8,8 +8,8 @@ def build_parser():
 
     return parser
 
-def load_model(configs, args): 
-    model_path = configs['model_path']
+def load_model(configs): 
+    model_path = configs.model_path
     tokenizer = AutoTokenizer.from_pretrained(model_path,
                                               use_fast=True, 
                                               bos_token='<s>', 

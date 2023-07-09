@@ -1,5 +1,3 @@
-pip install -r requirements.txt
-
 git clone https://github.com/Hojjat-Mokhtarabadi/promptsource.git
 cd promptsource
 pip install -e .

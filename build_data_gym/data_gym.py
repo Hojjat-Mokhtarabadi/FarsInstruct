@@ -9,7 +9,7 @@ import re
 
 def save_data(result, dataset_name, template_name, split):
     df = pd.DataFrame.from_dict(result)
-    dir = f"../data/{dataset_name}"
+    dir = f"data/{dataset_name}"
     if os.path.exists(dir):
         df.to_csv(f"{dir}/{template_name}_{split}.csv")
     else:
@@ -72,7 +72,7 @@ class DataGym:
                 result = self.template.apply(self.data[idx])  
                 output = result[1]
 
-                if idx == 0:
+                if idx == i:
                     input = result[0]
                     result_fs += (input + output + '\n')
 
