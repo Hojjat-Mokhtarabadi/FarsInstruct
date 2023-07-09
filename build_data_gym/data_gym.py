@@ -4,12 +4,12 @@ from argparse import ArgumentParser
 import pandas as pd
 from tqdm import tqdm
 import os
-
+import re
 
 
 def save_data(result, dataset_name, template_name, split):
     df = pd.DataFrame.from_dict(result)
-    dir = f"data/{dataset_name}"
+    dir = f"../data/{dataset_name}"
     if os.path.exists(dir):
         df.to_csv(f"{dir}/{template_name}_{split}.csv")
     else:
@@ -55,7 +55,15 @@ class DataGym:
     
     def _build_fs_gym(self):
         inputs = []; outputs = []
-        remove_instruction = lambda x: '\n'.join(x.split('\n')[3:])
+
+        def remove_instruction(x):
+            space = re.compile("\\s+")
+            splt_text = x.split('\n')
+            snt_list = []
+            for snt in splt_text:
+                snt_list.append(space.sub(" ", snt))
+
+            return '\n'.join(snt_list[1:])
 
         for i in tqdm(range(0, (len(self.data) - self.shots - 1), self.shots)):
             result_fs = ""

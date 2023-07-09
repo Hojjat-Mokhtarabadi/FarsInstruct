@@ -1,2 +1,4 @@
 setuptools<58.0.0
 hazm
+torch 
+transformers

@@ -1,4 +1,3 @@
-from transformers import DataCollatorWithPadding
 from transformers import get_scheduler
 from transformers import Trainer, TrainingArguments
 

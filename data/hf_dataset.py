@@ -4,6 +4,7 @@ import pandas as pd
 from pathlib import Path
 from datasets import load_dataset
 import pkg_resources
+from tqdm import tqdm
 
 _DATA_PATH = Path('data')
 _MAIN_PATH = Path(pkg_resources.resource_filename(__name__, 'dataset.csv'))
@@ -12,7 +13,7 @@ _all_files = list(_DATA_PATH.rglob('*.*'))
 
 def read_all_and_convert_t0_csv():
     _all_dfs = pd.DataFrame(columns=['inputs', 'outputs', 'type'])
-    for file in _all_files:
+    for file in tqdm(_all_files, total=len(_all_files)):
         if file.name.endswith('.csv'):
             df = pd.read_csv(file)
             # print(len(df))
