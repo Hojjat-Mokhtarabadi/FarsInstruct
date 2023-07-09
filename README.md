@@ -20,9 +20,9 @@ accelerate launch main.py --dataload_mode hub
 
 ## TODOs
 - [x] Push instruction dataset to huggingface hub
-- [] Fix digikala-sentiment-analysis templates for FS instructions
-- [] Document the code
+- [ ] Fix digikala-sentiment-analysis templates for FS instructions
+- [ ] Document the code
 - [x] Implement data streaming + data loading 
 - [x] Setup standard fine-tuning procedure with Accelerate
-- [] Check Parameter efficient fine-tuning methods, e.g. LoRA, QLoRA, Prompt Tuning
-- [] Implement evaluation setup, i.e. val-set, metrics
+- [ ] Check Parameter efficient fine-tuning methods, e.g. LoRA, QLoRA, Prompt Tuning
+- [ ] Implement evaluation setup, i.e. val-set, metrics
