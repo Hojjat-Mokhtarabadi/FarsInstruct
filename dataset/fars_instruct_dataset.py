@@ -55,7 +55,7 @@ class FarsInstructDataset:
 
     def get_tokenized_data(self):
         tokenized_data = self.raw_dataset.map(self.encode, batched=False)
-        tokenized_data = tokenized_data.remove_columns(['inputs', 'outputs', 'type'])
+        tokenized_data = tokenized_data.remove_columns(['inputs', 'outputs', 'type', 'ds'])
         return tokenized_data.with_format('torch')
         
         

@@ -13,7 +13,7 @@ from dataset.fars_instruct_dataset import FarsInstructDataset
 from model import load_model
 from utils import *
 
-#! Ignore sourceTensor.clone().detach() warning
+#! ignore sourceTensor.clone().detach() warning
 warnings.filterwarnings("ignore", category=UserWarning)
 
 def main(configs, args):
@@ -26,11 +26,15 @@ def main(configs, args):
     np.random.seed(seed)
     torch.manual_seed(seed)
     accelerator = Accelerator(cpu=False)
-    print(f"device = {accelerator.device}")
+    print(f"seed: {training_args.seed}")
+    print(f"device: {accelerator.device}")
 
     #> load model
     print('Loading model...')
     model, tokenizer = load_model(model_args)
+
+    print(f'base model: {model_args.model_path}')
+    print('number of parameters={:,}'.format(model.num_parameters()))
 
     #> load dataset
     print('Preparing dataset...')
@@ -49,11 +53,10 @@ def main(configs, args):
         
         train_loader = data.DataLoader(train_set.get_tokenized_data(), batch_size=training_args.batch_size, shuffle=True)
 
-
     #> load training misc
     print('Preparing training misc...')
     optimizer = AdamW(model.parameters(), training_args.lr)
-    dataset_len = 991630
+    dataset_len = 987841
     training_steps = training_args.epochs * dataset_len
     scheduler = get_scheduler(
         'linear', 

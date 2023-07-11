@@ -73,8 +73,8 @@ class DataGym:
                 output = result[1]
 
                 if idx == i:
-                    input = result[0]
-                    result_fs += (input + output + '\n')
+                    input_ = result[0]
+                    result_fs += (input_ + output + '\n')
 
                 elif idx == (i + self.shots - 1):
                     input_wo_instruct = remove_instruction(result[0])

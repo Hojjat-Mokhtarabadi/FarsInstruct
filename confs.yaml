@@ -1,6 +1,6 @@
 dataset_args:
   dataset_path: 'hojjat-m/FarsInstruct'
-  streaming: true
+  streaming: false
 
 model_args:
   model_path: 'HooshvareLab/gpt2-fa'
