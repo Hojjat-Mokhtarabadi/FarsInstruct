@@ -71,7 +71,8 @@ def main(configs, args):
     progress_bar = tqdm(range(training_steps))
     epochs = training_args.epochs
     for epoch in range(epochs):
-        train_set.set_epoch(epoch)
+        if data_args.streaming:
+            train_set.set_epoch(epoch)
         model.train()
         metrics = {'avg_loss' : [], 'acc' : []}
         for idx, batch in enumerate(train_loader):
