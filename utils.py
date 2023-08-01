@@ -1,5 +1,6 @@
 import yaml
 from dataclasses import dataclass
+from transformers import TrainingArguments
 
 def load_yml_file(pth):
     with open(pth, 'r') as f:
@@ -21,15 +22,20 @@ class ModelArgs:
     model_path: str
     vocab_size: int
 
+class TrainingArgs(TrainingArguments):
+  def __init__(self, buffer_size, max_len, pin_memory, **kwargs):
+    super().__init__(**kwargs)
+    self.buffer_size: int = buffer_size
+    self.max_len: int = max_len
+    self.pin_memory: bool = pin_memory
+
 @dataclass
-class TrainingArgs:
-    lr: float
-    seed: int
-    batch_size: int
-    scheduler_step: int
-    epochs: int
-    pin_memory: bool
-    buffer_size: int
-    max_len: int
+class QuantizationArgs:
+    load_in_4bit: bool
+    double_quant: bool
+    quant_type: str
+    lora_rank: int 
+    lora_alpha: int 
+    lora_dropout: float 
 
 

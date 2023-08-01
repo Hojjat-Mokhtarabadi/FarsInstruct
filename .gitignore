@@ -86,6 +86,7 @@ promptsource/
 __pycache__/
 checkpoint/
 *.csv
+*.zip
 
 # Distribution / packaging
 bin/

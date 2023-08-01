@@ -1,3 +1,3 @@
-pip install -r requirements.txt
+pip install -q -r requirements.txt --no-cache-dir
 
 

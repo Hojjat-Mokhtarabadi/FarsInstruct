@@ -53,10 +53,14 @@ class FarsInstructDataset:
         return self.tokenizer(new_prompt, truncation=True, max_length=self.max_len, padding='max_length', return_tensors='pt')
     
 
-    def get_tokenized_data(self):
+    def get_tokenized_data(self, in_torch_format: bool = True):
         tokenized_data = self.raw_dataset.map(self.encode, batched=False)
         tokenized_data = tokenized_data.remove_columns(['inputs', 'outputs', 'type', 'ds'])
-        return tokenized_data.with_format('torch')
+        if in_torch_format:
+            return tokenized_data.with_format('torch')
+        else:
+            return tokenized_data
+
         
         
 

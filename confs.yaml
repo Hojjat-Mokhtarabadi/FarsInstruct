@@ -7,11 +7,33 @@ model_args:
   vocab_size: 42001
 
 training_args:
-  lr: 0.001
   seed: 32
-  batch_size: 8
-  scheduler_step: 10000
-  epochs: 2
-  pin_memory: false
+  pin_memory: true
   buffer_size: 10000
   max_len: 256
+  output_dir: '/results'
+  # evaluation_strategy: "steps"
+  max_steps: 15000
+  # eval_steps: 1
+  save_steps: 200
+  logging_steps: 200
+  per_device_train_batch_size: 8
+  gradient_accumulation_steps: 8
+  per_device_eval_batch_size: 8
+  learning_rate: 0.001
+  optim: "paged_adamw_8bit"
+  lr_scheduler_type: 'linear'
+  warmup_steps: 100
+  gradient_checkpointing: false
+  fp16: true
+  weight_decay: 0.001
+  run_name: "farsinstruct"
+  # report_to: "wandb"
+
+quantization_args:
+    load_in_4bit: true
+    double_quant: true
+    quant_type: "nf4"
+    lora_rank: 16 
+    lora_alpha: 32 
+    lora_dropout: 0.05 

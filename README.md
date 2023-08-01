@@ -25,4 +25,6 @@ accelerate launch main.py --dataload_mode hub
 - [x] Implement data streaming + data loading 
 - [x] Setup standard fine-tuning procedure with Accelerate
 - [ ] Check Parameter efficient fine-tuning methods, e.g. LoRA, QLoRA, Prompt Tuning
-- [ ] Implement evaluation setup, i.e. val-set, metrics
+- [ ] Push all datasets to huggingface
+- [ ] Select datasets for validation setup
+- [ ] Implement metrics 

@@ -42,16 +42,20 @@ def main(configs, args):
         train_set = FarsInstructDataset(tokenizer, max_len=training_args.max_len, split='train', 
                                         stream=True, dataload_mode=args.dataload_mode, 
                                         dataset_path=data_args.dataset_path)
-        train_set = train_set.get_tokenized_data()
+        train_set = train_set.get_tokenized_data(in_torch_format=True)
         train_set = train_set.shuffle(seed, buffer_size=training_args.buffer_size)
-        train_loader = data.DataLoader(train_set, batch_size=training_args.batch_size)
+
+        train_loader = data.DataLoader(train_set, pin_memory=training_args.pin_memory,
+                                       batch_size=training_args.per_device_train_batch_size)
 
     else:
         train_set = FarsInstructDataset(tokenizer, max_len=training_args.max_len, split='train', 
                                         stream=False, dataload_mode=args.dataload_mode, 
                                         dataset_path=data_args.dataset_path)
+        train_set = train_set.get_tokenized_data(in_torch_format=True)
         
-        train_loader = data.DataLoader(train_set.get_tokenized_data(), batch_size=training_args.batch_size, shuffle=True)
+        train_loader = data.DataLoader(train_set, pin_memory=training_args.pin_memory,  
+                                       batch_size=training_args.per_device_train_batch_size, shuffle=True)
 
     #> load training misc
     print('Preparing training misc...')
