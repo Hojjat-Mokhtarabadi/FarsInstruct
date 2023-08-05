@@ -20,7 +20,7 @@ accelerate launch main.py --dataload_mode hub
 
 ## TODOs
 - [x] Push instruction dataset to huggingface hub
-- [ ] Fix digikala-sentiment-analysis templates for FS instructions
+- [x] Fix digikala-sentiment-analysis templates for FS instructions
 - [ ] Document the code
 - [x] Implement data streaming + data loading 
 - [x] Setup standard fine-tuning procedure with Accelerate
@@ -28,3 +28,5 @@ accelerate launch main.py --dataload_mode hub
 - [ ] Push all datasets to huggingface
 - [ ] Select datasets for validation setup
 - [ ] Implement metrics 
+- [x] Fix fewshot samples
+- [ ] Check T5 model as the base

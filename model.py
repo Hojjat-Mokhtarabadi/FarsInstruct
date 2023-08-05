@@ -26,7 +26,7 @@ def load_model(configs, quantization_args=None):
                                               pad_token='<pad>')
     config = AutoConfig.from_pretrained(model_path)
     model = GPT2LMHeadModel.from_pretrained(model_path, quantization_config=bnb_config if quantization_args else None, 
-                                            config=config, device_map={"":0})
+                                            config=config, device_map="auto")
 
     return model, tokenizer
 

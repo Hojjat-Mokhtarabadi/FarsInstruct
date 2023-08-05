@@ -1,14 +1,14 @@
 from datasets import load_dataset
 from data.hf_dataset import load_hf_ds_from_csv
-from tqdm import tqdm
 import pandas as pd
-from .text_cleaning import (map_to_persian, 
-                           split_into_sentences, 
-                           patterns)
+from .utils import sample_portion_of_data, normalization
 
 
 class FarsInstructDataset:
     def __init__(self, tokenizer, max_len: int, split: str, stream: bool, dataload_mode: str, dataset_path: str):
+        """
+        FarsInstruct Dataset
+        """
         self.tokenizer = tokenizer
         self.max_len = max_len
         self.split = split
@@ -19,30 +19,10 @@ class FarsInstructDataset:
         elif dataload_mode == 'hub':
             self.raw_dataset = load_dataset(dataset_path, split=self.split, streaming=self.stream)
 
+        # rather than the whole dataset select a portion of it
+        self.raw_dataset = sample_portion_of_data(self.raw_dataset)
 
     def preprocess(self, example) -> str: 
-        def normalization(text):   
-            # normalizer = Normalizer(persian_numbers=False)
-            # return normalizer.normalize(text)
-            text = text.replace("[n]", "\n")
-            text = "".join(map_to_persian(char) for char in text)
-            # Split the text into sentences
-            snt = ''
-            for sentence in split_into_sentences(text):
-                # Remove the remaining punctuation
-                # sentence = patterns["ELIMINATE"].sub(" ", sentence)
-                # Making sure there's a space after each comma
-                sentence = patterns["COMMA"].sub("، ", sentence)
-                # Multiple spaces into one
-                # sentence = patterns["TOO_MANY_SPACES"].sub(" ", sentence)
-                # Strip the leading and the trailing white spaces
-                sentence = sentence.strip()
-                # Remove the spaces before punctuations
-                sentence = patterns["NO_SPACE_BEFORE"].sub("", sentence)
-
-                snt += sentence
-            return snt 
-        
         prompt = normalization(example['inputs']) + '<|startoftext|>' + normalization(example['outputs'])
         return prompt
 
@@ -50,7 +30,7 @@ class FarsInstructDataset:
     def encode(self, example):
         prompt = self.preprocess(example)
         new_prompt = '<s>' + prompt + '</s>'
-        return self.tokenizer(new_prompt, truncation=True, max_length=self.max_len, padding='max_length', return_tensors='pt')
+        return self.tokenizer(new_prompt, truncation=True, max_length=self.max_len, padding=True, return_tensors='pt')
     
 
     def get_tokenized_data(self, in_torch_format: bool = True):
@@ -61,8 +41,6 @@ class FarsInstructDataset:
         else:
             return tokenized_data
 
-        
-        
 
 if __name__ == "__main__":
     df = pd.DataFrame({

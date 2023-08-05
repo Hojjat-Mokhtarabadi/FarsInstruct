@@ -1,4 +1,4 @@
-git clone https://github.com/Hojjat-Mokhtarabadi/promptsource.git
+git clone --branch persian_temps https://github.com/Hojjat-Mokhtarabadi/promptsource.git
 cd promptsource
 pip install -e .
 cd ..

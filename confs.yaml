@@ -10,8 +10,8 @@ training_args:
   seed: 32
   pin_memory: true
   buffer_size: 10000
-  max_len: 256
-  output_dir: '/results'
+  max_len: 512
+  output_dir: './results'
   # evaluation_strategy: "steps"
   max_steps: 15000
   # eval_steps: 1
