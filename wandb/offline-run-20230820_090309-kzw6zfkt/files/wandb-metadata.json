@@ -1,0 +1,208 @@
+{
+    "os": "Linux-5.19.0-46-generic-x86_64-with-glibc2.17",
+    "python": "3.8.17",
+    "heartbeatAt": "2023-08-20T05:33:09.254364",
+    "startedAt": "2023-08-20T05:33:09.143634",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "--dataload_mode",
+        "local"
+    ],
+    "state": "running",
+    "program": "peft_trainer.py",
+    "codePath": "peft_trainer.py",
+    "git": {
+        "remote": "https://github.com/Hojjat-Mokhtarabadi/FarsInstruct.git",
+        "commit": "994d7a0c43d73b3bce64013b291832e14669cc26"
+    },
+    "email": "hmokhtarabadi.1999@gmail.com",
+    "root": "/home/hojjat/workstation/FarsInstruct",
+    "host": "abbas-workstation",
+    "username": "hojjat",
+    "executable": "/home/hojjat/anaconda3/envs/farsinstruct/bin/python",
+    "cpu_count": 24,
+    "cpu_count_logical": 32,
+    "cpu_freq": {
+        "current": 2684.656875,
+        "min": 800.0,
+        "max": 4937.5
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 1100.833,
+            "min": 800.0,
+            "max": 5500.0
+        },
+        {
+            "current": 1100.0,
+            "min": 800.0,
+            "max": 5500.0
+        },
+        {
+            "current": 1099.965,
+            "min": 800.0,
+            "max": 5500.0
+        },
+        {
+            "current": 1262.674,
+            "min": 800.0,
+            "max": 5500.0
+        },
+        {
+            "current": 1100.0,
+            "min": 800.0,
+            "max": 5800.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 5800.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 5800.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 5800.0
+        },
+        {
+            "current": 1100.0,
+            "min": 800.0,
+            "max": 5500.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 5500.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 5500.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 5500.0
+        },
+        {
+            "current": 1100.0,
+            "min": 800.0,
+            "max": 5500.0
+        },
+        {
+            "current": 1099.081,
+            "min": 800.0,
+            "max": 5500.0
+        },
+        {
+            "current": 1100.0,
+            "min": 800.0,
+            "max": 5500.0
+        },
+        {
+            "current": 1099.983,
+            "min": 800.0,
+            "max": 5500.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 935.034,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        },
+        {
+            "current": 3000.0,
+            "min": 800.0,
+            "max": 4300.0
+        }
+    ],
+    "disk": {
+        "total": 915.3232879638672,
+        "used": 202.64305877685547
+    },
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce RTX 3090",
+            "memory_total": 25438322688
+        }
+    ],
+    "memory": {
+        "total": 62.603851318359375
+    }
+}

@@ -11,3 +11,4 @@ bitsandbytes
 git+https://github.com/huggingface/peft.git
 trl
 wandb
+scipy

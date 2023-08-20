@@ -30,7 +30,7 @@ class FarsInstructDataset:
     def encode(self, example):
         prompt = self.preprocess(example)
         new_prompt = '<s>' + prompt + '</s>'
-        return self.tokenizer(new_prompt, truncation=True, max_length=self.max_len, padding=True, return_tensors='pt')
+        return self.tokenizer(new_prompt, truncation=True, max_length=self.max_len, padding='max_length', return_tensors='pt')
     
 
     def get_tokenized_data(self, in_torch_format: bool = True):

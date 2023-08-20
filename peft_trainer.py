@@ -86,6 +86,8 @@ def main(configs, args):
     print('Start training...')
     trainer.train()
 
+    trainer.save(f'./checkpoints/{model_args.model_path}_{training_args.max_steps}')
+
 
 
 if __name__ == "__main__":

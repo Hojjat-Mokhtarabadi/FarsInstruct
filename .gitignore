@@ -85,6 +85,8 @@ fabric.properties
 promptsource/
 __pycache__/
 checkpoint/
+checkpoints/
+results/
 *.csv
 *.zip
 

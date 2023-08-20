@@ -8,6 +8,7 @@ from tqdm import tqdm
 from argparse import ArgumentParser
 from transformers import get_scheduler
 import warnings
+import random
 
 from dataset.fars_instruct_dataset import FarsInstructDataset
 from model import load_model
@@ -32,6 +33,7 @@ def main(configs, args):
     #> load model
     print('Loading model...')
     model, tokenizer = load_model(model_args)
+    model.resize_token_embeddings(len(tokenizer))
 
     print(f'base model: {model_args.model_path}')
     print('number of parameters={:,}'.format(model.num_parameters()))
@@ -53,33 +55,33 @@ def main(configs, args):
                                         stream=False, dataload_mode=args.dataload_mode, 
                                         dataset_path=data_args.dataset_path)
         train_set = train_set.get_tokenized_data(in_torch_format=True)
-        
-        train_loader = data.DataLoader(train_set, pin_memory=training_args.pin_memory,  
-                                       batch_size=training_args.per_device_train_batch_size, shuffle=True)
+        #htrain_set = train_set.get_tokenized_data(in_torch_format=False)
+
+        #subset_idx = list(range(training_args.max_steps))
+        #subset_idx.shuffle(
+        #subset_train_set = data.Subset(train_set, subset_idx)
+        random_sampler = data.RandomSampler(train_set, replacement=True, num_samples=training_args.max_steps)
+        train_loader = data.DataLoader(train_set, sampler=random_sampler, pin_memory=training_args.pin_memory,  
+                                       batch_size=training_args.per_device_train_batch_size)
 
     #> load training misc
     print('Preparing training misc...')
-    optimizer = AdamW(model.parameters(), training_args.lr)
-    dataset_len = 987841
-    training_steps = training_args.epochs * dataset_len
-    scheduler = get_scheduler(
-        'linear', 
-        optimizer, 
-        num_warmup_steps=training_args.scheduler_step,
-        num_training_steps=training_steps)
+    optimizer = AdamW(model.parameters(), training_args.learning_rate)
+    training_steps = training_args.max_steps
     
-    model, optimizer, train_loader, scheduler = accelerator.prepare(model, optimizer, train_loader, scheduler)
+    model, optimizer, train_loader = accelerator.prepare(model, optimizer, train_loader)
     
     #> setup trainer
     print("Start training...")
-    progress_bar = tqdm(range(training_steps))
-    epochs = training_args.epochs
+    #progress_bar = tqdm(range(training_steps))
+    epochs = training_args.num_train_epochs
+
     for epoch in range(epochs):
         if data_args.streaming:
             train_set.set_epoch(epoch)
         model.train()
         metrics = {'avg_loss' : [], 'acc' : []}
-        for idx, batch in enumerate(train_loader):
+        for idx, batch in tqdm(enumerate(train_loader), total=len(train_loader)):
             input_ids = batch['input_ids']
             labels = batch['input_ids']
             mask = batch['attention_mask']
@@ -90,15 +92,14 @@ def main(configs, args):
             optimizer.zero_grad()
             accelerator.backward(loss)  
             optimizer.step()
-            scheduler.step()
 
-            progress_bar.update(1)
+     #       progress_bar.update(1)
 
         metrics['avg_loss'].append(loss.item())
 
 
-        model.save_pretrained('./checkpoint')
-        tokenizer.save_pretrained('./checkpoint')
+        model.save_pretrained(f'./checkpoints/{model_args.model_path}_{training_args.max_steps}')
+        tokenizer.save_pretrained(f'./checkpoints/{model_args.model_path}_{training_args.max_steps}')
     
 
 

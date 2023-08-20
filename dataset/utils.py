@@ -6,7 +6,7 @@ from .text_cleaning import (map_to_persian,
 
 def sample_portion_of_data(ds):
   sample_size = 200_000
-  pn_ds = ds.filter(lambda example: example["ds"] == 'pn_summary').shuffle(seed=42).select(range(0, sample_size))
+  pn_ds = ds.filter(lambda example: example["ds"] == 'pn_summary').shuffle(seed=30).select(range(0, sample_size))
   ds = ds.filter(lambda example: example["ds"] != 'PNLPhub/DigiMag' and 
                                  example["ds"] != 'PNLPhub/Persian-News' and
                                  example["ds"] != 'pn_summary')
