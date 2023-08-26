@@ -15,15 +15,18 @@ def read_all_and_convert_t0_csv():
     """
     Read all generated datasets and concatinate them to insturct_dataset.csv
     """
-    all_dfs = pd.DataFrame(columns=['inputs', 'outputs', 'type'])
+    all_dfs = pd.DataFrame(columns=['inputs', 'outputs', 'type', 'ds'])
     for file in tqdm(all_files, total=len(all_files)):
+        if 'sample_data' in file.parent.name:
+            continue
+        
         if file.name.endswith('.csv'):
             df = pd.read_csv(file)
             all_dfs = pd.concat([all_dfs, df])
 
     all_dfs = all_dfs.drop(columns=['Unnamed: 0'])
     all_dfs = all_dfs.dropna()
-    all_dfs.to_csv('data/instruct_dataset.csv', index=False, header=True)
+    all_dfs.to_csv('data/instruct_dataset.csv', index=False, header=True, mode='w+')
 
 def explore_data():
     df = pd.read_csv('instruct_dataset.csv')

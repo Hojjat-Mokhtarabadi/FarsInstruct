@@ -14,6 +14,12 @@ def sample_portion_of_data(ds):
   new_ds = concatenate_datasets([ds, pn_ds])
   return new_ds
 
+def select_zs_ds(ds):
+   return ds.filter(lambda x: x['type'] == 'zs' and x['ds'] == 'persiannlp/parsinlu_sentiment')
+
+def select_ds(ds):
+   return ds.filter(lambda x: x['ds'].startswith('pn_summary'))
+
 
 def normalization(text):   
     text = text.replace("[n]", "\n")

@@ -11,10 +11,10 @@ def save_data(result, dataset_name, template_name, split):
     df = pd.DataFrame.from_dict(result)
     dir = f"data/{dataset_name}"
     if os.path.exists(dir):
-        df.to_csv(f"{dir}/{template_name}_{split}.csv")
+        df.to_csv(f"{dir}/{template_name}_{split}.csv", mode='w+')
     else:
         os.makedirs(dir)
-        df.to_csv(f"{dir}/{template_name}_{split}.csv")
+        df.to_csv(f"{dir}/{template_name}_{split}.csv", mode='w+')
 
 
 class DataGym:
@@ -57,13 +57,13 @@ class DataGym:
         inputs = []; outputs = []
 
         def remove_instruction(x):
-            space = re.compile("\\s+")
-            splt_text = x.split('\n')
-            snt_list = []
-            for snt in splt_text:
-                snt_list.append(space.sub(" ", snt))
+            #space = re.compile("\\s+")
+            splt_text = x.split('<sep>')
+            #snt_list = []
+            #for snt in splt_text:
+            #    snt_list.append(space.sub(" ", snt))
 
-            return '\n'.join(snt_list[1:])
+            return '\n'.join(splt_text[1:])
 
         for i in tqdm(range(0, (len(self.data) - self.shots - 1), self.shots)):
             result_fs = ""

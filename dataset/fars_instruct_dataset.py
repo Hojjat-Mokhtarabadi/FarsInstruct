@@ -1,7 +1,7 @@
 from datasets import load_dataset
 from data.hf_dataset import load_hf_ds_from_csv
 import pandas as pd
-from .utils import sample_portion_of_data, normalization
+from .utils import *
 
 
 class FarsInstructDataset:
@@ -20,7 +20,8 @@ class FarsInstructDataset:
             self.raw_dataset = load_dataset(dataset_path, split=self.split, streaming=self.stream)
 
         # rather than the whole dataset select a portion of it
-        self.raw_dataset = sample_portion_of_data(self.raw_dataset)
+        #self.raw_dataset = sample_portion_of_data(self.raw_dataset)
+        self.raw_dataset = select_ds(self.raw_dataset)
 
     def preprocess(self, example) -> str: 
         prompt = normalization(example['inputs']) + '<|startoftext|>' + normalization(example['outputs'])

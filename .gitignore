@@ -87,8 +87,10 @@ __pycache__/
 checkpoint/
 checkpoints/
 results/
+wandb/
 *.csv
 *.zip
+*.json
 
 # Distribution / packaging
 bin/

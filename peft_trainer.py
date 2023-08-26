@@ -86,7 +86,7 @@ def main(configs, args):
     print('Start training...')
     trainer.train()
 
-    trainer.save(f'./checkpoints/{model_args.model_path}_{training_args.max_steps}')
+    trainer.save(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
 
 
 

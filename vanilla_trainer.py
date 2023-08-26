@@ -60,7 +60,8 @@ def main(configs, args):
         #subset_idx = list(range(training_args.max_steps))
         #subset_idx.shuffle(
         #subset_train_set = data.Subset(train_set, subset_idx)
-        random_sampler = data.RandomSampler(train_set, replacement=True, num_samples=training_args.max_steps)
+        print(training_args.max_steps)
+        random_sampler = data.RandomSampler(train_set, replacement=True, num_samples=training_args.max_steps if training_args.max_steps != -1 else len(train_set))
         train_loader = data.DataLoader(train_set, sampler=random_sampler, pin_memory=training_args.pin_memory,  
                                        batch_size=training_args.per_device_train_batch_size)
 
@@ -98,8 +99,8 @@ def main(configs, args):
         metrics['avg_loss'].append(loss.item())
 
 
-        model.save_pretrained(f'./checkpoints/{model_args.model_path}_{training_args.max_steps}')
-        tokenizer.save_pretrained(f'./checkpoints/{model_args.model_path}_{training_args.max_steps}')
+        model.save_pretrained(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
+        tokenizer.save_pretrained(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
     
 
 
