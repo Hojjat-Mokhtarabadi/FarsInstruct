@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 import numpy as np
 import torch
 
-from dataset.fars_instruct_dataset import FarsInstructDataset
+from data_ops.fars_instruct_dataset import FarsInstructDataset
 from model import load_model
 from utils import *
 

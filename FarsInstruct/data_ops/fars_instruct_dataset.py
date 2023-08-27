@@ -1,7 +1,7 @@
 from datasets import load_dataset
-from data.hf_dataset import load_hf_ds_from_csv
 import pandas as pd
 from .utils import *
+from .path import DATA_FILES
 
 
 class FarsInstructDataset:
@@ -15,13 +15,12 @@ class FarsInstructDataset:
         self.stream = stream
 
         if dataload_mode == 'local':
-            self.raw_dataset = load_hf_ds_from_csv(self.split, self.stream)
+            self.raw_dataset = load_dataset('csv', data_files=DATA_FILES, split=split, streaming=self.stream)
         elif dataload_mode == 'hub':
             self.raw_dataset = load_dataset(dataset_path, split=self.split, streaming=self.stream)
 
         # rather than the whole dataset select a portion of it
         #self.raw_dataset = sample_portion_of_data(self.raw_dataset)
-        self.raw_dataset = select_ds(self.raw_dataset)
 
     def preprocess(self, example) -> str: 
         prompt = normalization(example['inputs']) + '<|startoftext|>' + normalization(example['outputs'])

@@ -10,7 +10,7 @@ from transformers import get_scheduler
 import warnings
 import random
 
-from dataset.fars_instruct_dataset import FarsInstructDataset
+from FarsInstruct.data_ops.fars_instruct_dataset import FarsInstructDataset
 from model import load_model
 from utils import *
 

@@ -9,7 +9,7 @@ import re
 
 def save_data(result, dataset_name, template_name, split):
     df = pd.DataFrame.from_dict(result)
-    dir = f"data/{dataset_name}"
+    dir = f"data/{dataset_name}/{split}"
     if os.path.exists(dir):
         df.to_csv(f"{dir}/{template_name}_{split}.csv", mode='w+')
     else:
@@ -58,7 +58,7 @@ class DataGym:
 
         def remove_instruction(x):
             #space = re.compile("\\s+")
-            splt_text = x.split('<sep>')
+            splt_text = x.split('\n')
             #snt_list = []
             #for snt in splt_text:
             #    snt_list.append(space.sub(" ", snt))

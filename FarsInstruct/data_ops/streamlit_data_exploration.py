@@ -1,14 +1,16 @@
 import streamlit as st
 import json
-from datasets import concatenate_datasets, load_dataset, Features, Value
+from datasets import concatenate_datasets, load_dataset 
+from FarsInstruct.data_ops.paths import DATA_FILES
 
-def prepare_dataset(dataset):
-    ds = load_dataset('csv', data_files='data/instruct_dataset.csv', split='train')
+def prepare_dataset(dataset, split):
+    ds = load_dataset('csv', data_files=DATA_FILES, split=split)
+
     fs = ds.filter(lambda x: x['type'] == 'fs' and x['ds'] == dataset).shuffle(seed=10).select(range(1, 50))
     zs = ds.filter(lambda x: x['type'] == 'zs' and x['ds'] == dataset).shuffle(seed=10).select(range(1 ,50))
 
     ds = concatenate_datasets([zs, fs])
-    ds.to_json('data/sample_data/{}_train.json'.format(dataset))
+    ds.to_json(f'data/sample_data/{dataset}_{split}.json')
     
 def main():
     st.title("FarsInstruct data exploration")
@@ -24,23 +26,23 @@ def main():
        'PNLPhub/digikala-sentiment-analysis', 'PNLPhub/DigiMag')
 
     with st.sidebar:
-        option = st.selectbox(
+        selected_dataset = st.selectbox(
             "Select the dataset",
             datasets
-            )
-        prepare_dataset(option)
-        
+        )   
         data_split = st.selectbox(
             "Select data split", 
-            ("train", "val", "test")
+            ("train", "validation", "test")
         )
+
+        prepare_dataset(selected_dataset, data_split)
 
     with st.sidebar:
         dd = {}
         dd['fs'] = st.checkbox("few-shot", key="disabled")
         dd['zs'] = st.checkbox("zero-shot", key="disabled")
 
-    with open('data/sample_data/{}_train.json'.format(option), 'r', encoding='utf-8') as f:
+    with open(f'data/sample_data/{selected_dataset}_{data_split}.json', 'r', encoding='utf-8') as f:
         for line in f:
             data = json.loads(line)
             for k, v in dd.items():
