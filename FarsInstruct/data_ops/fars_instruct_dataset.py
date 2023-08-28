@@ -1,7 +1,7 @@
 from datasets import load_dataset
 import pandas as pd
 from .utils import *
-from .path import DATA_FILES
+from .paths import DATA_FILES
 
 
 class FarsInstructDataset:
@@ -22,20 +22,41 @@ class FarsInstructDataset:
         # rather than the whole dataset select a portion of it
         #self.raw_dataset = sample_portion_of_data(self.raw_dataset)
 
-    def preprocess(self, example) -> str: 
+    def preprocess(self, example) -> str:
         prompt = normalization(example['inputs']) + '<|startoftext|>' + normalization(example['outputs'])
+        
         return prompt
 
 
-    def encode(self, example):
+    def encode_fn(self, example): 
+        # preprocess the inputs example and tokenize it
+        # 'self.tokenizer' return a dictionary with 'input_ids' and 'attention_masks' as keys,
+        # create a features dict with the same keys
         prompt = self.preprocess(example)
         new_prompt = '<s>' + prompt + '</s>'
-        return self.tokenizer(new_prompt, truncation=True, max_length=self.max_len, padding='max_length', return_tensors='pt')
-    
+        features = self.tokenizer(new_prompt, truncation=True, max_length=self.max_len, padding='max_length', return_tensors='pt')
+
+        # add 'targets' key into the 'features' dictionary
+        answer_choices = eval(example['ans_choices']) if example['ans_choices'] != 'emp' else ['<emp>']
+        features['targets'] = [
+                self.tokenizer(
+                    ans_choi,
+                    # padding is on the right here.
+                    padding=False,
+                    max_length=self.max_len,
+                    truncation=True,
+                    return_tensor='pt'
+                )
+                for ans_choi in answer_choices
+            ]
+        
+        return features
 
     def get_tokenized_data(self, in_torch_format: bool = True):
-        tokenized_data = self.raw_dataset.map(self.encode, batched=False)
-        tokenized_data = tokenized_data.remove_columns(['inputs', 'outputs', 'type', 'ds'])
+        tokenized_data = self.raw_dataset.map(self.encode_fn, batched=False, 
+                                                remove_columns=['inputs', 'outputs', 'type', 
+                                                                'ds', 'ans_choices'])
+        
         if in_torch_format:
             return tokenized_data.with_format('torch')
         else:

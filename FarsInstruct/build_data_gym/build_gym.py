@@ -5,6 +5,8 @@ import pandas as pd
 from pathlib import Path
 from tqdm import tqdm
 from argparse import ArgumentParser
+import json
+from promptsource.templates import DatasetTemplates
 
 
 DATA_PATH = Path('data')
@@ -13,6 +15,9 @@ all_files = list(DATA_PATH.rglob('*.*'))
 
         
 def load_prompted_datasets():
+    """
+    Load all persian prompted datasets
+    """
     template_collection = TemplateCollection(language='fa')
     results = []
     for (dataset_name, subset_name) in template_collection.keys:
@@ -37,6 +42,7 @@ def build_gym(ds_name: str = 'all', split: str = 'train'):
         for template_name in item['Prompt names']:
                 print('Generating data based on {}_{}...'.format(item['Dataset name'], template_name))
                 try:
+                    save_meta_data(dataset_name, template_name)
                     if template_name[-2:] == "fs":
                         data_gym = DataGym(dataset_name, template_name, split=split, type='fs', shots=3)
                         data_gym()
@@ -59,6 +65,20 @@ def build_gym(ds_name: str = 'all', split: str = 'train'):
         else: continue
 
 
+def save_meta_data(dataset_name, template_name):
+    template = DatasetTemplates(dataset_name)[template_name]
+    meta_data = {
+                'dataset': f'{dataset_name}', 
+                'template': f'{template_name}',
+                'lang': template.metadata.languages,
+                'ans_choice':template.get_fixed_answer_choices_list(),
+                'metrics': template.metadata.metrics
+                }
+   
+    with open("data/metadata.json", 'a+', encoding='utf-8') as f:
+        json.dump(meta_data, f)
+
+
 def read_all_and_convert_t0_csv(split):
     """
     Read all generated datasets and concatinate them to insturct_dataset
@@ -69,13 +89,18 @@ def read_all_and_convert_t0_csv(split):
             continue
         
         if file.name.endswith('.csv') and split == file.parent.name:
+            print(file.parent)
+            print(file)
             df = pd.read_csv(file)
             all_dfs = pd.concat([all_dfs, df])
 
     all_dfs = all_dfs.drop(columns=['Unnamed: 0'])
     all_dfs = all_dfs.dropna()
-    all_dfs.to_csv('data/instruct_dataset_{}.csv'.format(split), index=False, header=True, mode='w+')
+    all_dfs.to_csv(f'data/instruct_dataset_{split}.csv', index=False, header=True, mode='w+')
 
+
+
+        
 
 if __name__ == "__main__":
     parser = ArgumentParser("Data gym builder")
@@ -83,7 +108,7 @@ if __name__ == "__main__":
     parser.add_argument('--split', required=True, choices=['train', 'validation', 'test'])
     args = parser.parse_args()
 
-    #build_gym(ds_name=args.ds_name, split=args.split)
-    read_all_and_convert_t0_csv(split=args.split)
+    build_gym(ds_name=args.ds_name, split=args.split)
+    #read_all_and_convert_t0_csv(split=args.split)
 
 

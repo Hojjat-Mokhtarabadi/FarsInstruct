@@ -91,6 +91,7 @@ wandb/
 *.csv
 *.zip
 *.json
+empty.ipynb
 
 # Distribution / packaging
 bin/

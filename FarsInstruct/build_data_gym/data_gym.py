@@ -4,18 +4,7 @@ from argparse import ArgumentParser
 import pandas as pd
 from tqdm import tqdm
 import os
-import re
-
-
-def save_data(result, dataset_name, template_name, split):
-    df = pd.DataFrame.from_dict(result)
-    dir = f"data/{dataset_name}/{split}"
-    if os.path.exists(dir):
-        df.to_csv(f"{dir}/{template_name}_{split}.csv", mode='w+')
-    else:
-        os.makedirs(dir)
-        df.to_csv(f"{dir}/{template_name}_{split}.csv", mode='w+')
-
+import json
 
 class DataGym:
     """
@@ -41,9 +30,9 @@ class DataGym:
             return self._build_fs_gym() 
 
     def _build_zs_gym(self):
-        inputs = []; outputs = []    
+        inputs = []; outputs = [] 
         for example in tqdm(self.data, total=len(self.data)):
-            result = self.template.apply(example)
+            result = self.template.apply(example)            
             inputs.append(result[0])
             outputs.append(result[1])
 
@@ -71,7 +60,6 @@ class DataGym:
             for idx in range(i, i + self.shots):
                 result = self.template.apply(self.data[idx])  
                 output = result[1]
-
                 if idx == i:
                     input_ = result[0]
                     result_fs += (input_ + output + '\n')
@@ -84,7 +72,7 @@ class DataGym:
                     input_wo_instruct = remove_instruction(result[0])
                     result_fs += (input_wo_instruct + output + '\n')
 
-                    
+
             inputs.append(result_fs)
             outputs.append(output)
 
@@ -93,7 +81,19 @@ class DataGym:
 
         return
 
-    
+
+def save_data(result, dataset_name, template_name, split):
+    df = pd.DataFrame.from_dict(result)
+    dir = f"data/{dataset_name}/{split}"
+    if os.path.exists(dir):
+        df.to_csv(f"{dir}/{template_name}_{split}.csv", mode='w+')
+    else:
+        os.makedirs(dir)
+        df.to_csv(f"{dir}/{template_name}_{split}.csv", mode='w+')
+
+
+
+   
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument('--template_name', type=str, required=True)
