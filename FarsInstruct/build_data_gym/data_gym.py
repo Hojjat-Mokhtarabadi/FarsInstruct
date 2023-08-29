@@ -36,7 +36,8 @@ class DataGym:
             inputs.append(result[0])
             outputs.append(result[1])
 
-        result_dict = {'inputs': inputs, 'outputs': outputs, 'type': self.type, 'ds': self.dataset_name}
+        result_dict = {'inputs': inputs, 'outputs': outputs, 'type': self.type, 
+                       'ds': self.dataset_name, 'template': self.template_name}
         save_data(result_dict, self.dataset_name, self.template_name, self.split)
 
         return
@@ -76,7 +77,8 @@ class DataGym:
             inputs.append(result_fs)
             outputs.append(output)
 
-        result_dict = {'inputs': inputs, 'outputs': outputs, 'type': self.type, 'ds': self.dataset_name}
+        result_dict = {'inputs': inputs, 'outputs': outputs, 'type': self.type, 
+                       'ds': self.dataset_name, 'template': self.template_name}
         save_data(result_dict, self.dataset_name, self.template_name, self.split)
 
         return

@@ -2,6 +2,7 @@ from datasets import concatenate_datasets, load_dataset
 from .text_cleaning import (map_to_persian, 
                            split_into_sentences, 
                            patterns)
+import json
 
 def normalization(text):   
     text = text.replace("[n]", " ")
@@ -21,7 +22,15 @@ def normalization(text):
         sentence = patterns["NO_SPACE_BEFORE"].sub("", sentence)
 
         snt += sentence
-    return snt 
+    return snt
+
+def load_meta_data():
+  with open('data/metadata.json', 'r', encoding='utf-8') as f:
+      meta_data = json.load(f)
+
+  return meta_data 
+
+
 
 ### --- sampling functions ---
 def sample_portion_of_data(ds):
@@ -39,4 +48,19 @@ def select_zs_ds(ds):
 
 def select_ds(ds):
    return ds.filter(lambda x: x['ds'].startswith('pn_summary'))
+
+def sample_ds_with_acc(raw_data, ds_name):
+  def map_fn(ex):
+    ds_meta_data = load_meta_data()[ds_name]
+    for task in ds_meta_data: 
+        if ex['template'] == task['template'] and \
+           ex['ds'] == ds_name and \
+           'Accuracy' in task['metrics']:
+
+           return ex
+            
+  
+
+
+  return raw_data.filter(map_fn)
 

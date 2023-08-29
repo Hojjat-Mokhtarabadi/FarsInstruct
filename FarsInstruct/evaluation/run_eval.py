@@ -3,6 +3,7 @@ from datasets import load_metric
 from FarsInstruct.data_ops.fars_instruct_dataset import FarsInstructDataset
 from torch.utils.data import DataLoader
 import torch
+from tqdm import tqdm
 
 BASE_MODLE = "HooshvareLab/gpt2-fa"
 
@@ -35,11 +36,17 @@ def main():
     val_loader = DataLoader(val_set, batch_size=5, pin_memory=True)
 
     #print(next(iter(val_loader)))
+    print(len(val_loader))
 
     model.eval()
-    for idx, batch in enumerate(val_loader):
+    for idx, batch in tqdm(enumerate(val_loader), total=len(val_loader)):
+        print(idx)
         with torch.no_grad():
             predictions = model(batch['input_ids'], attention_mask=batch['attention_mask'])
+
+        print(metric.compute(references=[0, 1], predictions=[1, 1]))
+
+        print(batch['targets'])
 
         metric.add_batch(
             predictions=predictions,

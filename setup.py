@@ -12,12 +12,13 @@ requirements = [
         'trl',
         'peft @ git+https://github.com/huggingface/peft.git',
         'wandb',
-        'scipy'
+        'scipy',
+        'scikit-learn'
 ]
 
 setup(
     name='FarsInstruct',
-    version='0.2',
+    version='0.1',
     author='Hojjat Mokhtarabadi',
     install_requires=requirements,
     packages=find_packages(exclude=['promptsource', 'results', 'wandb', 'checkpoints'])
