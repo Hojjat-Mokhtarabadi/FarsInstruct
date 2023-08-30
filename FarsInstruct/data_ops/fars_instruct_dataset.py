@@ -35,7 +35,7 @@ class FarsInstructDataset:
         """
         preprocess the inputs example and tokenize it. 
          - features.keys() --> (input_ids, attention_mask, targets)
-         - if answer_choice is null then set it as <emp> token.
+         - if answer_choice is null, replace it with <emp> token.
         """
         prompt = self.preprocess(example)
         new_prompt = '<s>' + prompt + '</s>'
