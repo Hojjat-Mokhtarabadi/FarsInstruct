@@ -4,4 +4,4 @@ cd promptsource
 pip install -e .
 cd ..
 
-python build_data_gym/build_gym.py --split validation
+python build_data_gym/build_gym.py --split train --ds_name PNLPhub/snappfood-sentiment-analysis 

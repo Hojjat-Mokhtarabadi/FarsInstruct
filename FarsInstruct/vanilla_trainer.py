@@ -8,10 +8,10 @@ from tqdm import tqdm
 from argparse import ArgumentParser
 from transformers import get_scheduler
 import warnings
-import random
 
 from FarsInstruct.data_ops.fars_instruct_dataset import FarsInstructDataset
-from model import load_model
+from FarsInstruct import Phase
+from FarsInstruct.modeling import load_model
 from utils import *
 
 #! ignore sourceTensor.clone().detach() warning
@@ -32,7 +32,7 @@ def main(configs, args):
 
     #> load model
     print('Loading model...')
-    model, tokenizer = load_model(model_args)
+    model, tokenizer = load_model(Phase.INSTRUCTION_TUNING, model_args.model_path)
     model.resize_token_embeddings(len(tokenizer))
 
     print(f'base model: {model_args.model_path}')
@@ -55,22 +55,26 @@ def main(configs, args):
                                         stream=False, dataload_mode=args.dataload_mode, 
                                         dataset_path=data_args.dataset_path)
         train_set = train_set.get_tokenized_data(in_torch_format=True)
-        #htrain_set = train_set.get_tokenized_data(in_torch_format=False)
-
-        #subset_idx = list(range(training_args.max_steps))
-        #subset_idx.shuffle(
-        #subset_train_set = data.Subset(train_set, subset_idx)
-        print(training_args.max_steps)
+        
         random_sampler = data.RandomSampler(train_set, replacement=True, num_samples=training_args.max_steps if training_args.max_steps != -1 else len(train_set))
         train_loader = data.DataLoader(train_set, sampler=random_sampler, pin_memory=training_args.pin_memory,  
                                        batch_size=training_args.per_device_train_batch_size)
+        
 
     #> load training misc
     print('Preparing training misc...')
     optimizer = AdamW(model.parameters(), training_args.learning_rate)
-    training_steps = training_args.max_steps
+    num_training_steps = training_args.num_train_epochs * len(train_loader) if training_args.max_steps == -1 else training_args.max_steps
+    print(f'Num training steps: {num_training_steps}')
+
+    lr_scheduler = get_scheduler(
+        training_args.lr_scheduler_type,
+        optimizer=optimizer,
+        num_warmup_steps=training_args.warmup_steps,
+        num_training_steps=num_training_steps,
+    )
     
-    model, optimizer, train_loader = accelerator.prepare(model, optimizer, train_loader)
+    model, optimizer, train_loader, lr_scheduler = accelerator.prepare(model, optimizer, train_loader, lr_scheduler)
     
     #> setup trainer
     print("Start training...")
@@ -90,13 +94,16 @@ def main(configs, args):
             pred = model(input_ids, labels=labels, attention_mask=mask, token_type_ids=None, return_dict=True)
             loss = pred['loss']
 
-            optimizer.zero_grad()
             accelerator.backward(loss)  
             optimizer.step()
+            lr_scheduler.step()
 
-     #       progress_bar.update(1)
+            optimizer.zero_grad()
 
-        metrics['avg_loss'].append(loss.item())
+            metrics['avg_loss'].append(loss.item())
+
+            if idx % training_args.logging_steps == 0:
+                print(sum(metrics['avg_loss']) / len(metrics['avg_loss']))
 
 
         model.save_pretrained(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')

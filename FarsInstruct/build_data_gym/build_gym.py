@@ -46,6 +46,7 @@ if __name__ == "__main__":
     build_gym(ds_name=args.ds_name, split=args.split)
     read_all_and_convert_t0_csv(split=args.split)
 
+    print(f"Generate metadata file: {args.generate_metadata}")
     if args.generate_metadata:
         generate_meta_data_file()
 

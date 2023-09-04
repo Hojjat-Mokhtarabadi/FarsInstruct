@@ -33,34 +33,35 @@ def load_meta_data():
 
 
 ### --- sampling functions ---
-def sample_portion_of_data(ds):
-  sample_size = 200_000
-  pn_ds = ds.filter(lambda example: example["ds"] == 'pn_summary').shuffle(seed=30).select(range(0, sample_size))
-  ds = ds.filter(lambda example: example["ds"] != 'PNLPhub/DigiMag' and 
+def sample_portion_of_data(raw_data):
+  zs_sample_size = 100_000
+  fs_sample_size = 100_000
+  pn_ds_zs = raw_data.filter(lambda example: example["ds"] == 'pn_summary' and example['type'] == 'zs').shuffle(seed=30).select(range(0, zs_sample_size))
+  pn_ds_fs = raw_data.filter(lambda example: example["ds"] == 'pn_summary' and example['type'] == 'fs').shuffle(seed=30).select(range(0, fs_sample_size))
+  raw_data = raw_data.filter(lambda example: example["ds"] != 'PNLPhub/DigiMag' and 
                                  example["ds"] != 'PNLPhub/Persian-News' and
-                                 example["ds"] != 'pn_summary')
+                                 example["ds"] != 'pn_summary' and
+                                 example['ds'] != 'PNLPhub/digikala-sentiment-analysis')
 
-  new_ds = concatenate_datasets([ds, pn_ds])
+  new_ds = concatenate_datasets([raw_data, pn_ds_zs, pn_ds_fs])
   return new_ds
 
-def select_zs_ds(ds):
-   return ds.filter(lambda x: x['type'] == 'zs' and x['ds'] == 'persiannlp/parsinlu_sentiment')
 
-def select_ds(ds):
-   return ds.filter(lambda x: x['ds'].startswith('pn_summary'))
+def sample_data_for_eval(raw_data, ds_name, metric):
+   def map_fn(ex):
+      for ds in ds_name:
+         ds_meta_data = load_meta_data()[ds]
+         for task in ds_meta_data: 
+            if ex['template'] == task['template'] and \
+               ex['ds'] == ds and \
+               metric in task['metrics']:
+               
+               return ex
 
-def sample_ds_with_acc(raw_data, ds_name):
-  def map_fn(ex):
-    ds_meta_data = load_meta_data()[ds_name]
-    for task in ds_meta_data: 
-        if ex['template'] == task['template'] and \
-           ex['ds'] == ds_name and \
-           'Accuracy' in task['metrics']:
+   return raw_data.filter(map_fn)
 
-           return ex
-            
-  
+def exclude_datasets(raw_data, ds_name):
+   ds = raw_data.filter(lambda ex: ex["ds"] not in ds_name)
 
-
-  return raw_data.filter(map_fn)
+   return ds
 

@@ -92,6 +92,7 @@ wandb/
 *.zip
 *.json
 empty.ipynb
+scratch_pad.ipynb
 
 # Distribution / packaging
 bin/

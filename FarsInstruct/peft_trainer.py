@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 from data_ops.fars_instruct_dataset import FarsInstructDataset
-from model import load_model
+from FarsInstruct.modeling import load_model
 from utils import *
 
 

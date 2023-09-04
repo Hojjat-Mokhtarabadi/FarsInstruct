@@ -12,7 +12,7 @@ pip install -e .
 
 In order to build the instruction based dataset from scratch:
 ```bash
-bash build_data.sh
+bash _build_data.sh
 ```
 Start training:
 

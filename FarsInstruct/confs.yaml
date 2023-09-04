@@ -9,25 +9,25 @@ model_args:
   vocab_size: 42001
 
 training_args:
-  desc: 'hooshvare.zs-fs.pn_summary'
+  desc: 'hooshvare.zs-fs.digi-snapp'
   seed: 32
   pin_memory: true
   buffer_size: 10000
   max_len: 512
   output_dir: './results'
   # evaluation_strategy: "steps"
-  num_train_epochs: 1 
-  #max_steps: 600000
+  num_train_epochs: 1  
+  max_steps: -1
   # eval_steps: 1
   save_steps: 200
-  logging_steps: 200
+  logging_steps: 400
   per_device_train_batch_size: 16
   gradient_accumulation_steps: 8
   per_device_eval_batch_size: 1
   learning_rate: 0.001
   optim: "paged_adamw_8bit"
   lr_scheduler_type: 'linear'
-  warmup_steps: 100
+  warmup_steps: 1000
   gradient_checkpointing: false
   fp16: true
   weight_decay: 0.001
