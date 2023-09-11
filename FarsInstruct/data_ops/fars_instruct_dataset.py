@@ -26,7 +26,7 @@ class FarsInstructDataset:
         # self.raw_dataset = sample_data_for_eval(self.raw_dataset, metric='Accuracy', 
         #                                ds_name=['PNLPhub/digikala-sentiment-analysis', 
         #                                         'PNLPhub/snappfood-sentiment-analysis'])
-        self.raw_dataset = sample_portion_of_data(self.raw_dataset)
+        # self.raw_dataset = sample_portion_of_data(self.raw_dataset)
 
        
     def preprocess(self, example, idx) -> str:

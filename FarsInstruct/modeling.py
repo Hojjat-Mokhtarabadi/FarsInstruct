@@ -1,12 +1,12 @@
 from transformers import AutoTokenizer, AutoConfig, GPT2LMHeadModel
-from transformers import BitsAndBytesConfig
 import torch
 from torch import nn
 from argparse import ArgumentParser
 
 
-def load_pretaining_model(phase: str, model_name_or_path, quantization_args=None):
+def load_pretaining_model(model_name_or_path, quantization_args=None):
     if quantization_args:
+        from transformers import BitsAndBytesConfig
         bnb_config = BitsAndBytesConfig(
                 load_in_4bit=quantization_args.load_in_4bit,
                 bnb_4bit_use_double_quant=quantization_args.double_quant,
