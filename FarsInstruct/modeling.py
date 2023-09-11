@@ -3,11 +3,9 @@ from transformers import BitsAndBytesConfig
 import torch
 from torch import nn
 from argparse import ArgumentParser
-from models.decoder_model import DecoderModel
-from FarsInstruct import Phase
 
 
-def load_model(phase: str, model_name_or_path, quantization_args=None):
+def load_pretaining_model(phase: str, model_name_or_path, quantization_args=None):
     if quantization_args:
         bnb_config = BitsAndBytesConfig(
                 load_in_4bit=quantization_args.load_in_4bit,
@@ -23,11 +21,8 @@ def load_model(phase: str, model_name_or_path, quantization_args=None):
                                               pad_token='<pad>')
     config = AutoConfig.from_pretrained(model_name_or_path)
 
-    if phase == Phase.INSTRUCTION_TUNING:
-        model = GPT2LMHeadModel.from_pretrained(model_name_or_path, quantization_config=bnb_config if quantization_args else None, 
-                                                config=config, device_map="auto")
-    elif phase == Phase.LABELING_EVALUATION:
-        model = DecoderModel(model_name_or_path, config, device_map="auto")
+    model = GPT2LMHeadModel.from_pretrained(model_name_or_path, quantization_config=bnb_config if quantization_args else None, 
+                                            config=config, device_map="auto")
 
     return model, tokenizer
 

@@ -83,6 +83,7 @@ fabric.properties
 
 .idea/
 promptsource/
+lm-evaluation-harness/
 __pycache__/
 checkpoint/
 checkpoints/

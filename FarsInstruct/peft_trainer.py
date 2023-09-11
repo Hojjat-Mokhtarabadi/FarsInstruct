@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 from data_ops.fars_instruct_dataset import FarsInstructDataset
-from FarsInstruct.modeling import load_model
+from FarsInstruct.modeling import load_pretraining_model
 from utils import *
 
 
@@ -42,7 +42,7 @@ def main(configs, args):
 
      #> load model
     print('Loading model...')
-    model, tokenizer = load_model(model_args, quantization_args)
+    model, tokenizer = load_pretraining_model(model_args, quantization_args)
     model.gradient_checkpointing_enable()
     model.config.use_cache = False 
     model = prepare_model_for_kbit_training(model)

@@ -34,73 +34,7 @@ class FarsInstructDataset:
         
         return prompt
     
-    def encode_fn_based_on_t0(self, examples):
-        bs = len(examples['inputs'])
-
-        input_texts = []
-        target_texts = []
-        answer_choices_texts = []
-        for i in range(bs):
-            input, target = normalization(examples['inputs'][i]) + '<|startoftext|>', examples['outputs'][i]
-            
-            ds_meta_data = self.meta_data[examples['ds'][i]]
-            ex_answer_choices = None
-            for task in ds_meta_data: 
-                if examples['template'][i] == task['template']:
-                    if task['choice_in_temp']:
-                        ex_answer_choices = task['ans_choice']
-                    else:
-                        ex_answer_choices = ['<emp>']
-                    break
-            input_texts.append(input)
-            target_texts.append(target)
-            answer_choices_texts.append(ex_answer_choices)
-
-        tokenized_inputs = self.tokenizer(
-            input_texts,
-            padding='max_length',
-            max_length=self.max_len,
-            truncation=True,
-            add_special_tokens=False,
-        )
-
-        tokenized_targets = [
-            self.tokenizer(
-                ans_choi,
-                # padding is on the right here.
-                padding=False,
-                max_length=self.max_len,
-                truncation=True,
-            )
-            for ans_choi in answer_choices_texts
-        ]
-
-        features = {
-            k: [
-                [elem for _ in range(len(tokenized_targets[idx]["input_ids"]))]
-                for idx, elem in enumerate(v)
-            ]
-            for k, v in tokenized_inputs.items()
-        }
-
-        features["labels"] = [
-            tokenized_targets[idx]["input_ids"]
-            for idx in range(bs)
-        ]
-
-        features["labels_attention_mask"] = [
-            tokenized_targets[idx]["attention_mask"]
-            for idx in range(bs)
-        ]
-
-        features["targets"] = [
-            answer_choices_texts[idx].index(t)
-            for idx, t in enumerate(target_texts)
-            ]
-        
-        return features
-
-
+    
     def pretraining_encode_fn(self, example): 
         """
         preprocess the inputs example and tokenize it. 

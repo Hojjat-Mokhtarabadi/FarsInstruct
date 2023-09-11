@@ -10,8 +10,7 @@ from transformers import get_scheduler
 import warnings
 
 from FarsInstruct.data_ops.fars_instruct_dataset import FarsInstructDataset
-from FarsInstruct import Phase
-from FarsInstruct.modeling import load_model
+from FarsInstruct.modeling import load_pretaining_model
 from utils import *
 
 #! ignore sourceTensor.clone().detach() warning
@@ -32,7 +31,7 @@ def main(configs, args):
 
     #> load model
     print('Loading model...')
-    model, tokenizer = load_model(Phase.INSTRUCTION_TUNING, model_args.model_path)
+    model, tokenizer = load_pretaining_model(model_args.model_path)
     model.resize_token_embeddings(len(tokenizer))
 
     print(f'base model: {model_args.model_path}')

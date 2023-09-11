@@ -31,6 +31,18 @@ class TrainingArgs(TrainingArguments):
     self.pin_memory: bool = pin_memory
 
 @dataclass
+class EvaluationArgs:
+    model_args: str
+    num_fewshot: int
+    batch_size: int
+    max_batch_size: int
+    device: str
+    output_path: str     
+    check_integrity: bool
+    write_out: bool
+    log_samples: bool
+
+@dataclass
 class QuantizationArgs:
     load_in_4bit: bool
     double_quant: bool
@@ -38,5 +50,7 @@ class QuantizationArgs:
     lora_rank: int 
     lora_alpha: int 
     lora_dropout: float 
+
+
 
 
