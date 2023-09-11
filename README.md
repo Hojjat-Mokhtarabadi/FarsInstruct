@@ -2,15 +2,16 @@
 Instruction tuning of Persian LLMs
 
 ### Requirements:
-- python 3.8
+- python 3.9
 
 ### Steps:
-First install the package, using:
-```bash
-pip install -e .
-```
+Run the following scripts:
 
-In order to build the instruction based dataset from scratch:
+Initial setup:
+```bash
+bash _setup.sh
+```
+Data generation:
 ```bash
 bash _build_data.sh
 ```
@@ -18,7 +19,12 @@ Start training:
 
 NOTE: --dataload_mode should be either 'local' or 'hub'
 ```bash
-accelerate launch vanilla_trainer.py --dataload_mode hub
+bash _run_fine_tune.sh
+```
+
+Evaluation:
+```bash
+bash _run_evaluation.sh
 ```
 
 
