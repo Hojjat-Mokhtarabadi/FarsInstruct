@@ -25,9 +25,16 @@ def main(configs, args):
     seed = training_args.seed
     np.random.seed(seed)
     torch.manual_seed(seed)
-    accelerator = Accelerator(cpu=False)
+    accelerator = Accelerator(cpu=False,log_with="wandb")
     print(f"seed: {training_args.seed}")
     print(f"device: {accelerator.device}")
+
+    # Initialise your wandb run, passing wandb parameters and any config information
+    accelerator.init_trackers(
+        project_name="FarsInstruct", 
+        #config={"dropout": 0.1, "learning_rate": 1e-2}
+        init_kwargs={"wandb": {"entity": "farsinstruct"}}
+        )
 
     #> load model
     print('Loading model...')
@@ -103,11 +110,16 @@ def main(configs, args):
 
             if idx % training_args.logging_steps == 0:
                 print(sum(metrics['avg_loss']) / len(metrics['avg_loss']))
+            # Log to wandb by calling `accelerator.log`, `step` is optional
+            accelerator.log({"avg_loss": sum(metrics['avg_loss'])/ len(metrics['avg_loss'])})#, step=global_step)
 
+
+        # Make sure that the wandb tracker finishes correctly
+        accelerator.end_training()
 
         model.module.save_pretrained(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
         tokenizer.save_pretrained(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
-    
+
 
 
 if __name__ == "__main__":

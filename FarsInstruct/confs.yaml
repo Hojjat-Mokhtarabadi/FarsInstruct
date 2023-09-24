@@ -21,7 +21,7 @@ training_args:
     # eval_steps: 1
     save_steps: 200
     logging_steps: 400
-    per_device_train_batch_size: 1
+    per_device_train_batch_size: 16
     gradient_accumulation_steps: 1
     per_device_eval_batch_size: 1
     learning_rate: 0.001
@@ -32,7 +32,7 @@ training_args:
     fp16: true
     weight_decay: 0.001
     run_name: "farsinstruct"
-    # report_to: "wandb"
+    report_to: "wandb"
 
 quantization_args:
     load_in_4bit: true
