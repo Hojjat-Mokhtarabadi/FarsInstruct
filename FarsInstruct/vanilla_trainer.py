@@ -97,7 +97,8 @@ def main(configs, args):
             labels = batch['input_ids']
             mask = batch['attention_mask']
 
-            pred = model(input_ids, labels=labels, attention_mask=mask, token_type_ids=None, return_dict=True)
+            input_ids = input_ids.squeeze(0)
+            pred = model(input_ids=input_ids, labels=labels, attention_mask=mask, return_dict=True)
             loss = pred['loss']
 
             accelerator.backward(loss)  
@@ -113,12 +114,12 @@ def main(configs, args):
             # Log to wandb by calling `accelerator.log`, `step` is optional
             accelerator.log({"avg_loss": sum(metrics['avg_loss'])/ len(metrics['avg_loss'])})#, step=global_step)
 
+            if idx % training_args.save_steps == 0:
+                model.save_pretrained(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
+                tokenizer.save_pretrained(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
 
-        # Make sure that the wandb tracker finishes correctly
-        accelerator.end_training()
-
-        model.module.save_pretrained(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
-        tokenizer.save_pretrained(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
+    # Make sure that the wandb tracker finishes correctly
+    accelerator.end_training()
 
 
 

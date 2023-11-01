@@ -25,20 +25,21 @@ def build_gym(ds_name: str = 'all', split: str = 'train'):
                     continue
 
     prompted_datasets = load_prompted_datasets()
+    ds_names = ds_name.split(',')
     for item in prompted_datasets: 
         dataset_name = item['Dataset name']
-
-        if ds_name == dataset_name:
-            retrieve_prompt_and_apply(item)
+        
         if ds_name == 'all':
             retrieve_prompt_and_apply(item)
-        else: continue
+        else: 
+            if dataset_name in ds_names:
+                    retrieve_prompt_and_apply(item)
 
 
         
 if __name__ == "__main__":
     parser = ArgumentParser("Data gym builder")
-    parser.add_argument('--ds_name', default='all')
+    parser.add_argument('--ds_name', default='all', type=str)
     parser.add_argument('--split', required=True, choices=['train', 'validation', 'test'])
     parser.add_argument('--generate_metadata', action='store_true')
     args = parser.parse_args()

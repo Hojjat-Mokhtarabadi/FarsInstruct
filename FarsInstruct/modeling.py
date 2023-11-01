@@ -1,7 +1,8 @@
-from transformers import AutoTokenizer, AutoConfig, GPT2LMHeadModel
+from transformers import AutoTokenizer, AutoConfig, GPT2LMHeadModel, AutoModelForCausalLM
 import torch
 from torch import nn
 from argparse import ArgumentParser
+
 
 
 def load_pretaining_model(model_name_or_path, quantization_args=None):
@@ -21,7 +22,7 @@ def load_pretaining_model(model_name_or_path, quantization_args=None):
                                               pad_token='<pad>')
     config = AutoConfig.from_pretrained(model_name_or_path)
 
-    model = GPT2LMHeadModel.from_pretrained(model_name_or_path, quantization_config=bnb_config if quantization_args else None, 
+    model = AutoModelForCausalLM.from_pretrained(model_name_or_path, quantization_config=bnb_config if quantization_args else None, 
                                             config=config, device_map="auto")
 
     return model, tokenizer

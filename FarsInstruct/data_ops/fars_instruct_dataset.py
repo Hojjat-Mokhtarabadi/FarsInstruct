@@ -27,7 +27,15 @@ class FarsInstructDataset:
         #                                ds_name=['PNLPhub/digikala-sentiment-analysis', 
         #                                         'PNLPhub/snappfood-sentiment-analysis'])
         # self.raw_dataset = sample_portion_of_data(self.raw_dataset)
-
+        ds_list = [
+            "PNLPhub/digikala-sentiment-analysis",
+            "PNLPhub/snappfood-sentiment-analysis",  
+            "pn_summary"
+            #"SajjadAyoubi/persian_qa",
+            #SLPL/syntran-fa" 
+                   ]
+        
+        self.raw_dataset = sample_dataset(self.raw_dataset, ds_list)
        
     def preprocess(self, example, idx) -> str:
         prompt = normalization(example['inputs'][idx]) + '<|startoftext|>' + normalization(example['outputs'][idx])

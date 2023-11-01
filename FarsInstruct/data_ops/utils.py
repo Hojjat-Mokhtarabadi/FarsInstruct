@@ -65,3 +65,20 @@ def exclude_datasets(raw_data, ds_name):
 
    return ds
 
+
+def sample_dataset(raw_data, ds_name): 
+   if "pn_summary" in ds_name: 
+      zs_sample_size = 1
+      fs_sample_size = 100_000
+      pn_ds_zs = raw_data.filter(lambda example: example["ds"] == 'pn_summary' and example['type'] == 'zs').shuffle(seed=30).select(range(0, zs_sample_size))
+      pn_ds_fs = raw_data.filter(lambda example: example["ds"] == 'pn_summary' and example['type'] == 'fs').shuffle(seed=30).select(range(0, fs_sample_size))
+
+      ds_name.remove("pn_summary")
+      ds = raw_data.filter(lambda ex: ex["ds"] in ds_name)
+      #ds = raw_data.filter(lambda ex: ex["ds"] in ds_name and ex['type'] == 'zs')
+
+      return concatenate_datasets([ds, pn_ds_zs, pn_ds_fs])
+   
+   else: 
+      return raw_data.filter(lambda ex: ex["ds"] in ds_name) 
+
