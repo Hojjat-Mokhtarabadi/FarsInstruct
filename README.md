@@ -61,6 +61,10 @@ bash _run_evaluation.sh
 - snapp_sentiment
 - persian_qa
 
+- parsinlu-multiple-choice-llama
+- farstail-llama
+- digi-sentiment-llama
+
 ## Scoring details:
 - **output_type** (`str`, *optional*, defaults to "greedy_until") — Selects the type of model output for the given task. Options are `greedy_until`, `loglikelihood`, `loglikelihood_rolling`, and `multiple_choice`.
 - **supported metrics** -  `acc` (accuracy), `acc_norm` (length-normalized accuracy), `acc_mutual_info` (baseline loglikelihood - normalized accuracy), `perplexity`, `word_perplexity` (perplexity per word), `byte_perplexity` (perplexity per byte), `bits_per_byte`, `matthews_corrcoef` (Matthews correlation coefficient), `f1` (F1 score), `bleu`, `chrf`, `ter`
