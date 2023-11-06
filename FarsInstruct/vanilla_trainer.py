@@ -9,8 +9,8 @@ from argparse import ArgumentParser
 from transformers import get_scheduler
 import warnings
 
-from FarsInstruct.data_ops.fars_instruct_dataset import FarsInstructDataset
-from FarsInstruct.modeling import load_pretaining_model
+from data_ops.fars_instruct_dataset import FarsInstructDataset
+from modeling import load_pretaining_model
 from utils import *
 
 #! ignore sourceTensor.clone().detach() warning
@@ -97,7 +97,9 @@ def main(configs, args):
             labels = batch['input_ids']
             mask = batch['attention_mask']
 
-            input_ids = input_ids.squeeze(0)
+            input_ids = input_ids.squeeze(1)
+            mask = mask.squeeze(1)
+            labels = labels.squeeze(1)
             pred = model(input_ids=input_ids, labels=labels, attention_mask=mask, return_dict=True)
             loss = pred['loss']
 

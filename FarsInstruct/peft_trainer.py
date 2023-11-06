@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 from data_ops.fars_instruct_dataset import FarsInstructDataset
-from FarsInstruct.modeling import load_pretraining_model
+from modeling import load_pretaining_model
 from utils import *
 
 
@@ -42,7 +42,7 @@ def main(configs, args):
 
      #> load model
     print('Loading model...')
-    model, tokenizer = load_pretraining_model(model_args, quantization_args)
+    model, tokenizer = load_pretaining_model(model_args.model_path, quantization_args)
     model.gradient_checkpointing_enable()
     model.config.use_cache = False 
     model = prepare_model_for_kbit_training(model)
@@ -74,8 +74,8 @@ def main(configs, args):
                                         stream=False, dataload_mode=args.dataload_mode, 
                                         dataset_path=data_args.dataset_path)
         train_set = train_set.get_tokenized_data(in_torch_format=False)
-
-
+    train_set = train_set.map(FarsInstructDataset.remove_mid_dim)
+    
     #> start training
     trainer = Trainer(
         model=model,

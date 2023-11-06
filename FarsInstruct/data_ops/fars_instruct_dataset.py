@@ -29,8 +29,8 @@ class FarsInstructDataset:
         # self.raw_dataset = sample_portion_of_data(self.raw_dataset)
         ds_list = [
             "PNLPhub/digikala-sentiment-analysis",
-            "PNLPhub/snappfood-sentiment-analysis",  
-            "pn_summary"
+            #"PNLPhub/snappfood-sentiment-analysis",  
+            #"pn_summary"
             #"SajjadAyoubi/persian_qa",
             #SLPL/syntran-fa" 
                    ]
@@ -73,6 +73,13 @@ class FarsInstructDataset:
             return tokenized_data.with_format('torch')
         else:
             return tokenized_data
+        
+
+    def remove_mid_dim(tokenized_data):
+        new_tokenized_data = {}
+        for c in tokenized_data:
+            new_tokenized_data[c] = [x[0] for x in tokenized_data[c]]
+        return new_tokenized_data
 
 
 if __name__ == "__main__":

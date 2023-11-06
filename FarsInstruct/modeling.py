@@ -9,11 +9,12 @@ def load_pretaining_model(model_name_or_path, quantization_args=None):
     if quantization_args:
         from transformers import BitsAndBytesConfig
         bnb_config = BitsAndBytesConfig(
-                load_in_4bit=quantization_args.load_in_4bit,
-                bnb_4bit_use_double_quant=quantization_args.double_quant,
-                bnb_4bit_quant_type=quantization_args.quant_type,
-                bnb_4bit_compute_dtype=torch.bfloat16
-            )
+            load_in_4bit=quantization_args.load_in_4bit,
+            bnb_4bit_use_double_quant=quantization_args.double_quant,
+            bnb_4bit_quant_type=quantization_args.quant_type,
+            bnb_4bit_compute_dtype=torch.bfloat16
+        )
+
         
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path,
                                               use_fast=True, 

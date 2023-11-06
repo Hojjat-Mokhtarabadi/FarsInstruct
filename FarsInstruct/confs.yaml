@@ -6,7 +6,8 @@ model_args:
     #model_path: 'bolbolzaban/gpt2-persian'
     #model_path: './checkpoints/hooshvare.zs-fs.pn_sum-syntran.-1.bs8'
     #model_path: HooshvareLab/gpt2-fa
-    model_path: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-chat-hf-raw
+    #model_path: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
+    model_path: /media/abbas/Backup/Llama-2-13b-hf
     #model_path: meta-llama/Llama-2-7b-chat-hf
     #model_path: meta-llama/Llama-2-7b
     #model_path: meta-llama/Llama-2-13b
@@ -17,7 +18,7 @@ model_args:
     vocab_size: 42001
 
 training_args:
-    desc: 'llama2.zs-fs.digi-snapp-pn-sum'
+    desc: 'llama2_13b.zs-fs.digi'
     seed: 32
     pin_memory: true
     buffer_size: 10000
@@ -29,7 +30,7 @@ training_args:
     # eval_steps: 1
     save_steps: 400
     logging_steps: 400
-    per_device_train_batch_size: 8
+    per_device_train_batch_size: 1
     gradient_accumulation_steps: 1
     per_device_eval_batch_size: 1
     learning_rate: 0.001
@@ -46,6 +47,6 @@ quantization_args:
     load_in_4bit: true
     double_quant: true
     quant_type: "nf4"
-    lora_rank: 16 
+    lora_rank: 4
     lora_alpha: 32 
     lora_dropout: 0.05 
