@@ -5,7 +5,8 @@ requirements = [
         'pandas',
         'trl',
         'wandb',
-        'scikit-learn'
+        'scikit-learn',
+        'bitsandbytes',
 ]
 
 setup(
