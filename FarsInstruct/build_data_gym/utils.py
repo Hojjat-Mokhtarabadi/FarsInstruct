@@ -25,10 +25,15 @@ def load_prompted_datasets():
     return results
 
    
-def read_all_and_convert_t0_csv(split):
+def read_all_and_convert_t0_csv(split, llama: bool):
     """
     Read all generated datasets and concatinate them to insturct_dataset
     """
+    if llama:
+        ds_path = f'data/instruct_dataset_llama_{split}.csv'
+    else:
+        ds_path = f'data/instruct_dataset_{split}.csv'
+
     all_dfs = pd.DataFrame(columns=['inputs', 'outputs', 'type', 'ds', 'template'])
     all_files = list(DATA_PATH.rglob('*.*'))
     for file in tqdm(all_files, total=len(all_files)):
@@ -41,5 +46,5 @@ def read_all_and_convert_t0_csv(split):
 
     all_dfs = all_dfs.drop(columns=['Unnamed: 0'])
     all_dfs = all_dfs.dropna()
-    all_dfs.to_csv(f'data/instruct_dataset_{split}.csv', index=False, header=True, mode='w+')
+    all_dfs.to_csv(ds_path, index=False, header=True, mode='w+')
     print('Done!')

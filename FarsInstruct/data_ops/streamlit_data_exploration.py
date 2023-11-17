@@ -22,9 +22,9 @@ def main():
        'persiannlp/parsinlu_sentiment',
        'persiannlp/parsinlu_query_paraphrasing', 'PNLPhub/Persian-News',
        'PNLPhub/FarsTail', 'PNLPhub/snappfood-sentiment-analysis',
-       'PNLPhub/parsinlu-multiple-choice',
+       'PNLPhub/parsinlu-multiple-choice', 'parsinlu_reading_comprehension',
        'PNLPhub/digikala-sentiment-analysis', 'PNLPhub/DigiMag')
-
+    
     with st.sidebar:
         selected_dataset = st.selectbox(
             "Select the dataset",

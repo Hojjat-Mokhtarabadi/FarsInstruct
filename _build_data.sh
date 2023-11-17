@@ -1,6 +1,7 @@
 cd FarsInstruct
 
-python build_data_gym/build_gym.py --split train --generate_metadata \
-                                   --ds_name PNLPhub/snappfood-sentiment-analysis,PNLPhub/digikala-sentiment-analysis,pn_summary
+python build_data_gym/build_gym.py --split validation \
+                                   --ds_name persiannlp/parsinlu_query_paraphrasing \
+                                   --llama_compatible
 
 cd ..

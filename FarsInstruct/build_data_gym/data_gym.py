@@ -11,7 +11,7 @@ class DataGym:
     Apply template on datasets according to they specified type (zero-shot or few-shot)
     """
     def __init__(self, dataset_name:str, template_name: str, split: str, 
-                       type: str, shots: int = 1):
+                       type: str, shots: int = 1, llama: bool = False):
         
         self.dataset_name = dataset_name
         self.data = load_dataset(self.dataset_name, split=split)
@@ -20,6 +20,7 @@ class DataGym:
         self.type = type
         self.split = split
         self.template_name = template_name
+        self.llama = llama
 
         self.template = DatasetTemplates(self.dataset_name)[template_name]
 
@@ -27,12 +28,40 @@ class DataGym:
         if self.type == 'zs':
             return self._build_zs_gym()
         elif self.type == 'fs':
-            return self._build_fs_gym() 
+            return self._build_fs_gym()
+
+    def _prepare_llama_instruction(self, input, type):
+        var = "<span style='color: #F08080'>"
+        highlights = [i.replace("</span>", "") for i in input.split(var)]
+        
+        if type == 'zs':
+            return f"""
+            [INST] <<SYS>>
+            {highlights[0]}
+            <</SYS>>
+
+            {''.join(highlights[1:])} [/INST]
+            """
+        
+        return f"""
+            [INST] <<SYS>>
+            {highlights[0]}
+            <</SYS>>
+
+            {''.join(highlights[1:])}
+            """
 
     def _build_zs_gym(self):
         inputs = []; outputs = [] 
         for example in tqdm(self.data, total=len(self.data)):
-            result = self.template.apply(example)            
+            if self.llama:
+                result = self.template.apply(example, highlight_variables=True)
+                result[0] = self._prepare_llama_instruction(result[0], 'zs')
+                result[1] = result[1].replace("<span style='color: #F08080'>", "")
+                result[1] = result[1].replace("</span>", "")
+            else:
+                result = self.template.apply(example)
+
             inputs.append(result[0])
             outputs.append(result[1])
 
@@ -48,7 +77,7 @@ class DataGym:
 
         def remove_instruction(x):
             #space = re.compile("\\s+")
-            splt_text = x.split('\n')
+            splt_text = x.split('\n\n')
             #snt_list = []
             #for snt in splt_text:
             #    snt_list.append(space.sub(" ", snt))
@@ -61,15 +90,23 @@ class DataGym:
             for idx in range(i, i + self.shots):
                 result = self.template.apply(self.data[idx])  
                 output = result[1]
-                if idx == i:
+                if idx == i: # instruct line
+                    if self.llama:
+                        result = self.template.apply(self.data[idx], highlight_variables=True)  
+                        result[0] = self._prepare_llama_instruction(result[0], 'fs')
+                        
                     input_ = result[0]
                     result_fs += (input_ + output + '\n')
 
-                elif idx == (i + self.shots - 1):
+                elif idx == (i + self.shots - 1): # last line with out instruction
                     input_wo_instruct = remove_instruction(result[0])
-                    result_fs += (input_wo_instruct + '\n')
 
-                else:
+                    if self.llama:
+                        result_fs += (input_wo_instruct + "[\INST]" + '\n')
+                    else:
+                        result_fs += (input_wo_instruct + '\n')
+
+                else: # body line with out instruction
                     input_wo_instruct = remove_instruction(result[0])
                     result_fs += (input_wo_instruct + output + '\n')
 
