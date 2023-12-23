@@ -15,11 +15,13 @@ def load_yml_file(pth):
 @dataclass
 class DatasetArgs:
     dataset_path: str
+    instruction_template: str
     streaming: bool
 
 @dataclass
 class ModelArgs:
     model_path: str
+    tokenizer_path: str
     vocab_size: int
 
 class TrainingArgs(TrainingArguments):
@@ -32,15 +34,11 @@ class TrainingArgs(TrainingArguments):
 
 @dataclass
 class EvaluationArgs:
-    model_args: str
-    num_fewshot: int
+    model_path: str
+    tokenizer_path: str
+    peft_model_id: str 
     batch_size: int
-    max_batch_size: int
-    device: str
-    output_path: str     
-    check_integrity: bool
-    write_out: bool
-    log_samples: bool
+    max_len: int
 
 @dataclass
 class QuantizationArgs:

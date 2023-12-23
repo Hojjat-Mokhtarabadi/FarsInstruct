@@ -49,7 +49,8 @@ def main(configs, args):
     if data_args.streaming:
         train_set = FarsInstructDataset(tokenizer, max_len=training_args.max_len, split='train', 
                                         stream=True, dataload_mode=args.dataload_mode, 
-                                        dataset_path=data_args.dataset_path)
+                                        dataset_path=data_args.dataset_path,
+                                        instruction_template=data_args.instruction_template)
         train_set = train_set.get_tokenized_data(in_torch_format=True)
         train_set = train_set.shuffle(seed, buffer_size=training_args.buffer_size)
 
@@ -59,7 +60,8 @@ def main(configs, args):
     else:
         train_set = FarsInstructDataset(tokenizer, max_len=training_args.max_len, split='train', 
                                         stream=False, dataload_mode=args.dataload_mode, 
-                                        dataset_path=data_args.dataset_path)
+                                        dataset_path=data_args.dataset_path, 
+                                        instruction_template=data_args.instruction_template)
         train_set = train_set.get_tokenized_data(in_torch_format=True)
         
         random_sampler = data.RandomSampler(train_set, replacement=True, num_samples=training_args.max_steps if training_args.max_steps != -1 else len(train_set))

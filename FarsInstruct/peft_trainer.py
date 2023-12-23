@@ -65,15 +65,18 @@ def main(configs, args):
     if data_args.streaming:
         train_set = FarsInstructDataset(tokenizer, max_len=training_args.max_len, split='train', 
                                         stream=True, dataload_mode=args.dataload_mode, 
-                                        dataset_path=data_args.dataset_path)
+                                        dataset_path=data_args.dataset_path, 
+                                        instruction_template=data_args.instruction_template)
         train_set = train_set.get_tokenized_data(in_torch_format=False)
         train_set = train_set.shuffle(seed, buffer_size=training_args.buffer_size)
 
     else:
         train_set = FarsInstructDataset(tokenizer, max_len=training_args.max_len, split='train', 
                                         stream=False, dataload_mode=args.dataload_mode, 
-                                        dataset_path=data_args.dataset_path)
+                                        dataset_path=data_args.dataset_path, 
+                                        instruction_template=data_args.instruction_template)
         train_set = train_set.get_tokenized_data(in_torch_format=False)
+        
     train_set = train_set.map(FarsInstructDataset.remove_mid_dim)
     
     #> start training

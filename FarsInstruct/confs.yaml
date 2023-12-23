@@ -1,13 +1,15 @@
 dataset_args:
     dataset_path: 'hojjat-m/FarsInstruct'
+    instruction_template: hooshvare
     streaming: false
 
 model_args:
     #model_path: 'bolbolzaban/gpt2-persian'
     #model_path: './checkpoints/hooshvare.zs-fs.pn_sum-syntran.-1.bs8'
-    #model_path: HooshvareLab/gpt2-fa
+    model_path: HooshvareLab/gpt2-fa
+    tokenizer_path: HooshvareLab/gpt2-fa
     #model_path: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
-    model_path: /media/abbas/Backup/Llama-2-13b-hf
+    # model_path: /media/abbas/Backup/Llama-2-13b-hf
     #model_path: meta-llama/Llama-2-7b-chat-hf
     #model_path: meta-llama/Llama-2-7b
     #model_path: meta-llama/Llama-2-13b
@@ -18,7 +20,7 @@ model_args:
     vocab_size: 42001
 
 training_args:
-    desc: 'llama2_13b.zs-fs.digi'
+    desc: 'hoosh_peft_test'
     seed: 32
     pin_memory: true
     buffer_size: 10000
@@ -42,6 +44,14 @@ training_args:
     weight_decay: 0.001
     run_name: "farsinstruct"
     report_to: "wandb"
+
+evaluation_args:
+    model_path: HooshvareLab/gpt2-fa
+    tokenizer_path: HooshvareLab/gpt2-fa
+    peft_model_id: checkpoints/hoosh_peft_test
+    # peft_model_id: null
+    batch_size: 4
+    max_len: 512
 
 quantization_args:
     load_in_4bit: true

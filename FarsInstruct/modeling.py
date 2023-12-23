@@ -39,3 +39,12 @@ if __name__ == "__main__":
 
 
 
+"""
+metric_list:
+  - metric: !function utils.rouge
+    aggregation: mean
+    higher_is_better: true
+
+
+"""
+

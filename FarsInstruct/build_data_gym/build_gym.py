@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from FarsInstruct.build_data_gym.utils import *
 from FarsInstruct.build_data_gym.meta_data_handler import generate_meta_data_file
         
-def build_gym(ds_name: str = 'all', split: str = 'train', llama: bool = False):
+def build_gym(ds_name: str = 'all', split: str = 'train', prompt_format: str = 'hooshvare'):
     def retrieve_prompt_and_apply(item):
         """
         Retrieve the jinja templates and apply them on the given dataset.
@@ -14,10 +14,10 @@ def build_gym(ds_name: str = 'all', split: str = 'train', llama: bool = False):
                 print('Generating data based on {}_{}...'.format(item['Dataset name'], template_name))
                 try:
                     if template_name[-2:] == "fs":
-                        data_gym = DataGym(dataset_name, template_name, split=split, type='fs', shots=3, llama=llama)
+                        data_gym = DataGym(dataset_name, template_name, split=split, type='fs', shots=3, prompt_format=prompt_format)
                         data_gym()
                     elif template_name[-2:] == "zs":
-                        data_gym = DataGym(dataset_name, template_name, split=split, type='zs', shots=1, llama=llama)
+                        data_gym = DataGym(dataset_name, template_name, split=split, type='zs', shots=1, prompt_format=prompt_format)
                         data_gym()
                 except Exception as e:
                     print(e)
@@ -42,11 +42,12 @@ if __name__ == "__main__":
     parser.add_argument('--ds_name', default='all', type=str)
     parser.add_argument('--split', required=True, choices=['train', 'validation', 'test'])
     parser.add_argument('--generate_metadata', action='store_true')
-    parser.add_argument('--llama_compatible', action='store_true')
+    parser.add_argument('--prompt_format', choices=['llama', 'hooshvare'])
     args = parser.parse_args()
 
-    build_gym(ds_name=args.ds_name, split=args.split, llama=args.llama_compatible)
-    read_all_and_convert_t0_csv(split=args.split, llama=args.llama_compatible)
+    print(f"Prompt format : {args.prompt_format}")
+    build_gym(ds_name=args.ds_name, split=args.split, prompt_format=args.prompt_format)
+    read_all_and_convert_t0_csv(ds_name=args.ds_name, split=args.split, prompt_format=args.prompt_format)
 
     print(f"Generate metadata file: {args.generate_metadata}")
     if args.generate_metadata:

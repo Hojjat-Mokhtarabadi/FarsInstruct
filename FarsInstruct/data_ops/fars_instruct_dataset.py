@@ -6,7 +6,7 @@ from .paths import DATA_FILES
 
 class FarsInstructDataset:
     def __init__(self, tokenizer, max_len: int, split: str, stream: bool, 
-                 dataload_mode: str, dataset_path: str, **kwargs):
+                 dataload_mode: str, dataset_path: str, instruction_template: str, **kwargs):
         """
         FarsInstruct Dataset
         """
@@ -15,31 +15,28 @@ class FarsInstructDataset:
         self.split = split
         self.stream = stream
         self.meta_data = load_meta_data()
+        self.instruction_template = instruction_template
 
         # 'local' model loads data from the local csv file, 'hub' downloads it.
         if dataload_mode == 'local':
-            self.raw_dataset = load_dataset('csv', data_files=DATA_FILES, split=split, streaming=self.stream)
+            # each model accepts different insturction template. select each based on config file.
+            self.raw_dataset = load_dataset('csv', data_files=DATA_FILES[instruction_template], split=split, streaming=self.stream)
         elif dataload_mode == 'hub':
             self.raw_dataset = load_dataset(dataset_path, split=self.split, streaming=self.stream)
 
         # rather than the whole dataset select a portion of it
-        # self.raw_dataset = sample_data_for_eval(self.raw_dataset, metric='Accuracy', 
-        #                                ds_name=['PNLPhub/digikala-sentiment-analysis', 
-        #                                         'PNLPhub/snappfood-sentiment-analysis'])
-        # self.raw_dataset = sample_portion_of_data(self.raw_dataset)
-        ds_list = [
-            "PNLPhub/digikala-sentiment-analysis",
-            #"PNLPhub/snappfood-sentiment-analysis",  
-            #"pn_summary"
-            #"SajjadAyoubi/persian_qa",
-            #SLPL/syntran-fa" 
-                   ]
+        # ds_list = [
+        #     "PNLPhub/digikala-sentiment-analysis",
+        #     #"PNLPhub/snappfood-sentiment-analysis",  
+        #     #"pn_summary"
+        #     #"SajjadAyoubi/persian_qa",
+        #     #SLPL/syntran-fa" 
+        #            ]
         
-        self.raw_dataset = sample_dataset(self.raw_dataset, ds_list)
+        # self.raw_dataset = sample_dataset(self.raw_dataset, ds_list)
        
     def preprocess(self, example, idx) -> str:
-        prompt = normalization(example['inputs'][idx]) + '<|startoftext|>' + normalization(example['outputs'][idx])
-        
+        prompt = normalization(example['inputs'][idx]) +  normalization(example['outputs'][idx])        
         return prompt
     
     

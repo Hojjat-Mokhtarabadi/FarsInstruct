@@ -11,7 +11,7 @@ class DataGym:
     Apply template on datasets according to they specified type (zero-shot or few-shot)
     """
     def __init__(self, dataset_name:str, template_name: str, split: str, 
-                       type: str, shots: int = 1, llama: bool = False):
+                       type: str, shots: int = 1, prompt_format: str = 'hooshvare'):
         
         self.dataset_name = dataset_name
         self.data = load_dataset(self.dataset_name, split=split)
@@ -20,7 +20,7 @@ class DataGym:
         self.type = type
         self.split = split
         self.template_name = template_name
-        self.llama = llama
+        self.prompt_format = prompt_format
 
         self.template = DatasetTemplates(self.dataset_name)[template_name]
 
@@ -36,17 +36,15 @@ class DataGym:
         
         if type == 'zs':
             return f"""
-            [INST] <<SYS>>
+            [INST]
             {highlights[0]}
-            <</SYS>>
 
             {''.join(highlights[1:])} [/INST]
             """
         
         return f"""
-            [INST] <<SYS>>
+            [INST]
             {highlights[0]}
-            <</SYS>>
 
             {''.join(highlights[1:])}
             """
@@ -54,13 +52,14 @@ class DataGym:
     def _build_zs_gym(self):
         inputs = []; outputs = [] 
         for example in tqdm(self.data, total=len(self.data)):
-            if self.llama:
+            if self.prompt_format == 'llama':
                 result = self.template.apply(example, highlight_variables=True)
                 result[0] = self._prepare_llama_instruction(result[0], 'zs')
                 result[1] = result[1].replace("<span style='color: #F08080'>", "")
                 result[1] = result[1].replace("</span>", "")
-            else:
+            elif self.prompt_format == 'hooshvare':
                 result = self.template.apply(example)
+                result[0] = result[0] + '<|startoftext|>'
 
             inputs.append(result[0])
             outputs.append(result[1])
@@ -91,22 +90,22 @@ class DataGym:
                 result = self.template.apply(self.data[idx])  
                 output = result[1]
                 if idx == i: # instruct line
-                    if self.llama:
+                    if self.prompt_format == 'llama':
                         result = self.template.apply(self.data[idx], highlight_variables=True)  
                         result[0] = self._prepare_llama_instruction(result[0], 'fs')
                         
                     input_ = result[0]
                     result_fs += (input_ + output + '\n')
 
-                elif idx == (i + self.shots - 1): # last line with out instruction
+                elif idx == (i + self.shots - 1): # last line without instruction
                     input_wo_instruct = remove_instruction(result[0])
 
-                    if self.llama:
+                    if self.prompt_format == 'llama':
                         result_fs += (input_wo_instruct + "[\INST]" + '\n')
-                    else:
-                        result_fs += (input_wo_instruct + '\n')
+                    elif self.prompt_format == 'hooshvare':
+                        result_fs += (input_wo_instruct + "<|startoftext|>" + '\n')
 
-                else: # body line with out instruction
+                else: # body without instruction
                     input_wo_instruct = remove_instruction(result[0])
                     result_fs += (input_wo_instruct + output + '\n')
 
