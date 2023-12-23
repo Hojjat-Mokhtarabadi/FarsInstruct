@@ -48,8 +48,8 @@ training_args:
 evaluation_args:
     model_path: HooshvareLab/gpt2-fa
     tokenizer_path: HooshvareLab/gpt2-fa
-    peft_model_id: checkpoints/hoosh_peft_test
-    # peft_model_id: null
+    # peft_model_id: checkpoints/hoosh_peft_test
+    peft_model_id: null
     batch_size: 4
     max_len: 512
 
