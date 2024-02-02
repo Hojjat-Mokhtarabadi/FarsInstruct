@@ -1,12 +1,15 @@
 from setuptools import setup, find_packages
 
 requirements = [
+        'transformers==4.33.1',
         'hazm',
         'pandas',
         'trl',
         'wandb',
         'scikit-learn',
         'bitsandbytes',
+        'peft',
+        'evaluate'
 ]
 
 setup(

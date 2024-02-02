@@ -1,4 +1,4 @@
-pip3 install torch --index-url https://pypi.tuna.tsinghua.edu.cn/simple
+#pip3 install torch --index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 git clone --branch persian_temps https://github.com/Hojjat-Mokhtarabadi/promptsource.git
 cd promptsource
