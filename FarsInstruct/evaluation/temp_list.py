@@ -66,13 +66,6 @@ TEMP_LIST = {
         ]
   },
 
-
-
-
-
-
-
-
     'generate_until': {
         'PNLPhub/FarsTail': [
             'label_to_hypothesis_zs',

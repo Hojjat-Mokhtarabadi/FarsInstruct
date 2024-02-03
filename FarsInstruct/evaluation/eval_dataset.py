@@ -3,11 +3,11 @@ import json
 from FarsInstruct.data_ops.paths import DATA_FILES
 
 class FarsInstructEvalDataset:
-    def __init__(self, tokenizer, max_len: int, instruction_template: str, **kwargs):
+    def __init__(self, tokenizer, max_len: int, instruction_template: str, split: str, **kwargs):
         self.ans_choices = []
         self.tokenizer = tokenizer       
         # each model accepts different instruction template, select each based on config file.
-        self.ds = load_dataset('csv', data_files=DATA_FILES[instruction_template], split='validation')    
+        self.ds = load_dataset('csv', data_files=DATA_FILES[instruction_template], split=split)    
         self.max_len = max_len
         self.extra_cols = ['inputs', 'outputs', 'ds', 'type', 'template']
         
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     checkpoint = 'HooshvareLab/gpt2-fa'
     tokenizer = AutoTokenizer.from_pretrained(checkpoint, padding_side="right", pad_token='<pad>')
 
-    ds = FarsInstructEvalDataset(tokenizer, 20, 'hooshvare')
+    ds = FarsInstructEvalDataset(tokenizer, 20, 'hooshvare', 'validation')
     encoded_ds = ds.get_tokenized_data('PNLPhub/FarsTail', 'label_to_hypothesis_zs', multiple_choice=False)
     encoded_ds2 = ds.get_tokenized_data('PNLPhub/FarsTail', 'can_you_infer_zs', multiple_choice=True)
 

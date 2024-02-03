@@ -10,6 +10,7 @@ from transformers import get_scheduler
 import warnings
 
 from data_ops.fars_instruct_dataset import FarsInstructDataset
+from FarsInstruct.evaluation.run_eval import run_eval
 from modeling import load_pretaining_model
 from utils import *
 
@@ -21,6 +22,8 @@ def main(configs, args):
     data_args = DatasetArgs(**configs['dataset_args'])
     model_args = ModelArgs(**configs['model_args'])
     training_args = TrainingArgs(**configs['training_args'])
+    eval_args = EvaluationArgs(**configs['evaluation_args'])
+    task_type = eval_args.task_type
 
     seed = training_args.seed
     np.random.seed(seed)
@@ -47,10 +50,15 @@ def main(configs, args):
     #> load dataset
     print('Preparing dataset...')
     if data_args.streaming:
-        train_set = FarsInstructDataset(tokenizer, max_len=training_args.max_len, split='train', 
-                                        stream=True, dataload_mode=args.dataload_mode, 
+        train_set = FarsInstructDataset(tokenizer, 
+                                        max_len=training_args.max_len, 
+                                        split='train', 
+                                        stream=True, 
+                                        dataload_mode=args.dataload_mode, 
                                         dataset_path=data_args.dataset_path,
-                                        instruction_template=data_args.instruction_template)
+                                        instruction_template=training_args.instruction_template,
+                                        datasets=training_args.datasets
+                                        )
         train_set = train_set.get_tokenized_data(in_torch_format=True)
         train_set = train_set.shuffle(seed, buffer_size=training_args.buffer_size)
 
@@ -58,10 +66,14 @@ def main(configs, args):
                                        batch_size=training_args.per_device_train_batch_size)
 
     else:
-        train_set = FarsInstructDataset(tokenizer, max_len=training_args.max_len, split='train', 
-                                        stream=False, dataload_mode=args.dataload_mode, 
+        train_set = FarsInstructDataset(tokenizer, 
+                                        max_len=training_args.max_len, 
+                                        split='train', 
+                                        stream=False, 
+                                        dataload_mode=args.dataload_mode, 
                                         dataset_path=data_args.dataset_path, 
-                                        instruction_template=data_args.instruction_template)
+                                        instruction_template=training_args.instruction_template,
+                                        datasets=training_args.datasets)
         train_set = train_set.get_tokenized_data(in_torch_format=True)
         
         random_sampler = data.RandomSampler(train_set, replacement=True, num_samples=training_args.max_steps if training_args.max_steps != -1 else len(train_set))
@@ -114,11 +126,13 @@ def main(configs, args):
             metrics['avg_loss'].append(loss.item())
 
             if idx % training_args.logging_steps == 0:
-                print(sum(metrics['avg_loss']) / len(metrics['avg_loss']))
+                print("#### Running Evaluation... ####")
+                run_eval(configs, split='validation')
+                print(f"Avg loss: {sum(metrics['avg_loss']) / len(metrics['avg_loss'])}")
             # Log to wandb by calling `accelerator.log`, `step` is optional
             accelerator.log({"avg_loss": sum(metrics['avg_loss'])/ len(metrics['avg_loss'])})#, step=global_step)
 
-            if idx % training_args.save_steps == 0:
+            if idx+1 % training_args.save_steps == 0:
                 model.save_pretrained(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
                 tokenizer.save_pretrained(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
 

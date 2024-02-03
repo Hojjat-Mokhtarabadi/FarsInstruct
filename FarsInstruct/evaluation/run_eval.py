@@ -11,22 +11,24 @@ import numpy as np
 from transformers import DataCollatorWithPadding
 from hazm import sent_tokenize
 import json
+from prettytable import PrettyTable
 
-from data_collator import DataCollatorForMultipleChoice
-from eval_dataset import FarsInstructEvalDataset
-from model import DecoderModel, load_causal_model
-from temp_list import TEMP_LIST
+from FarsInstruct.evaluation.data_collator import DataCollatorForMultipleChoice
+from FarsInstruct.evaluation.eval_dataset import FarsInstructEvalDataset
+from FarsInstruct.evaluation.model import DecoderModel, load_causal_model
+from FarsInstruct.evaluation.temp_list import TEMP_LIST
 
 from FarsInstruct.utils import EvaluationArgs, load_yml_file, DatasetArgs
 
 #! ignore sourceTensor.clone().detach() warning
 warnings.filterwarnings("ignore", category=UserWarning)
 
-def run_multiple_choice_evaluation(eval_args, data_args, ds_name, temp_name, tokenizer, model, accelerator):
+def run_multiple_choice_evaluation(eval_args, data_args, ds_name, temp_name, tokenizer, model, accelerator, split):
     #> load dataset
     val_set = FarsInstructEvalDataset(tokenizer, 
                                       max_len=eval_args.max_len, 
-                                      instruction_template=data_args.instruction_template)
+                                      instruction_template=eval_args.instruction_template,
+                                      split=split)
     
     encoded_dataset = val_set.get_tokenized_data(ds_name=ds_name, temp_name=temp_name, multiple_choice=True)
     data_collator = DataCollatorForMultipleChoice(tokenizer)
@@ -53,7 +55,7 @@ def run_multiple_choice_evaluation(eval_args, data_args, ds_name, temp_name, tok
         'result': result
     }
 
-    print(output_res, '\n')
+    # print(output_res, '\n')
 
     return output_res
 
@@ -68,11 +70,12 @@ def postprocess_text(preds, labels):
 
     return preds, labels
 
-def run_generate_until_evaluation(eval_args, data_args, ds_name, temp_name, tokenizer, model, accelerator):
+def run_generate_until_evaluation(eval_args, data_args, ds_name, temp_name, tokenizer, model, accelerator, split):
     #> load dataset
     val_set = FarsInstructEvalDataset(tokenizer, 
                                       max_len=eval_args.max_len, 
-                                      instruction_template=data_args.instruction_template)
+                                      instruction_template=eval_args.instruction_template, 
+                                      split=split)
     
     encoded_dataset = val_set.get_tokenized_data(ds_name=ds_name, temp_name=temp_name, multiple_choice=False)
     data_collator = DataCollatorWithPadding(tokenizer,
@@ -122,16 +125,19 @@ def run_generate_until_evaluation(eval_args, data_args, ds_name, temp_name, toke
         'result': result
     }
 
-    print(output_res, '\n')
+    # print(output_res, '\n')
 
     return output_res
 
 
-def main(configs, args):
+def run_eval(configs, split):
     #> setup
     accelerator = Accelerator(cpu=False)
     eval_args = EvaluationArgs(**configs['evaluation_args'])
     data_args = DatasetArgs(**configs['dataset_args'])
+    tbl = PrettyTable()
+    tbl.field_names = ["ds_name", "temp_name", "result"]
+
     print(f"device: {accelerator.device}")
 
     #> load model
@@ -146,36 +152,46 @@ def main(configs, args):
 
     multiple_choice_templates = TEMP_LIST['multiple_choice']
     generate_until_templates = TEMP_LIST['generate_until']
+    eval_datasets = eval_args.datasets.split(',')
+    task_type = eval_args.task_type.split(',')
+
+    print(f"Eval datasets: {eval_datasets}")
 
     all_results = []
-    if 'multiple_choice' in args.task_type:
+    if 'multiple_choice' in task_type:
         for ds_name, temp_list in multiple_choice_templates.items():
-            for temp_name in temp_list:
-                res = run_multiple_choice_evaluation(eval_args, data_args, ds_name, temp_name, tokenizer, multiple_choice_model, accelerator)
-                all_results.append(res)
+            if ds_name in eval_datasets:
+                for temp_name in temp_list:
+                    res = run_multiple_choice_evaluation(eval_args, data_args, ds_name, temp_name, 
+                                                         tokenizer, multiple_choice_model, accelerator, split)
+                    all_results.append(res)
+            else:
+                continue
 
-    if 'generation' in args.task_type:
+    if 'generation' in task_type:
         for ds_name, temp_list in generate_until_templates.items():
-            for temp_name in temp_list:
-                res = run_generate_until_evaluation(eval_args, data_args, ds_name, temp_name, tokenizer, causal_model, accelerator)    
-                all_results.append(res)
+            if ds_name in eval_datasets:
+                for temp_name in temp_list:
+                    res = run_generate_until_evaluation(eval_args, data_args, ds_name, temp_name, 
+                                                        tokenizer, causal_model, accelerator, split)    
+                    all_results.append(res)
+            else:
+                continue
 
     with open('../evaluation_results/results.json', 'w') as f:
         json.dump({'Evaluation results': all_results}, f)
 
+    for res in all_results:
+        tbl.add_row([res['ds_name'], res['temp_name'], res['result']])
 
-def multiple_choices(choices_string, valid_choices):
-    choices = choices_string.split(',')
-    for choice in choices:
-        if choice.strip() not in valid_choices:
-            raise argparse.ArgumentTypeError(f"Invalid choice: {choice}. Valid choices are {', '.join(valid_choices)}")
-    return choices
+    print(tbl)
+
 
 if __name__ == "__main__":
     parser = ArgumentParser("Fars Insturct Evaluation")
-    parser.add_argument('--task_type', type=lambda s: multiple_choices(s, ['multiple_choice', 'generation']), required=True)
+    parser.add_argument('--split', choices=['test', 'validation'], required=True)
     args = parser.parse_args()
     configs = load_yml_file('confs.yaml')
 
     
-    main(configs, args)
+    run_eval(configs, args.split)

@@ -1,6 +1,5 @@
 dataset_args:
     dataset_path: 'hojjat-m/FarsInstruct'
-    instruction_template: hooshvare
     streaming: false
 
 model_args:
@@ -21,6 +20,8 @@ model_args:
 
 training_args:
     desc: 'hoosh_peft_test'
+    datasets: 'PNLPhub/digikala-sentiment-analysis,PNLPhub/FarsTail'
+    instruction_template: hooshvare
     seed: 32
     pin_memory: true
     buffer_size: 10000
@@ -29,12 +30,10 @@ training_args:
     # evaluation_strategy: "steps"
     num_train_epochs: 2
     max_steps: -1
-    # eval_steps: 1
     save_steps: 400
     logging_steps: 400
     per_device_train_batch_size: 1
     gradient_accumulation_steps: 1
-    per_device_eval_batch_size: 1
     learning_rate: 0.001
     optim: "adamw_torch"
     lr_scheduler_type: 'linear'
@@ -48,8 +47,11 @@ training_args:
 evaluation_args:
     model_path: HooshvareLab/gpt2-fa
     tokenizer_path: HooshvareLab/gpt2-fa
-    # peft_model_id: checkpoints/hoosh_peft_test
+    # peft_model_id: checkpoints/hoosh_peft_test.-1.bs1
     peft_model_id: null
+    datasets: 'PNLPhub/FarsTail'
+    instruction_template: hooshvare
+    task_type: 'multiple_choice'
     batch_size: 4
     max_len: 512
 

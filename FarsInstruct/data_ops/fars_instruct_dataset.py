@@ -5,7 +5,7 @@ from .paths import DATA_FILES
 
 
 class FarsInstructDataset:
-    def __init__(self, tokenizer, max_len: int, split: str, stream: bool, 
+    def __init__(self, tokenizer, max_len: int, split: str, stream: bool, datasets: str,
                  dataload_mode: str, dataset_path: str, instruction_template: str, **kwargs):
         """
         FarsInstruct Dataset
@@ -16,6 +16,7 @@ class FarsInstructDataset:
         self.stream = stream
         self.meta_data = load_meta_data()
         self.instruction_template = instruction_template
+        self.datasets = datasets
 
         # 'local' model loads data from the local csv file, 'hub' downloads it.
         if dataload_mode == 'local':
@@ -25,15 +26,10 @@ class FarsInstructDataset:
             self.raw_dataset = load_dataset(dataset_path, split=self.split, streaming=self.stream)
 
         # rather than the whole dataset select a portion of it
-        # ds_list = [
-        #     "PNLPhub/digikala-sentiment-analysis",
-        #     #"PNLPhub/snappfood-sentiment-analysis",  
-        #     #"pn_summary"
-        #     #"SajjadAyoubi/persian_qa",
-        #     #SLPL/syntran-fa" 
-        #            ]
-        
-        # self.raw_dataset = sample_dataset(self.raw_dataset, ds_list)
+        ds_list = self.datasets.split(',')
+        print(f"Training datasets: {ds_list}")
+
+        self.raw_dataset = sample_dataset(self.raw_dataset, ds_list)
        
     def preprocess(self, example, idx) -> str:
         prompt = normalization(example['inputs'][idx]) +  normalization(example['outputs'][idx])        

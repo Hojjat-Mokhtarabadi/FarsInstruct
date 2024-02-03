@@ -15,7 +15,6 @@ def load_yml_file(pth):
 @dataclass
 class DatasetArgs:
     dataset_path: str
-    instruction_template: str
     streaming: bool
 
 @dataclass
@@ -25,12 +24,14 @@ class ModelArgs:
     vocab_size: int
 
 class TrainingArgs(TrainingArguments):
-  def __init__(self, desc, buffer_size, max_len, pin_memory, **kwargs):
+  def __init__(self, desc, datasets, instruction_template, buffer_size, max_len, pin_memory, **kwargs):
     super().__init__(**kwargs)
     self.desc: str = desc
     self.buffer_size: int = buffer_size
     self.max_len: int = max_len
     self.pin_memory: bool = pin_memory
+    self.datasets: str = datasets
+    self.instruction_template: str = instruction_template
 
 @dataclass
 class EvaluationArgs:
@@ -39,6 +40,9 @@ class EvaluationArgs:
     peft_model_id: str 
     batch_size: int
     max_len: int
+    datasets: str
+    instruction_template: str
+    task_type: str
 
 @dataclass
 class QuantizationArgs:
