@@ -23,168 +23,251 @@ from FarsInstruct.utils import EvaluationArgs, load_yml_file, DatasetArgs
 #! ignore sourceTensor.clone().detach() warning
 warnings.filterwarnings("ignore", category=UserWarning)
 
-def run_multiple_choice_evaluation(eval_args, data_args, ds_name, temp_name, tokenizer, model, accelerator, split):
-    #> load dataset
-    val_set = FarsInstructEvalDataset(tokenizer, 
-                                      max_len=eval_args.max_len, 
-                                      instruction_template=eval_args.instruction_template,
-                                      split=split)
-    
-    encoded_dataset = val_set.get_tokenized_data(ds_name=ds_name, temp_name=temp_name, multiple_choice=True)
-    data_collator = DataCollatorForMultipleChoice(tokenizer)
-    val_dataloader = DataLoader(encoded_dataset, collate_fn=data_collator, batch_size=eval_args.batch_size)
+class LMEvaluation:
+    """
+    Evaluation
+    """
+    def __init__(self, configs, tokenizer: AutoTokenizer, split: str):
+        self.accelerator = Accelerator(cpu=False)
+        self.eval_args = EvaluationArgs(**configs['evaluation_args'])
+        self.data_args = DatasetArgs(**configs['dataset_args'])
+        self.configs = configs
+        self.split = split
 
-    val_dataloader, model = accelerator.prepare(val_dataloader, model)
+        if tokenizer != None:
+            self.tokenizer = tokenizer
+        else:
+            self.tokenizer = AutoTokenizer.from_pretrained(self.eval_args.tokenizer_path, 
+                                                            pad_token='<pad>', 
+                                                            padding_side='right')
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+
+    def run_eval(self, current_model, step:int = 0):
+        #> setup
+        tbl = PrettyTable()
+        tbl.field_names = ["ds_name", "temp_name", "result"]
+        self.model = current_model
+        # Remove "Setting pad_token_id to eos_token_id" warning!
+        self.model.config.pad_token_id  = self.model.config.eos_token_id
+
+        print(f"device: {self.accelerator.device}")
+
+        #> load model
+        print('Loading model...')
+        print(f'Peft model id: {self.eval_args.peft_model_id}')
+        multiple_choice_model = DecoderModel(self.eval_args.model_path, self.eval_args.peft_model_id, current_model)
+        causal_model = load_causal_model(self.eval_args.model_path, self.eval_args.peft_model_id, current_model)
+
+        print(f'base model: {self.eval_args.model_path}')
+
+        multiple_choice_templates = TEMP_LIST['multiple_choice']
+        generate_until_templates = TEMP_LIST['generate_until']
+        eval_datasets = self.eval_args.datasets.split(',')
+        task_type = self.eval_args.task_type.split(',')
+
+        print(f"Eval datasets: {eval_datasets}")
+
+        all_results = []
+        samples = []
+        if 'multiple_choice' in task_type:
+            for ds_name, temp_list in multiple_choice_templates.items():
+                if ds_name in eval_datasets:
+                    for temp_name in temp_list:
+                        res = self.run_multiple_choice_evaluation(ds_name, temp_name, multiple_choice_model)
+                        all_results.append(res)
+                        
+                        sample = self.generate_sample(ds_name, temp_name, causal_model)
+                        samples.append(sample)
+                else:
+                    continue
+
+        if 'generate_until' in task_type:
+            for ds_name, temp_list in generate_until_templates.items():
+                if ds_name in eval_datasets:
+                    for temp_name in temp_list:
+                        res = self.run_generate_until_evaluation(ds_name, temp_name, causal_model)    
+                        all_results.append(res)
+
+                        sample = self.generate_sample(ds_name, temp_name, causal_model)
+                        samples.append(sample)
+                else:
+                    continue
+
+        with open('../evaluation_results/results.json', 'w') as f:
+            json.dump({'Evaluation results': all_results}, f)
+
+        for res in all_results:
+            tbl.add_row([res['ds_name'], res['temp_name'], res['result']])
+
+        print(tbl)
+        # print("#### Generated Samples ####")
+        with open('../evaluation_results/samples.json', 'w+') as f:
+            json.dump({f'Samples at step {step}': samples}, f)
+
+
+        samples = {f'Samples at step {step}': samples}
+        all_results = {'Evaluation results': all_results}
+        # self.pretty_print(samples)
+        print("#### Generated Samples stored at 'sample.json'! ####")
+
+        return all_results, samples
+    
+    def pretty_print(self, res):
+        for item in res:
+            for k, v in item.items():
+                print(k,': ', v)
+            print('\n')
+
+
+    def generate_sample(self, ds_name, temp_name, model):
+        #> load dataset
+        self.val_set = FarsInstructEvalDataset(self.tokenizer, 
+                                    max_len=self.eval_args.max_len, 
+                                    instruction_template=self.eval_args.instruction_template,
+                                    split=self.split)
+        encoded_dataset = self.val_set.get_tokenized_data(ds_name=ds_name, temp_name=temp_name, multiple_choice=False)
+        data_collator = DataCollatorWithPadding(self.tokenizer,
+                                                return_tensors='pt')
         
-    #> start evaluation
-    print(f"Start Evaluation on {ds_name}/{temp_name}...")
-    model.eval()
-    metric = evaluate.load("accuracy")
-    for idx, batch in tqdm(enumerate(val_dataloader), total=len(val_dataloader)):
+        val_dataloader = DataLoader(encoded_dataset, collate_fn=data_collator, batch_size=1)
+        val_dataloader, model = self.accelerator.prepare(val_dataloader, model)
+
+        model.eval()
+        batch = next(iter(val_dataloader))
         with torch.no_grad():
-            predictions = model(batch)
-
-            metric.add_batch(
-            predictions=predictions,
-            references=batch["targets"])
-            
-    result = metric.compute()
-    output_res = {
-        'ds_name': ds_name, 
-        'temp_name': temp_name, 
-        'result': result
-    }
-
-    # print(output_res, '\n')
-
-    return output_res
-
-# ----------------------------------------------------
-def postprocess_text(preds, labels):
-    preds = [pred.strip() for pred in preds]
-    labels = [label.strip() for label in labels]
-
-    # rougeLSum expects newline after each sentence
-    preds = ["\n".join(sent_tokenize(pred)) for pred in preds]
-    labels = ["\n".join(sent_tokenize(label)) for label in labels]
-
-    return preds, labels
-
-def run_generate_until_evaluation(eval_args, data_args, ds_name, temp_name, tokenizer, model, accelerator, split):
-    #> load dataset
-    val_set = FarsInstructEvalDataset(tokenizer, 
-                                      max_len=eval_args.max_len, 
-                                      instruction_template=eval_args.instruction_template, 
-                                      split=split)
-    
-    encoded_dataset = val_set.get_tokenized_data(ds_name=ds_name, temp_name=temp_name, multiple_choice=False)
-    data_collator = DataCollatorWithPadding(tokenizer,
-                                            return_tensors='pt')
-    
-    val_dataloader = DataLoader(encoded_dataset, collate_fn=data_collator, batch_size=eval_args.batch_size)
-    val_dataloader, model = accelerator.prepare(val_dataloader, model)
-    
-    #> start evaluation
-    print(f'Start evaluation on {ds_name}/{temp_name}...')
-    model.eval()
-    metric = evaluate.load('rouge')
-    for step, batch in enumerate(val_dataloader):
-        with torch.no_grad():
-            generated_tokens = accelerator.unwrap_model(model).generate(
+            generated_tokens = self.accelerator.unwrap_model(model).generate(
                 input_ids=batch['input_ids'],
-                attention_mask=batch['attention_mask']
+                attention_mask=batch['attention_mask'],
+                 max_new_tokens=5
             )
 
-            generated_tokens = accelerator.pad_across_processes(
-                generated_tokens, dim=1, pad_index=tokenizer.pad_token_id
+            generated_tokens = self.accelerator.pad_across_processes(
+                generated_tokens, dim=1, pad_index=self.tokenizer.pad_token_id
             )
             labels = batch["labels"]
             
-            generated_tokens, labels = accelerator.gather_for_metrics((generated_tokens, labels))
             generated_tokens = generated_tokens.cpu().numpy()
             labels = labels.cpu().numpy()
 
-            labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
+            labels = np.where(labels != -100, labels, self.tokenizer.pad_token_id)
             if isinstance(generated_tokens, tuple):
                 generated_tokens = generated_tokens[0]
-            decoded_preds = tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
-            decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
 
-            decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
-            metric.add_batch(
-                predictions=decoded_preds,
-                references=decoded_labels,
-            )
+            decoded_inputs = self.tokenizer.batch_decode(generated_tokens[:, :batch['input_ids'].shape[1]], skip_special_tokens=True)
+            decoded_preds = self.tokenizer.batch_decode(generated_tokens[:, batch['input_ids'].shape[1]:], skip_special_tokens=True)
+            decoded_labels = self.tokenizer.batch_decode(labels, skip_special_tokens=True)
 
-    result = metric.compute(use_stemmer=False)
-    result = {k: round(v * 100, 4) for k, v in result.items()}
+            decoded_preds, decoded_labels = self.postprocess_text(decoded_preds, decoded_labels)
+            
+            return {
+                'ds_name': ds_name,
+                'temp_name': temp_name,
+                'tokens': [decoded_inputs, decoded_preds, decoded_labels]
+                }
 
-    output_res = {
-        'ds_name': ds_name, 
-        'temp_name': temp_name, 
-        'result': result
-    }
+    def run_multiple_choice_evaluation(self, ds_name, temp_name, model):
+        #> load dataset
+        self.val_set = FarsInstructEvalDataset(self.tokenizer, 
+                                    max_len=self.eval_args.max_len, 
+                                    instruction_template=self.eval_args.instruction_template,
+                                    split=self.split)
+        encoded_dataset = self.val_set.get_tokenized_data(ds_name=ds_name, temp_name=temp_name, multiple_choice=True)
+        data_collator = DataCollatorForMultipleChoice(self.tokenizer)
+        val_dataloader = DataLoader(encoded_dataset, collate_fn=data_collator, batch_size=self.eval_args.batch_size)
 
-    # print(output_res, '\n')
+        val_dataloader, model = self.accelerator.prepare(val_dataloader, model)
+            
+        #> start evaluation
+        print(f"Start Evaluation on {ds_name}/{temp_name}...")
+        model.eval()
+        metric = evaluate.load("accuracy")
+        for idx, batch in tqdm(enumerate(val_dataloader), total=len(val_dataloader)):
+            with torch.no_grad():
+                predictions = model(batch)
 
-    return output_res
+                metric.add_batch(
+                predictions=predictions,
+                references=batch["targets"])
+                
+        result = metric.compute()
+        output_res = {
+            'ds_name': ds_name, 
+            'temp_name': temp_name, 
+            'result': result
+        }
 
+        # print(output_res, '\n')
 
-def run_eval(configs, split):
-    #> setup
-    accelerator = Accelerator(cpu=False)
-    eval_args = EvaluationArgs(**configs['evaluation_args'])
-    data_args = DatasetArgs(**configs['dataset_args'])
-    tbl = PrettyTable()
-    tbl.field_names = ["ds_name", "temp_name", "result"]
+        return output_res
 
-    print(f"device: {accelerator.device}")
+    # ----------------------------------------------------
+    def postprocess_text(self, preds, labels):
+        preds = [pred.strip() for pred in preds]
+        labels = [label.strip() for label in labels]
 
-    #> load model
-    print('Loading model...')
-    print(f'Peft model id: {eval_args.peft_model_id}')
-    multiple_choice_model = DecoderModel(eval_args.model_path, eval_args.peft_model_id)
-    causal_model = load_causal_model(eval_args.model_path, eval_args.peft_model_id)
-    tokenizer = AutoTokenizer.from_pretrained(eval_args.tokenizer_path, 
-                                              pad_token='<pad>', 
-                                              padding_side='right')
-    print(f'base model: {eval_args.model_path}')
+        # rougeLSum expects newline after each sentence
+        preds = ["\n".join(sent_tokenize(pred)) for pred in preds]
+        labels = ["\n".join(sent_tokenize(label)) for label in labels]
 
-    multiple_choice_templates = TEMP_LIST['multiple_choice']
-    generate_until_templates = TEMP_LIST['generate_until']
-    eval_datasets = eval_args.datasets.split(',')
-    task_type = eval_args.task_type.split(',')
+        return preds, labels
 
-    print(f"Eval datasets: {eval_datasets}")
+    def run_generate_until_evaluation(self, ds_name, temp_name, model):
+        #> load dataset
+        self.val_set = FarsInstructEvalDataset(self.tokenizer, 
+                                    max_len=self.eval_args.max_len, 
+                                    instruction_template=self.eval_args.instruction_template,
+                                    split=self.split)
+        encoded_dataset = self.val_set.get_tokenized_data(ds_name=ds_name, temp_name=temp_name, multiple_choice=False)
+        data_collator = DataCollatorWithPadding(self.tokenizer,
+                                                return_tensors='pt')
+        
+        val_dataloader = DataLoader(encoded_dataset, collate_fn=data_collator, batch_size=self.eval_args.batch_size)
+        val_dataloader, model = self.accelerator.prepare(val_dataloader, model)
+        
+        #> start evaluation
+        print(f'Start evaluation on {ds_name}/{temp_name}...')
+        model.eval()
+        metric = evaluate.load('rouge')
+        for step, batch in enumerate(val_dataloader):
+            with torch.no_grad():
+                generated_tokens = self.accelerator.unwrap_model(model).generate(
+                    input_ids=batch['input_ids'],
+                    attention_mask=batch['attention_mask']
+                )
 
-    all_results = []
-    if 'multiple_choice' in task_type:
-        for ds_name, temp_list in multiple_choice_templates.items():
-            if ds_name in eval_datasets:
-                for temp_name in temp_list:
-                    res = run_multiple_choice_evaluation(eval_args, data_args, ds_name, temp_name, 
-                                                         tokenizer, multiple_choice_model, accelerator, split)
-                    all_results.append(res)
-            else:
-                continue
+                generated_tokens = self.accelerator.pad_across_processes(
+                    generated_tokens, dim=1, pad_index=self.tokenizer.pad_token_id
+                )
+                labels = batch["labels"]
+                
+                generated_tokens, labels = self.accelerator.gather_for_metrics((generated_tokens, labels))
+                generated_tokens = generated_tokens.cpu().numpy()
+                labels = labels.cpu().numpy()
 
-    if 'generation' in task_type:
-        for ds_name, temp_list in generate_until_templates.items():
-            if ds_name in eval_datasets:
-                for temp_name in temp_list:
-                    res = run_generate_until_evaluation(eval_args, data_args, ds_name, temp_name, 
-                                                        tokenizer, causal_model, accelerator, split)    
-                    all_results.append(res)
-            else:
-                continue
+                labels = np.where(labels != -100, labels, self.tokenizer.pad_token_id)
+                if isinstance(generated_tokens, tuple):
+                    generated_tokens = generated_tokens[0]
+                decoded_preds = self.tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
+                decoded_labels = self.tokenizer.batch_decode(labels, skip_special_tokens=True)
 
-    with open('../evaluation_results/results.json', 'w') as f:
-        json.dump({'Evaluation results': all_results}, f)
+                decoded_preds, decoded_labels = self.postprocess_text(decoded_preds, decoded_labels)
+                metric.add_batch(
+                    predictions=decoded_preds,
+                    references=decoded_labels,
+                )
 
-    for res in all_results:
-        tbl.add_row([res['ds_name'], res['temp_name'], res['result']])
+        result = metric.compute(use_stemmer=False)
+        result = {k: round(v * 100, 4) for k, v in result.items()}
 
-    print(tbl)
+        output_res = {
+            'ds_name': ds_name, 
+            'temp_name': temp_name, 
+            'result': result
+        }
+
+        # print(output_res, '\n')
+
+        return output_res
 
 
 if __name__ == "__main__":
@@ -193,5 +276,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     configs = load_yml_file('confs.yaml')
 
-    
-    run_eval(configs, args.split)
+    lm_eval = LMEvaluation()
+    lm_eval.run_eval(configs, args.split)

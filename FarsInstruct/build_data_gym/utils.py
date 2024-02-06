@@ -17,6 +17,7 @@ def load_prompted_datasets():
         results.append(
             {
                 "Dataset name": dataset_name,
+                "Subset": subset_name,
                 "Number of prompts": len(dataset_templates),
                 "Prompt names": [t.name for t in dataset_templates.templates.values()],
             }

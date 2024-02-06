@@ -1,26 +1,23 @@
+######### PATHS
+# llama: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
+# hooshvare: HooshvareLab/gpt2-fa
+
+
 dataset_args:
     dataset_path: 'hojjat-m/FarsInstruct'
     streaming: false
 
 model_args:
-    #model_path: 'bolbolzaban/gpt2-persian'
-    #model_path: './checkpoints/hooshvare.zs-fs.pn_sum-syntran.-1.bs8'
-    model_path: HooshvareLab/gpt2-fa
-    tokenizer_path: HooshvareLab/gpt2-fa
+    #tokenizer_path: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
     #model_path: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
-    # model_path: /media/abbas/Backup/Llama-2-13b-hf
-    #model_path: meta-llama/Llama-2-7b-chat-hf
-    #model_path: meta-llama/Llama-2-7b
-    #model_path: meta-llama/Llama-2-13b
-    #model_path: meta-llama/Llama-2-7b-chat-hf
-    #model_path: meta-llama/Llama-2-13b-hf
-    #model_path: meta-llama/Llama-2-7b-hf
+    tokenizer_path: HooshvareLab/gpt2-fa
+    model_path: HooshvareLab/gpt2-fa
     #vocab_size: 25000
     vocab_size: 42001
 
 training_args:
-    desc: 'hoosh_peft_test'
-    datasets: 'PNLPhub/digikala-sentiment-analysis,PNLPhub/FarsTail'
+    desc: 'hooshvare.zs-fs.farstail-parsinlu_entail'
+    datasets: 'PNLPhub/FarsTail,persiannlp/parsinlu_entailment'
     instruction_template: hooshvare
     seed: 32
     pin_memory: true
@@ -28,37 +25,46 @@ training_args:
     max_len: 512
     output_dir: './results'
     # evaluation_strategy: "steps"
-    num_train_epochs: 2
+    num_train_epochs: 3
     max_steps: -1
     save_steps: 400
-    logging_steps: 400
-    per_device_train_batch_size: 1
-    gradient_accumulation_steps: 1
-    learning_rate: 0.001
-    optim: "adamw_torch"
+    logging_steps: 5
+    per_device_train_batch_size: 8
+    gradient_accumulation_steps: 4
+    learning_rate: 0.005
+    optim: "paged_adamw_8bit"
     lr_scheduler_type: 'linear'
-    warmup_steps: 1000
+    warmup_steps: 500
     gradient_checkpointing: false
-    fp16: true
+    bf16: true
+    fp16: false
     weight_decay: 0.001
     run_name: "farsinstruct"
     report_to: "wandb"
 
 evaluation_args:
-    model_path: HooshvareLab/gpt2-fa
-    tokenizer_path: HooshvareLab/gpt2-fa
-    # peft_model_id: checkpoints/hoosh_peft_test.-1.bs1
+    # model_path: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
+    # tokenizer_path: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
+    # peft_model_id: checkpoints/llama.zs-fs.farstail.-1.bs8
+
+    #tokenizer_path: HooshvareLab/gpt2-fa
+    #model_path: HooshvareLab/gpt2-fa
+    #peft_model_id: null
+    
+    tokenizer_path: null
+    model_path: null
     peft_model_id: null
-    datasets: 'PNLPhub/FarsTail'
+
+    datasets: 'PNLPhub/FarsTail,persiannlp/parsinlu_entailment'
     instruction_template: hooshvare
-    task_type: 'multiple_choice'
-    batch_size: 4
+    task_type: 'multiple_choice,generate_until' # 'generate_until'
+    batch_size: 8
     max_len: 512
 
 quantization_args:
     load_in_4bit: true
     double_quant: true
     quant_type: "nf4"
-    lora_rank: 4
+    lora_rank: 32
     lora_alpha: 32 
     lora_dropout: 0.05 

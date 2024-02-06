@@ -3,44 +3,40 @@ from torch import nn
 from transformers import AutoModelForCausalLM, AutoConfig
 from peft import PeftConfig, PeftModel
 
-def load_causal_model(model_name_or_path, peft_model_id):
-    if peft_model_id != None:
+def load_causal_model(model_name_or_path, peft_model_id, current_model):
+    if current_model != None:
+        return current_model
+
+    if peft_model_id:
         config = PeftConfig.from_pretrained(peft_model_id)
     else:
         config = AutoConfig.from_pretrained(model_name_or_path)
 
-    if model_name_or_path:
-        _model = AutoModelForCausalLM.from_pretrained(
-            model_name_or_path,
-            config=config)
-    else:
-        _model = AutoModelForCausalLM.from_config(config)
+    _model = AutoModelForCausalLM.from_pretrained(model_name_or_path, config=config)
 
     if peft_model_id:
-        _model = PeftModel.from_pretrained(_model, peft_model_id, device_map="auto")
+        _model = PeftModel.from_pretrained(_model, peft_model_id)
 
     return _model
 
 
 class DecoderModel(nn.Module):
-    def __init__(self, model_name_or_path: str, peft_model_id):
+    def __init__(self, model_name_or_path: str, peft_model_id = None, current_model = None):
         super(DecoderModel, self).__init__()
         
-        if peft_model_id != None:
-            config = PeftConfig.from_pretrained(peft_model_id)
+        if current_model != None:
+            self._model = current_model
         else:
-            config = AutoConfig.from_pretrained(model_name_or_path)
+            if peft_model_id != None:
+                config = PeftConfig.from_pretrained(peft_model_id)
+            else:
+                config = AutoConfig.from_pretrained(model_name_or_path)
 
-        if model_name_or_path:
-            self._model = AutoModelForCausalLM.from_pretrained(
-                model_name_or_path,
-                config=config,
-            )
-        else:
-            self._model = AutoModelForCausalLM.from_config(config)
+            self._model = AutoModelForCausalLM.from_pretrained(model_name_or_path, config=config)
 
-        if peft_model_id:
-            self._model = PeftModel.from_pretrained(self._model, peft_model_id, device_map="auto")
+            if peft_model_id != None:
+                self._model = PeftModel.from_pretrained(self._model, peft_model_id)
+
 
     def forward(self, batch):
         device = batch["input_ids"].device

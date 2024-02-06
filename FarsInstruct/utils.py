@@ -11,7 +11,6 @@ def load_yml_file(pth):
 
     return configs
 
-
 @dataclass
 class DatasetArgs:
     dataset_path: str

@@ -41,24 +41,39 @@ class FarsInstructDataset:
         preprocess the inputs example and tokenize it. 
          - features.keys() --> (input_ids, attention_mask)
         """
-        bs = len(example['inputs'])
-        batch_features = []
-        for i in range(bs):
-            prompt = self.preprocess(example, i)
-            new_prompt = '<s>' + prompt + '</s>'
-            batch_features.append(self.tokenizer(new_prompt, truncation=True, max_length=self.max_len, 
-                                    padding='max_length', return_tensors='pt'))
+        # bs = len(example['inputs'])
+        # batch_features = []
+        # for i in range(bs):
+        #     prompt = self.preprocess(example, i)
+        #     new_prompt = '<s>' + prompt + '</s>'
+        #     batch_features.append(self.tokenizer(new_prompt, truncation=True, max_length=self.max_len, 
+        #                             padding='max_length', return_tensors='pt'))
 
-        features = {'input_ids': [], 'attention_mask': []}
-        for feature in batch_features:
-            for k, v in feature.items():
-                features[k].append(v)
+        # features = {'input_ids': [], 'attention_mask': []}
+        # for feature in batch_features:
+        #     for k, v in feature.items():
+        #         features[k].append(v.squeeze())
+
+        # prompt = self.preprocess(example)
+        # new_prompt = '<s>' + prompt + '</s>'
+        # batch_features.append(self.tokenizer(new_prompt, truncation=True, max_length=self.max_len, 
+        #                         padding='max_length', return_tensors='pt'))
+
+        inputs = example['inputs']
+        targets = example['outputs']
+        features = self.tokenizer(inputs, truncation=True, max_length=self.max_len, padding='max_length')
+        labels = self.tokenizer(text_target=targets, truncation=True, max_length=self.max_len, padding='max_length')
+
+        features['labels'] = labels['input_ids']
         
         return features
 
 
     def get_tokenized_data(self, in_torch_format: bool = True):
-        tokenized_data = self.raw_dataset.map(self.pretraining_encode_fn, batched=True, 
+        special_token_dict = self.tokenizer.special_tokens_map
+        self.tokenizer.add_special_tokens(special_token_dict)
+        
+        tokenized_data = self.raw_dataset.map(self.pretraining_encode_fn, batched=False, 
                                                 remove_columns=['inputs', 'outputs', 
                                                                 'type', 'ds', 'template'])
         
@@ -72,6 +87,12 @@ class FarsInstructDataset:
         new_tokenized_data = {}
         for c in tokenized_data:
             new_tokenized_data[c] = [x[0] for x in tokenized_data[c]]
+        return new_tokenized_data
+    
+    def squeeze_dim(tokenized_data):
+        new_tokenized_data = {}
+        for c in tokenized_data:
+            new_tokenized_data[c] = tokenized_data[c].squeeze(dim=1)
         return new_tokenized_data
 
 
