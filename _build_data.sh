@@ -8,8 +8,8 @@ do
 echo "Building split: $i"
 
 python build_data_gym/build_gym.py --split $i \
-                                   --ds_name persiannlp/parsinlu_entailment,PNLPhub/FarsTail \
-                                   --prompt_format hooshvare \
+                                   --ds_name 'all' \
+                                   --prompt_format llama \
                                    --generate_metadata
 
 done

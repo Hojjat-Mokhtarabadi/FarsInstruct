@@ -8,38 +8,37 @@ dataset_args:
     streaming: false
 
 model_args:
-    #tokenizer_path: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
-    #model_path: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
-    tokenizer_path: HooshvareLab/gpt2-fa
-    model_path: HooshvareLab/gpt2-fa
+    tokenizer_path: './results/llama.zs-fs.snapp_sentiment/checkpoint-1000'
+    model_path: './results/llama.zs-fs.snapp_sentiment/checkpoint-1000'
+    # tokenizer_path: HooshvareLab/gpt2-fa
+    # model_path: 'HooshvareLab/gpt2-fa'
     #vocab_size: 25000
     vocab_size: 42001
 
 training_args:
-    desc: 'hooshvare.zs-fs.farstail-parsinlu_entail'
-    datasets: 'PNLPhub/FarsTail,persiannlp/parsinlu_entailment'
-    instruction_template: hooshvare
-    seed: 32
+    run_name: 'llama.2.zs-fs.snapp_sentiment'
+    datasets: 'PNLPhub/snappfood-sentiment-analysis'
+    instruction_template: llama
+    seed: 64
     pin_memory: true
     buffer_size: 10000
     max_len: 512
-    output_dir: './results'
+    output_dir: './results/llama.2.zs-fs.snapp_sentiment'
     # evaluation_strategy: "steps"
-    num_train_epochs: 3
-    max_steps: -1
-    save_steps: 400
-    logging_steps: 5
+    num_train_epochs: -1 
+    max_steps: 2500
+    save_steps: 200
+    logging_steps: 1500
     per_device_train_batch_size: 8
-    gradient_accumulation_steps: 4
+    gradient_accumulation_steps: 2
     learning_rate: 0.005
     optim: "paged_adamw_8bit"
     lr_scheduler_type: 'linear'
-    warmup_steps: 500
+    warmup_steps: 300
     gradient_checkpointing: false
     bf16: true
     fp16: false
     weight_decay: 0.001
-    run_name: "farsinstruct"
     report_to: "wandb"
 
 evaluation_args:
@@ -55,9 +54,9 @@ evaluation_args:
     model_path: null
     peft_model_id: null
 
-    datasets: 'PNLPhub/FarsTail,persiannlp/parsinlu_entailment'
-    instruction_template: hooshvare
-    task_type: 'multiple_choice,generate_until' # 'generate_until'
+    datasets: 'PNLPhub/FarsTail,PNLPhub/snappfood-sentiment-analysis'
+    instruction_template: llama
+    task_type: 'multiple_choice' # 'generate_until'
     batch_size: 8
     max_len: 512
 

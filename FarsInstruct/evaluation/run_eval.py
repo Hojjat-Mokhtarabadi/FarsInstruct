@@ -105,8 +105,8 @@ class LMEvaluation:
             json.dump({f'Samples at step {step}': samples}, f)
 
 
-        samples = {f'Samples at step {step}': samples}
-        all_results = {'Evaluation results': all_results}
+        #samples = {f'Samples at step {step}': samples}
+        #all_results = {'Evaluation results': all_results}
         # self.pretty_print(samples)
         print("#### Generated Samples stored at 'sample.json'! ####")
 

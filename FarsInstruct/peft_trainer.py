@@ -111,7 +111,7 @@ def main(configs, args):
     )
 
     # we instantiate the W&B callback with the trainer object and the dataset we want to sample from
-    wandb_callback = LLMSampleCB(trainer, train_set, configs, num_samples=10, max_new_tokens=256)
+    wandb_callback = LLMSampleCB(trainer, configs)
     trainer.add_callback(wandb_callback)
 
     print('Start training...')

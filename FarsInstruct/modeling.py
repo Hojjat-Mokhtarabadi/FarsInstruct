@@ -18,13 +18,12 @@ def load_pretaining_model(model_name_or_path, quantization_args=None):
         
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path,
                                               use_fast=True, 
-                                              bos_token='<s>', 
-                                              eos_token='</s>', 
-                                              pad_token='<pad>')
+                                              pad_token='[PAD]')
     config = AutoConfig.from_pretrained(model_name_or_path)
 
-    model = AutoModelForCausalLM.from_pretrained(model_name_or_path, quantization_config=bnb_config if quantization_args else None, 
-                                            config=config, device_map="auto")
+    model = AutoModelForCausalLM.from_pretrained(model_name_or_path, 
+                                                 quantization_config=bnb_config if quantization_args else None, 
+                                                 config=config)
 
     return model, tokenizer
 

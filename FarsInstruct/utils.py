@@ -23,9 +23,8 @@ class ModelArgs:
     vocab_size: int
 
 class TrainingArgs(TrainingArguments):
-  def __init__(self, desc, datasets, instruction_template, buffer_size, max_len, pin_memory, **kwargs):
+  def __init__(self, datasets, instruction_template, buffer_size, max_len, pin_memory, **kwargs):
     super().__init__(**kwargs)
-    self.desc: str = desc
     self.buffer_size: int = buffer_size
     self.max_len: int = max_len
     self.pin_memory: bool = pin_memory

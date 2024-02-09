@@ -31,7 +31,7 @@ def main(configs, args):
     # Initialise your wandb run, passing wandb parameters and any config information
     accelerator.init_trackers(
         project_name="FarsInstruct", 
-        #config={"dropout": 0.1, "learning_rate": 1e-2}
+        config=configs,
         init_kwargs={"wandb": {"entity": "farsinstruct"}}
         )
 
