@@ -74,7 +74,8 @@ def main(configs, args):
                                         dataload_mode=args.dataload_mode, 
                                         dataset_path=data_args.dataset_path, 
                                         instruction_template=training_args.instruction_template,
-                                        datasets=training_args.datasets)
+                                        datasets=training_args.datasets,
+                                        shots=training_args.shots)
         train_set = train_set.get_tokenized_data(in_torch_format=False)
         train_set = train_set.shuffle(seed, buffer_size=training_args.buffer_size)
 
@@ -89,7 +90,8 @@ def main(configs, args):
                                         dataload_mode=args.dataload_mode, 
                                         dataset_path=data_args.dataset_path, 
                                         instruction_template=training_args.instruction_template,
-                                        datasets=training_args.datasets)
+                                        datasets=training_args.datasets,
+                                        shots=training_args.shots)
         train_set = train_set.get_tokenized_data(in_torch_format=True)
         
         random_sampler = data.RandomSampler(train_set, replacement=True, num_samples=training_args.max_steps if training_args.max_steps != -1 else len(train_set))
@@ -99,6 +101,9 @@ def main(configs, args):
 
 
     model, train_set = accelerator.prepare(model, train_set)
+    print("### Dataset sample: ###")
+    print(tokenizer.batch_decode(next(iter(train_loader))['input_ids'])[0])
+
     model.resize_token_embeddings(len(tokenizer))
 
 

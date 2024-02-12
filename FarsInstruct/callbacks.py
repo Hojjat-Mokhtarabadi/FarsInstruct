@@ -22,16 +22,16 @@ class LLMSampleCB(WandbCallback):
         super().on_log(args, state, control, **kwargs)
 
         print("\n#### Running Evaluation... ####")
-        all_results,samples = self.lm_eval.run_eval(current_model=self.model, step=self.trainer.state.global_step)
+        all_results, samples = self.lm_eval.run_eval(current_model=self.model, step=self.trainer.state.global_step)
         #records_table = self.samples_table(self.sample_dataset)
         #self._wandb.log({"evaluation_results":all_results['Evaluation results']})
         for x in all_results:
             self._wandb.log({x['ds_name']:{x['temp_name']:x['result']}})
-        for x in samples:
-            if len(x['tokens'])>2:
-                self._wandb.log({x['ds_name']:{x['temp_name']:f"{x['tokens'][0]} => {x['tokens'][2]}"}})
-        #self._wandb.log({"generate_samples":samples})
+        # for x in samples:
+        #     if len(x['tokens'])>2:
+        #         self._wandb.log({x['ds_name']:{x['temp_name']:f"{x['tokens'][0]} => {x['tokens'][2]}"}})
+        # self._wandb.log({"generate_samples":samples})
 
-        #print("\n#### Sampling... ####")
-        #sample = self.lm_eval.generate(self.fars_config)
-        #self._wandb.log({"sample":sample})
+        # print("\n#### Sampling... ####")
+        # sample = self.lm_eval.generate(self.fars_config)
+        # self._wandb.log({"sample":sample})

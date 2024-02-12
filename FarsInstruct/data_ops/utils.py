@@ -1,8 +1,9 @@
-from datasets import concatenate_datasets, load_dataset
+from datasets import concatenate_datasets, Dataset
 from .text_cleaning import (map_to_persian, 
                            split_into_sentences, 
                            patterns)
 import json
+from tqdm import tqdm
 
 def normalization(text):   
     text = text.replace("[n]", " ")
@@ -31,67 +32,56 @@ def load_meta_data():
   return meta_data 
 
 
+# def build_fewshot_gym(raw_dataset, shots):
+#    inputs = []; outputs = []
+
+#    def remove_instruction(x):
+#       splt_text = x.split('\n\n')
+#       return '\n'.join(splt_text[1:])
+
+#    for i in range(0, (len(raw_dataset) - shots - 1), shots):
+#       result_fs = ""
+#       output = ""
+#       for idx in range(i, i + shots):
+#             output = raw_dataset['outputs'][idx]
+#             input_ = raw_dataset['inputs'][idx]
+#             if idx == i:
+#                result_fs += (input_ + output + '\n')
+
+#             elif idx == (i + shots - 1):
+#                input_wo_instruct = remove_instruction(input_)
+#                result_fs += (input_wo_instruct + '\n')
+
+#             else:
+#                input_wo_instruct = remove_instruction(input_)
+#                result_fs += (input_wo_instruct + output + '\n')
+
+
+#       inputs.append(result_fs)
+#       outputs.append(output)
+            
+#    return Dataset.from_dict({'inputs': inputs, 'outputs': outputs})
+
+
 
 ### --- sampling functions ---
-def sample_portion_of_data(raw_data):
-  zs_sample_size = 100_000
-  fs_sample_size = 100_000
-  pn_ds_zs = raw_data.filter(lambda example: example["ds"] == 'pn_summary' and example['type'] == 'zs').shuffle(seed=30).select(range(0, zs_sample_size))
-  pn_ds_fs = raw_data.filter(lambda example: example["ds"] == 'pn_summary' and example['type'] == 'fs').shuffle(seed=30).select(range(0, fs_sample_size))
-  raw_data = raw_data.filter(lambda example: example["ds"] != 'PNLPhub/DigiMag' and 
-                                 example["ds"] != 'PNLPhub/Persian-News' and
-                                 example["ds"] != 'pn_summary' and
-                                 example['ds'] != 'PNLPhub/digikala-sentiment-analysis')
+def sample_dataset(raw_data, ds_name):  
+   min_chunk = 50_000
+   ds_list = []
+   for ds in ds_name:
+    raw_data_filterd = raw_data.filter(lambda ex: ex["ds"] == ds) 
+    raw_data_filterd = raw_data_filterd.shuffle(seed=30).select(range(0, min(min_chunk, len(raw_data_filterd))))
+    ds_list.append(raw_data_filterd)
+    
 
-  new_ds = concatenate_datasets([raw_data, pn_ds_zs, pn_ds_fs])
-  return new_ds
+   return concatenate_datasets(ds_list)
 
+   # if shots > 1:
+   #    print('Building fewshot gym...')
+   #    dataset_lst = []
+   #    for ds in tqdm(ds_name):
+   #       raw_dataset = raw_data.filter(lambda ex: ex["ds"] == ds)
+   #       dataset_lst.append(build_fewshot_gym(raw_dataset, shots))
 
-def sample_data_for_eval(raw_data, ds_name, metric):
-   def map_fn(ex):
-      for ds in ds_name:
-         ds_meta_data = load_meta_data()[ds]
-         for task in ds_meta_data: 
-            if ex['template'] == task['template'] and \
-               ex['ds'] == ds and \
-               metric in task['metrics']:
-               
-               return ex
-
-   return raw_data.filter(map_fn)
-
-def exclude_datasets(raw_data, ds_name):
-   ds = raw_data.filter(lambda ex: ex["ds"] not in ds_name)
-
-   return ds
-
-
-def sample_dataset(raw_data, ds_name): 
-   if "pn_summary" in ds_name: 
-      zs_sample_size = 50_000
-      fs_sample_size = 50_000
-      pn_ds_zs = raw_data.filter(lambda example: example["ds"] == 'pn_summary' and example['type'] == 'zs').shuffle(seed=30).select(range(0, zs_sample_size))
-      pn_ds_fs = raw_data.filter(lambda example: example["ds"] == 'pn_summary' and example['type'] == 'fs').shuffle(seed=30).select(range(0, fs_sample_size))
-
-      ds_name.remove("pn_summary")
-      # ds = raw_data.filter(lambda ex: ex["ds"] in ds_name)
-      #ds = raw_data.filter(lambda ex: ex["ds"] in ds_name and ex['type'] == 'zs')
-
-      # return concatenate_datasets([ds, pn_ds_zs, pn_ds_fs])
-   
-   if "PNLPhub/snappfood-sentiment-analysis" in ds_name: 
-      zs_sample_size = 45_000
-      fs_sample_size = 45_000
-      pn_ds_zs = raw_data.filter(lambda example: example["ds"] == 'PNLPhub/snappfood-sentiment-analysis' and example['type'] == 'zs').shuffle(seed=30).select(range(0, zs_sample_size))
-      pn_ds_fs = raw_data.filter(lambda example: example["ds"] == 'PNLPhub/snappfood-sentiment-analysis' and example['type'] == 'fs').shuffle(seed=30).select(range(0, fs_sample_size))
-
-      ds_name.remove("PNLPhub/snappfood-sentiment-analysis")
-      
-      ds = raw_data.filter(lambda ex: ex["ds"] in ds_name)
-      #ds = raw_data.filter(lambda ex: ex["ds"] in ds_name and ex['type'] == 'zs')
-
-      return concatenate_datasets([ds, pn_ds_zs, pn_ds_fs])
-   
-   else: 
-      return raw_data.filter(lambda ex: ex["ds"] in ds_name) 
+   #    return concatenate_datasets(dataset_lst)
 

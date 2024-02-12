@@ -33,6 +33,7 @@ class LMEvaluation:
         self.data_args = DatasetArgs(**configs['dataset_args'])
         self.configs = configs
         self.split = split
+        self.shots = self.eval_args.shots
 
         if tokenizer != None:
             self.tokenizer = tokenizer
@@ -59,6 +60,7 @@ class LMEvaluation:
         causal_model = load_causal_model(self.eval_args.model_path, self.eval_args.peft_model_id, current_model)
 
         print(f'base model: {self.eval_args.model_path}')
+        print("Note that if base model and peft model are 'None', the evaluation function is using the model under training!")
 
         multiple_choice_templates = TEMP_LIST['multiple_choice']
         generate_until_templates = TEMP_LIST['generate_until']
@@ -76,8 +78,8 @@ class LMEvaluation:
                         res = self.run_multiple_choice_evaluation(ds_name, temp_name, multiple_choice_model)
                         all_results.append(res)
                         
-                        sample = self.generate_sample(ds_name, temp_name, causal_model)
-                        samples.append(sample)
+                        # sample = self.generate_sample(ds_name, temp_name, causal_model)
+                        # samples.append(sample)
                 else:
                     continue
 
@@ -88,8 +90,8 @@ class LMEvaluation:
                         res = self.run_generate_until_evaluation(ds_name, temp_name, causal_model)    
                         all_results.append(res)
 
-                        sample = self.generate_sample(ds_name, temp_name, causal_model)
-                        samples.append(sample)
+                        # sample = self.generate_sample(ds_name, temp_name, causal_model)
+                        # samples.append(sample)
                 else:
                     continue
 
@@ -108,7 +110,7 @@ class LMEvaluation:
         #samples = {f'Samples at step {step}': samples}
         #all_results = {'Evaluation results': all_results}
         # self.pretty_print(samples)
-        print("#### Generated Samples stored at 'sample.json'! ####")
+        # print("#### Generated Samples stored at 'sample.json'! ####")
 
         return all_results, samples
     
@@ -122,9 +124,10 @@ class LMEvaluation:
     def generate_sample(self, ds_name, temp_name, model):
         #> load dataset
         self.val_set = FarsInstructEvalDataset(self.tokenizer, 
-                                    max_len=self.eval_args.max_len, 
-                                    instruction_template=self.eval_args.instruction_template,
-                                    split=self.split)
+                                               max_len=self.eval_args.max_len, 
+                                               instruction_template=self.eval_args.instruction_template,
+                                               split=self.split,
+                                               shots=self.shots)
         encoded_dataset = self.val_set.get_tokenized_data(ds_name=ds_name, temp_name=temp_name, multiple_choice=False)
         data_collator = DataCollatorWithPadding(self.tokenizer,
                                                 return_tensors='pt')
@@ -168,9 +171,10 @@ class LMEvaluation:
     def run_multiple_choice_evaluation(self, ds_name, temp_name, model):
         #> load dataset
         self.val_set = FarsInstructEvalDataset(self.tokenizer, 
-                                    max_len=self.eval_args.max_len, 
-                                    instruction_template=self.eval_args.instruction_template,
-                                    split=self.split)
+                                               max_len=self.eval_args.max_len, 
+                                               instruction_template=self.eval_args.instruction_template,
+                                               split=self.split,
+                                               shots=self.shots)
         encoded_dataset = self.val_set.get_tokenized_data(ds_name=ds_name, temp_name=temp_name, multiple_choice=True)
         data_collator = DataCollatorForMultipleChoice(self.tokenizer)
         val_dataloader = DataLoader(encoded_dataset, collate_fn=data_collator, batch_size=self.eval_args.batch_size)
@@ -216,7 +220,8 @@ class LMEvaluation:
         self.val_set = FarsInstructEvalDataset(self.tokenizer, 
                                     max_len=self.eval_args.max_len, 
                                     instruction_template=self.eval_args.instruction_template,
-                                    split=self.split)
+                                    split=self.split,
+                                    shots=self.shots)
         encoded_dataset = self.val_set.get_tokenized_data(ds_name=ds_name, temp_name=temp_name, multiple_choice=False)
         data_collator = DataCollatorWithPadding(self.tokenizer,
                                                 return_tensors='pt')

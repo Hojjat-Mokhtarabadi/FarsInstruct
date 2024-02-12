@@ -10,111 +10,61 @@ class DataGym:
     """
     Apply template on datasets according to they specified type (zero-shot or few-shot)
     """
-    def __init__(self, dataset_name:str, template_name: str, split: str, 
-                       type: str, shots: int = 1, prompt_format: str = 'hooshvare'):
-        
+    def __init__(self, dataset_name:str, template_name: str, split: str):        
         self.dataset_name = dataset_name
         self.data = load_dataset(self.dataset_name, split=split)
-        self.shots = shots
-        self.sample_range = len(self.data) // self.shots
-        self.type = type
         self.split = split
         self.template_name = template_name
-        self.prompt_format = prompt_format
-
+        
         self.template = DatasetTemplates(self.dataset_name)[template_name]
 
-    def __call__(self):
-        if self.type == 'zs':
-            return self._build_zs_gym()
-        elif self.type == 'fs':
-            return self._build_fs_gym()
 
-    def _prepare_llama_instruction(self, input, type):
-        var = "<span style='color: #F08080'>"
-        highlights = [i.replace("</span>", "") for i in input.split(var)]
-        
-        if type == 'zs':
-            return f"""
-            [INST]
-            {highlights[0]}
-
-            {''.join(highlights[1:])} [/INST]
-            """
-        
-        return f"""
-            [INST]
-            {highlights[0]}
-
-            {''.join(highlights[1:])}
-            """
-
-    def _build_zs_gym(self):
+    def build_zs_gym(self):
         inputs = []; outputs = [] 
         for example in tqdm(self.data, total=len(self.data)):
-            if self.prompt_format == 'llama':
-                result = self.template.apply(example, highlight_variables=True)
-                result[0] = self._prepare_llama_instruction(result[0], 'zs')
-                result[1] = result[1].replace("<span style='color: #F08080'>", "")
-                result[1] = result[1].replace("</span>", "")
-            elif self.prompt_format == 'hooshvare':
-                result = self.template.apply(example)
-                result[0] = result[0] + '<|startoftext|>'
-
+            result = self.template.apply(example)            
             inputs.append(result[0])
             outputs.append(result[1])
-
-        result_dict = {'inputs': inputs, 'outputs': outputs, 'type': self.type, 
+            
+        result_dict = {'inputs': inputs, 'outputs': outputs, 
                        'ds': self.dataset_name, 'template': self.template_name}
+        
         save_data(result_dict, self.dataset_name, self.template_name, self.split)
 
         return
-
     
-    def _build_fs_gym(self):
+    def build_fs_gym(self, shots):
         inputs = []; outputs = []
 
         def remove_instruction(x):
-            #space = re.compile("\\s+")
             splt_text = x.split('\n\n')
-            #snt_list = []
-            #for snt in splt_text:
-            #    snt_list.append(space.sub(" ", snt))
-
             return '\n'.join(splt_text[1:])
 
-        for i in tqdm(range(0, (len(self.data) - self.shots - 1), self.shots)):
+        for i in tqdm(range(0, (len(self.data) - shots - 1), shots)):
             result_fs = ""
             output = ""
-            for idx in range(i, i + self.shots):
+            for idx in range(i, i + shots):
                 result = self.template.apply(self.data[idx])  
                 output = result[1]
                 if idx == i: # instruct line
-                    if self.prompt_format == 'llama':
-                        result = self.template.apply(self.data[idx], highlight_variables=True)  
-                        result[0] = self._prepare_llama_instruction(result[0], 'fs')
-                        
                     input_ = result[0]
-                    result_fs += (input_ + output + '\n')
+                    result_fs += (input_ + output + '\n\n')
 
-                elif idx == (i + self.shots - 1): # last line without instruction
+                elif idx == (i + shots - 1): # last line without instruction
                     input_wo_instruct = remove_instruction(result[0])
+                    result_fs += (input_wo_instruct + '\n')
 
-                    if self.prompt_format == 'llama':
-                        result_fs += (input_wo_instruct + "[\INST]" + '\n')
-                    elif self.prompt_format == 'hooshvare':
-                        result_fs += (input_wo_instruct + "<|startoftext|>" + '\n')
-
-                else: # body without instruction
+                else: # body line without instruction
                     input_wo_instruct = remove_instruction(result[0])
-                    result_fs += (input_wo_instruct + output + '\n')
+                    result_fs += (input_wo_instruct + output + '\n\n')
 
 
             inputs.append(result_fs)
             outputs.append(output)
 
-        result_dict = {'inputs': inputs, 'outputs': outputs, 'type': self.type, 
+        result_dict = {'inputs': inputs, 'outputs': outputs, 
                        'ds': self.dataset_name, 'template': self.template_name}
+        
         save_data(result_dict, self.dataset_name, self.template_name, self.split)
 
         return
@@ -129,15 +79,12 @@ def save_data(result, dataset_name, template_name, split):
         os.makedirs(dir)
         df.to_csv(f"{dir}/{template_name}_{split}.csv", mode='w+')
 
-
-
    
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument('--template_name', type=str, required=True)
     parser.add_argument('--shots', type=int, default=1)
     parser.add_argument('--split', type=str, default='train')
-    parser.add_argument('--type', type=str, default='zs', required=True)
     parser.add_argument('--dataset_name', type=str)
     args = parser.parse_args()
 

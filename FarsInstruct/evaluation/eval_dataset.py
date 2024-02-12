@@ -1,15 +1,20 @@
 from datasets import load_dataset
 import json
-from FarsInstruct.data_ops.paths import DATA_FILES
 
 class FarsInstructEvalDataset:
-    def __init__(self, tokenizer, max_len: int, instruction_template: str, split: str, **kwargs):
+    def __init__(self, tokenizer, max_len: int, instruction_template: str, split: str, shots: int, **kwargs):
         self.ans_choices = []
         self.tokenizer = tokenizer       
         # each model accepts different instruction template, select each based on config file.
-        self.ds = load_dataset('csv', data_files=DATA_FILES[instruction_template], split=split)    
+        DATA_FILES = {
+                'train': f"data/{shots}shot_instruct_dataset_train.csv", 
+                'validation': f"data/{shots}shot_instruct_dataset_validation.csv", 
+                'test': f"data/{shots}shot_instruct_dataset_test.csv"}
+        self.ds = load_dataset('csv', data_files=DATA_FILES, split=split)
+        
         self.max_len = max_len
-        self.extra_cols = ['inputs', 'outputs', 'ds', 'type', 'template']
+        self.extra_cols = self.ds.column_names
+        self.instruction_template = instruction_template
         
     def load_meta_data(self):
         with open('data/metadata.json', 'r', encoding='utf-8') as f:
@@ -23,11 +28,19 @@ class FarsInstructEvalDataset:
             if temp['template'] == temp_name and temp['choice_in_temp'] is True:
                 self.ans_choices = temp['ans_choice']
                 return
+            
+    def add_special_token(self, ex):
+        if self.instruction_template == 'llama':
+            return f"[INST]{ex}[/INST]"
+        if self.instruction_template == 'hooshvare':
+            return f"{ex} <startoftext>"
+        elif self.instruction_template == 'mgpt':
+            return f"{ex} [INST]" 
 
     def _likelihood_preprocess_fn(self, ex):
         bs = len(ex["inputs"])
         num_choices = len(self.ans_choices)
-        input_txt = [context for context in ex["inputs"]]
+        input_txt = [self.add_special_token(context) for context in ex["inputs"]]
         target_txt = [target for target in ex["outputs"]]
         answer_choices = [self.ans_choices for _ in ex["inputs"]]
 
@@ -64,7 +77,7 @@ class FarsInstructEvalDataset:
         return features
     
     def _generation_preprocess_fn(self, ex):
-        inputs = ex['inputs']
+        inputs = self.add_special_token(ex['inputs'])
         targets = ex['outputs']
         features = self.tokenizer(inputs, truncation=True, max_length=self.max_len, padding='max_length')
         labels = self.tokenizer(text_target=targets, truncation=True, max_length=self.max_len, padding='max_length')
@@ -81,6 +94,7 @@ class FarsInstructEvalDataset:
             preprocess_fn = self._generation_preprocess_fn
 
         self.ds = self.ds.filter(lambda x: x['ds'] == ds_name and x['template'] == temp_name)
+        self.ds = self.ds.shuffle(seed=30).select(range(0, min(200, len(self.ds))))
         return self.ds.map(preprocess_fn, batched=True, remove_columns=self.extra_cols)
 
 

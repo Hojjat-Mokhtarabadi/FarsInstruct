@@ -18,7 +18,7 @@ def load_pretaining_model(model_name_or_path, quantization_args=None):
         
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path,
                                               use_fast=True, 
-                                              pad_token='[PAD]')
+                                              pad_token='<pad>')
     config = AutoConfig.from_pretrained(model_name_or_path)
 
     model = AutoModelForCausalLM.from_pretrained(model_name_or_path, 

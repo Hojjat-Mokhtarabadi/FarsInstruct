@@ -26,17 +26,14 @@ def load_prompted_datasets():
     return results
 
    
-def read_all_and_convert_t0_csv(ds_name, split, prompt_format: str):
+def read_all_and_convert_t0_csv(ds_name, split, shots):
     """
     Read all generated datasets and concatinate them to insturct_dataset
     """
-    if prompt_format == 'llama':
-        ds_path = f'data/instruct_dataset_llama_{split}.csv'
-    else:
-        ds_path = f'data/instruct_dataset_{split}.csv'
+    ds_path = f'data/{shots}shot_instruct_dataset_{split}.csv'
 
     ds_names = ds_name.split(',')
-    all_dfs = pd.DataFrame(columns=['inputs', 'outputs', 'type', 'ds', 'template'])
+    all_dfs = pd.DataFrame(columns=['inputs', 'outputs', 'ds', 'template'])
     all_files = list(DATA_PATH.rglob('*.*'))
     for file in tqdm(all_files, total=len(all_files)):
         file_parent_name = f"{file.parent.parent.parent.name}/{file.parent.parent.name}"

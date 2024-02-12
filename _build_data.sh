@@ -8,9 +8,10 @@ do
 echo "Building split: $i"
 
 python build_data_gym/build_gym.py --split $i \
-                                   --ds_name 'all' \
-                                   --prompt_format llama \
-                                   --generate_metadata
+                                   --ds_name 'PNLPhub/snappfood-sentiment-analysis,PNLPhub/FarsTail' \
+                                   --generate_metadata \
+                                   --shots 3
+
 
 done
 cd ..
