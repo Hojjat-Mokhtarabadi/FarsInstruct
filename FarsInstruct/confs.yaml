@@ -8,32 +8,32 @@ dataset_args:
     streaming: false
 
 model_args:
-    tokenizer_path: './home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw'
-    model_path: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw'
-    # tokenizer_path: HooshvareLab/gpt2-fa
-    # model_path: 'HooshvareLab/gpt2-fa'
+    # tokenizer_path: './home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw'
+    # model_path: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw'
+    tokenizer_path: HooshvareLab/gpt2-fa
+    model_path: 'HooshvareLab/gpt2-fa'
     # tokenizer_path: '/media/abbas/Backup/mGPT-1.3B-persian/'
     # model_path: '/media/abbas/Backup/mGPT-1.3B-persian/'
     #vocab_size: 25000
     vocab_size: 42001
 
 training_args:
-    run_name: 'llama.snapp-sentiment.farstail'
-    datasets: 'PNLPhub/snappfood-sentiment-analysis,PNLPhub/FarsTail'
-    instruction_template: llama
+    run_name: 'mgpt.snapp-digi-sentiment'
+    datasets: 'PNLPhub/snappfood-sentiment-analysis,PNLPhub/digikala-sentiment-analysis'
+    instruction_template: hooshvare
     shots: 3
     seed: 32
     pin_memory: true
     buffer_size: 10000
     max_len: 512
-    output_dir: './results/llama.snapp_sentiment.farstail'
+    output_dir: './results/mgpt.snapp-digi-sentiment'
     # evaluation_strategy: "steps"
     num_train_epochs: 2 
     max_steps: -1
     save_steps: 200
-    logging_steps: 500
+    logging_steps: 200
     per_device_train_batch_size: 8
-    gradient_accumulation_steps: 4
+    gradient_accumulation_steps: 2
     learning_rate: 0.001
     optim: "paged_adamw_8bit"
     lr_scheduler_type: 'linear'
@@ -43,6 +43,7 @@ training_args:
     fp16: false
     weight_decay: 0.001
     report_to: "wandb"
+    # report_to: "neptune"
 
 evaluation_args:
     # model_path: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
@@ -57,8 +58,9 @@ evaluation_args:
     model_path: null
     peft_model_id: null
 
-    datasets: 'PNLPhub/snappfood-sentiment-analysis,PNLPhub/FarsTail'
-    instruction_template: llama
+    datasets: 'PNLPhub/snappfood-sentiment-analysis,PNLPhub/digikala-sentiment-analysis'
+    # datasets: 'PNLPhub/snappfood-sentiment-analysis'
+    instruction_template: hooshvare
     shots: 3
     task_type: 'multiple_choice' # 'generate_until'
     batch_size: 8
@@ -68,6 +70,6 @@ quantization_args:
     load_in_4bit: true
     double_quant: true
     quant_type: "nf4"
-    lora_rank: 32
+    lora_rank: 16
     lora_alpha: 32 
     lora_dropout: 0.05 

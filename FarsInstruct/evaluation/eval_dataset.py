@@ -27,6 +27,7 @@ class FarsInstructEvalDataset:
         for temp in meta_data[ds_name]:
             if temp['template'] == temp_name and temp['choice_in_temp'] is True:
                 self.ans_choices = temp['ans_choice']
+                
                 return
             
     def add_special_token(self, ex):

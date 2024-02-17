@@ -1,5 +1,4 @@
 #/bin/bash
-
 cd FarsInstruct
 
 #start building
@@ -8,7 +7,7 @@ do
 echo "Building split: $i"
 
 python build_data_gym/build_gym.py --split $i \
-                                   --ds_name 'PNLPhub/snappfood-sentiment-analysis,PNLPhub/FarsTail' \
+                                   --ds_name "PNLPhub/parsinlu-multiple-choice,PNLPhub/snappfood-sentiment-analysis,PNLPhub/digikala-sentiment-analysis" \
                                    --generate_metadata \
                                    --shots 3
 

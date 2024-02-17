@@ -34,21 +34,23 @@ TEMP_LIST = {
             'what_category_it_belongs_to_zs'
         ],
         'PNLPhub/digikala-sentiment-analysis' : [
-            'is_avg_fs',
-            'is_bad_fs',
-            'is_good_fs',
-            'is_it_pos_or_neg_fs',
-            'is_perfect_fs',
-            'is_terrible_fs',
-            'specify_categ_zs',
-            'star_rating_fs',
-            'what_is_sentiment_fs'
+            'is_avg',
+            'is_bad',
+            'is_good',
+            'is_it_pos_or_neg',
+            'is_perfect',
+            'is_terrible',
+            'specify_categ',
+            'star_rating',
+            'what_is_sentiment'
         ],
         'PNLPhub/parsinlu-multiple-choice' : [
-            'category_answer_fs',
-            'category_zs',
-            'choose_the_correct_candidate_fs',
-            'which_candidate_zs'
+            #'category_answer',
+            'category',
+            'category_QA',
+            'choose_the_correct_candidate',
+            'which_candidate',
+            'most_correct_answer'
         ],
         'PNLPhub/Persian-News' : [
             'choose_category_zs',
@@ -57,12 +59,12 @@ TEMP_LIST = {
             'title_to_text_zs'
         ],
         'PNLPhub/snappfood-sentiment-analysis' : [
-            'is_it_neg_zs',
-            'is_it_pos_or_neg_fs',
-            'is_it_pos_zs',
-            'recommendation_fs',
-            'to_which_does_belong_zs',
-            'what_is_sentiment_fs'
+            'is_it_neg',
+            'is_it_pos_or_neg',
+            'is_it_pos',
+            'recommendation',
+            'to_which_does_belong',
+            'what_is_sentiment'
         ]
   },
 

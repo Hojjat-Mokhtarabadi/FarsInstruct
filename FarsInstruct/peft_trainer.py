@@ -4,6 +4,7 @@ from transformers import Trainer, DataCollatorForLanguageModeling
 from peft import prepare_model_for_kbit_training
 from peft import LoraConfig, get_peft_model
 from accelerate import Accelerator
+
 from argparse import ArgumentParser
 import numpy as np
 import torch
@@ -11,7 +12,8 @@ import torch
 from data_ops.fars_instruct_dataset import FarsInstructDataset
 from modeling import load_pretaining_model
 from utils import *
-from callbacks import LLMSampleCB
+from callbacks import LLMEvaluation,LLMCNeptuneCallback
+from transformers.integrations import NeptuneCallback
 
 
 def print_trainable_parameters(model):
@@ -37,10 +39,22 @@ def main(configs, args):
     quantization_args = QuantizationArgs(**configs['quantization_args'])
     accelerator = Accelerator(cpu=False, log_with="wandb")
 
+    accelerator.init_trackers(
+        project_name="FarsInstruct", 
+        config=configs,
+        init_kwargs={"wandb": {"entity": "farsinstruct"}}
+    )
+
+    #if accelerator.is_main_process:
+        # Initialise your wandb run, passing wandb parameters and any config information
+    #    neptune_run = start_neptune_run(configs)
+
+    #https://huggingface.co/docs/accelerate/en/usage_guides/tracking
+
+
     seed = training_args.seed
     np.random.seed(seed)
     torch.manual_seed(seed)
-    accelerator = Accelerator(cpu=False)
     print(f"seed: {training_args.seed}")
     print(f"device: {accelerator.device}")
 
@@ -112,19 +126,28 @@ def main(configs, args):
         args=training_args,
         train_dataset=train_set,
         tokenizer=tokenizer,
-        data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False)
+        data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
+        #accelerator=accelerator,
     )
 
     # we instantiate the W&B callback with the trainer object and the dataset we want to sample from
-    wandb_callback = LLMSampleCB(trainer, configs)
+
+    wandb_callback = LLMEvaluation(trainer, configs)#, accelerator.trackers[0])#, neptune_run)
     trainer.add_callback(wandb_callback)
+    #if accelerator.is_main_process:
+    #    neptune_callback = NeptuneCallback(
+    #            run=neptune_run,
+    #            log_checkpoints=None,  # Update to "last" or "best" if you want to log model checkpoints to Neptune
+    #        )
+    #    trainer.add_callback(neptune_callback)
+    #neptune_callback = LLMCNeptuneCallback(trainer,configs,neptune_run)
+    #trainer.add_callback(neptune_callback)
 
     print('Start training...')
     trainer.train()  
 
     # trainer.save(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
-  
- 
+
 
 
 if __name__ == "__main__":

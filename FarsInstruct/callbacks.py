@@ -7,15 +7,19 @@ import tqdm
 
 from FarsInstruct.evaluation.run_eval import LMEvaluation
 
+from transformers import TrainerCallback
 
-class LLMSampleCB(WandbCallback):
-    def __init__(self, trainer, fars_config):
+
+class LLMEvaluation(WandbCallback):
+    def __init__(self, trainer, fars_config):#, wandb_tracker):#, neptune_run):
         "A CallBack to log samples a wandb.Table during training"
         super().__init__()
         self.trainer = trainer
         self.model, self.tokenizer = trainer.model, trainer.tokenizer
         self.lm_eval = LMEvaluation(fars_config, self.tokenizer, split='validation')
         self.fars_config = fars_config
+        #self.neptune_run = neptune_run
+        #self.wandb_tracker = wandb_tracker
         
     def on_log(self, args, state, control,  **kwargs):
         "Log the wandb.Table after calling trainer.evaluate"
@@ -26,6 +30,7 @@ class LLMSampleCB(WandbCallback):
         #records_table = self.samples_table(self.sample_dataset)
         #self._wandb.log({"evaluation_results":all_results['Evaluation results']})
         for x in all_results:
+            #self.neptune_run[f"logs/eval/{x['ds_name']}/{x['temp_name']}"].append(x['result'])
             self._wandb.log({x['ds_name']:{x['temp_name']:x['result']}})
         # for x in samples:
         #     if len(x['tokens'])>2:
@@ -35,3 +40,25 @@ class LLMSampleCB(WandbCallback):
         # print("\n#### Sampling... ####")
         # sample = self.lm_eval.generate(self.fars_config)
         # self._wandb.log({"sample":sample})
+
+
+class LLMCNeptuneCallback(TrainerCallback):
+    def __init__(self, trainer, fars_config, neptune_run):
+        "A CallBack to log samples a wandb.Table during training"
+        super().__init__()
+        self.trainer = trainer
+        self.model, self.tokenizer = trainer.model, trainer.tokenizer
+        self.lm_eval = LMEvaluation(fars_config, self.tokenizer, split='validation')
+        self.fars_config = fars_config
+        self.neptune_run = neptune_run
+        
+    def on_log(self, args, state, control,  **kwargs):
+        "Log the wandb.Table after calling trainer.evaluate"
+        super().on_log(args, state, control, **kwargs)
+
+        print("\n#### Running Evaluation... ####")
+        all_results, samples = self.lm_eval.run_eval(current_model=self.model, step=self.trainer.state.global_step)
+        
+        for x in all_results:
+            self.neptune_run[f"logs/evaluating/{x['ds_name']}/{x['temp_name']}"].log(x['result'])
+            
