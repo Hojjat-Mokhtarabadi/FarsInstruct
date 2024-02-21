@@ -7,7 +7,7 @@ do
 echo "Building split: $i"
 
 python build_data_gym/build_gym.py --split $i \
-                                   --ds_name "PNLPhub/parsinlu-multiple-choice,PNLPhub/snappfood-sentiment-analysis,PNLPhub/digikala-sentiment-analysis" \
+                                   --ds_name "all" \
                                    --generate_metadata \
                                    --shots 3
 

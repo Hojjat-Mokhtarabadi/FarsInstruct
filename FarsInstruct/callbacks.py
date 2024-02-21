@@ -1,17 +1,10 @@
 from transformers.integrations import WandbCallback
-from transformers import GenerationConfig, AutoTokenizer, AutoModelForCausalLM
-
-import torch
-import wandb
-import tqdm
-
 from FarsInstruct.evaluation.run_eval import LMEvaluation
-
 from transformers import TrainerCallback
 
 
-class LLMEvaluation(WandbCallback):
-    def __init__(self, trainer, fars_config):#, wandb_tracker):#, neptune_run):
+class LLMEvaluationCallback(WandbCallback):
+    def __init__(self, trainer, fars_config):
         "A CallBack to log samples a wandb.Table during training"
         super().__init__()
         self.trainer = trainer
@@ -30,7 +23,6 @@ class LLMEvaluation(WandbCallback):
         #records_table = self.samples_table(self.sample_dataset)
         #self._wandb.log({"evaluation_results":all_results['Evaluation results']})
         for x in all_results:
-            #self.neptune_run[f"logs/eval/{x['ds_name']}/{x['temp_name']}"].append(x['result'])
             self._wandb.log({x['ds_name']:{x['temp_name']:x['result']}})
         # for x in samples:
         #     if len(x['tokens'])>2:

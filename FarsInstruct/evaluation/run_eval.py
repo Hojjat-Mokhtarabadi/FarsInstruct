@@ -18,7 +18,7 @@ from FarsInstruct.evaluation.eval_dataset import FarsInstructEvalDataset
 from FarsInstruct.evaluation.model import DecoderModel, load_causal_model
 from FarsInstruct.evaluation.temp_list import TEMP_LIST
 
-from FarsInstruct.utils import EvaluationArgs, load_yml_file, DatasetArgs
+from FarsInstruct.utils import EvaluationArgs, DatasetArgs, TrainingArgs, load_yml_file
 
 #! ignore sourceTensor.clone().detach() warning
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -34,6 +34,7 @@ class LMEvaluation:
         self.configs = configs
         self.split = split
         self.shots = self.eval_args.shots
+        self.run_name = configs['training_args']['run_name']
 
         if tokenizer != None:
             self.tokenizer = tokenizer
@@ -95,8 +96,8 @@ class LMEvaluation:
                 else:
                     continue
 
-        with open('../evaluation_results/results.json', 'w') as f:
-            json.dump({'Evaluation results': all_results}, f)
+        with open(f'../evaluation_results/{self.run_name}.json', 'a+') as f:
+            json.dump({f'Evaluation results at step {step}': all_results}, f)
 
         for res in all_results:
             tbl.add_row([res['ds_name'], res['temp_name'], res['result']])

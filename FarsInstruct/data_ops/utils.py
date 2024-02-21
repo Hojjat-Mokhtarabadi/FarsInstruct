@@ -66,7 +66,7 @@ def load_meta_data():
 
 ### --- sampling functions ---
 def sample_dataset(raw_data, ds_name):  
-   min_chunk = 50_000
+   min_chunk = 48_000
    ds_list = []
    for ds in ds_name:
     raw_data_filterd = raw_data.filter(lambda ex: ex["ds"] == ds) 

@@ -8,41 +8,43 @@ dataset_args:
     streaming: false
 
 model_args:
-    # tokenizer_path: './home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw'
-    # model_path: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw'
-    tokenizer_path: HooshvareLab/gpt2-fa
-    model_path: 'HooshvareLab/gpt2-fa'
-    # tokenizer_path: '/media/abbas/Backup/mGPT-1.3B-persian/'
-    # model_path: '/media/abbas/Backup/mGPT-1.3B-persian/'
+    tokenizer_path: './home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw'
+    model_path: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw'
+    # tokenizer_path: HooshvareLab/gpt2-fa
+    # model_path: HooshvareLab/gpt2-fa
+    #tokenizer_path: "universitytehran/PersianMind-v1.0"
+    #model_path: "universitytehran/PersianMind-v1.0"
+    #tokenizer_path: '/media/abbas/Backup/mGPT-1.3B-persian/'
+    #model_path: '/media/abbas/Backup/mGPT-1.3B-persian/'
     #vocab_size: 25000
     vocab_size: 42001
 
 training_args:
-    run_name: 'mgpt.snapp-digi-sentiment'
-    datasets: 'PNLPhub/snappfood-sentiment-analysis,PNLPhub/digikala-sentiment-analysis'
-    instruction_template: hooshvare
+    run_name: llama2.snapp-digi-pn_sum-syntran-qa-pharaphrase-reading_comp-parsi_sent
+    datasets: PNLPhub/snappfood-sentiment-analysis,PNLPhub/digikala-sentiment-analysis,pn_summary,SLPL/syntran-fa,SajjadAyoubi/persian_qa,persiannlp/parsinlu_query_paraphrasing,parsinlu_reading_comprehension,persiannlp/parsinlu_sentiment
+    instruction_template: llama
     shots: 3
     seed: 32
     pin_memory: true
     buffer_size: 10000
     max_len: 512
-    output_dir: './results/mgpt.snapp-digi-sentiment'
+    output_dir: ./results/llama2.snapp-digi-pn_sum-syntran-qa-pharaphrase-reading_comp-parsi_sent
     # evaluation_strategy: "steps"
-    num_train_epochs: 2 
+    num_train_epochs: 1
     max_steps: -1
     save_steps: 200
-    logging_steps: 200
+    logging_steps: 500
     per_device_train_batch_size: 8
     gradient_accumulation_steps: 2
     learning_rate: 0.001
-    optim: "paged_adamw_8bit"
-    lr_scheduler_type: 'linear'
+    optim: paged_adamw_8bit
+    lr_scheduler_type: linear
     warmup_steps: 600
     gradient_checkpointing: false
     bf16: true
     fp16: false
     weight_decay: 0.001
-    report_to: "wandb"
+    report_to: wandb
     # report_to: "neptune"
 
 evaluation_args:
@@ -58,11 +60,11 @@ evaluation_args:
     model_path: null
     peft_model_id: null
 
-    datasets: 'PNLPhub/snappfood-sentiment-analysis,PNLPhub/digikala-sentiment-analysis'
+    datasets: PNLPhub/FarsTail,PNLPhub/digikala-sentiment-analysis
     # datasets: 'PNLPhub/snappfood-sentiment-analysis'
-    instruction_template: hooshvare
+    instruction_template: llama
     shots: 3
-    task_type: 'multiple_choice' # 'generate_until'
+    task_type: multiple_choice # 'generate_until'
     batch_size: 8
     max_len: 512
 

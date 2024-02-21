@@ -12,7 +12,7 @@ import torch
 from data_ops.fars_instruct_dataset import FarsInstructDataset
 from modeling import load_pretaining_model
 from utils import *
-from callbacks import LLMEvaluation,LLMCNeptuneCallback
+from callbacks import LLMEvaluationCallback,LLMCNeptuneCallback
 from transformers.integrations import NeptuneCallback
 
 
@@ -118,9 +118,6 @@ def main(configs, args):
     print("### Dataset sample: ###")
     print(tokenizer.batch_decode(next(iter(train_loader))['input_ids'])[0])
 
-    model.resize_token_embeddings(len(tokenizer))
-
-
     trainer = Trainer(
         model=model,
         args=training_args,
@@ -131,9 +128,9 @@ def main(configs, args):
     )
 
     # we instantiate the W&B callback with the trainer object and the dataset we want to sample from
-
-    wandb_callback = LLMEvaluation(trainer, configs)#, accelerator.trackers[0])#, neptune_run)
+    wandb_callback = LLMEvaluationCallback(trainer, configs)
     trainer.add_callback(wandb_callback)
+    
     #if accelerator.is_main_process:
     #    neptune_callback = NeptuneCallback(
     #            run=neptune_run,

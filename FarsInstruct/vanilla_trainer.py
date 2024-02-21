@@ -8,7 +8,7 @@ import warnings
 
 
 from data_ops.fars_instruct_dataset import FarsInstructDataset
-from callbacks import LLMSampleCB
+from callbacks import LLMEvaluationCallback
 from modeling import load_pretaining_model
 from utils import *
 
@@ -24,7 +24,7 @@ def main(configs, args):
     seed = training_args.seed
     np.random.seed(seed)
     torch.manual_seed(seed)
-    accelerator = Accelerator(cpu=False,log_with="wandb")
+    accelerator = Accelerator(cpu=False, log_with="wandb")
     print(f"Run name: {training_args.run_name}")
     print(f"seed: {training_args.seed}")
     print(f"device: {accelerator.device}")
@@ -94,7 +94,7 @@ def main(configs, args):
     )
 
     # we instantiate the W&B callback with the trainer object and the dataset we want to sample from
-    wandb_callback = LLMSampleCB(trainer, configs)
+    wandb_callback = LLMEvaluationCallback(trainer, configs)
     trainer.add_callback(wandb_callback)
 
     print('Start training...')

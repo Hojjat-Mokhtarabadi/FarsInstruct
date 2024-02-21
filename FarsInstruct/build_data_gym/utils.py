@@ -36,7 +36,11 @@ def read_all_and_convert_t0_csv(ds_name, split, shots):
     all_dfs = pd.DataFrame(columns=['inputs', 'outputs', 'ds', 'template'])
     all_files = list(DATA_PATH.rglob('*.*'))
     for file in tqdm(all_files, total=len(all_files)):
-        file_parent_name = f"{file.parent.parent.parent.name}/{file.parent.parent.name}"
+        if file.parent.parent.parent.name != 'data':
+            file_parent_name = f"{file.parent.parent.parent.name}/{file.parent.parent.name}"
+        else: 
+            file_parent_name = file.parent.parent.name
+
         if 'sample_data' in file.parent.name:
             continue
         if ds_name != 'all' and file_parent_name not in ds_names:
@@ -46,7 +50,11 @@ def read_all_and_convert_t0_csv(ds_name, split, shots):
             df = pd.read_csv(file)
             all_dfs = pd.concat([all_dfs, df])
 
-    all_dfs = all_dfs.drop(columns=['Unnamed: 0'])
+    try:
+        all_dfs = all_dfs.drop(columns=['Unnamed: 0'])
+    except:
+        print('Unnamed: 0 does not exist!')
+
     all_dfs = all_dfs.dropna()
     all_dfs.to_csv(ds_path, index=False, header=True, mode='w+')
     print(f"Dataset save as: {ds_path}")

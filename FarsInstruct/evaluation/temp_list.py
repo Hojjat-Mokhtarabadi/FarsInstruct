@@ -1,37 +1,37 @@
 TEMP_LIST = {
     'multiple_choice': {
         'PNLPhub/FarsTail' : [
-            'can_you_infer_zs',
-            'does_this_imply_zs',
-            'do_they_relate_fs'
+            'can_you_infer',
+            'does_this_imply',
+            'do_they_relate'
         ],
         'persiannlp/parsinlu_entailment' : [
-            'GPT3_Style_fs',
-            'based_on_the_previous_passage_zs',
-            'can_you_infer_zs',
-            'consider_always_sometimes_never_fs',
-            'does_this_imply_fs'
+            'GPT3_Style',
+            'based_on_the_previous_passage',
+            'can_you_infer',
+            'consider_always_sometimes_never',
+            'does_this_imply'
         ],
         'PNLPhub/DigiMag' : [
-            'classify_content_fs',
-            'does_it_belong_to_art_zs',
-            'does_it_belong_to_book_zs',
-            'does_it_belong_to_cosmetic_zs',
-            'does_it_belong_to_game_zs',
-            'does_it_belong_to_general_zs',
-            'does_it_belong_to_shop_zs',
-            'does_it_belong_to_techno_zs',
-            'what_categ_is_the_content_is_zs'
+            'classify_content',
+            'does_it_belong_to_art',
+            'does_it_belong_to_book',
+            'does_it_belong_to_cosmetic',
+            'does_it_belong_to_game',
+            'does_it_belong_to_general',
+            'does_it_belong_to_shop',
+            'does_it_belong_to_techno',
+            'what_categ_is_the_content_is'
         ],
         'persiannlp/parsinlu_sentiment': [
-            'question_aspect_fs',
-            'review_aspect_zs'
+            'question_aspect',
+            'review_aspect'
         ],
         'pn_summary' : [
-            'classify_summary_fs',
-            'classify_title_fs',
-            'select_correct_class_zs',
-            'what_category_it_belongs_to_zs'
+            'classify_summary',
+            'classify_title',
+            'select_correct_class',
+            'what_category_it_belongs_to'
         ],
         'PNLPhub/digikala-sentiment-analysis' : [
             'is_avg',
@@ -45,7 +45,7 @@ TEMP_LIST = {
             'what_is_sentiment'
         ],
         'PNLPhub/parsinlu-multiple-choice' : [
-            #'category_answer',
+            'category_answer',
             'category',
             'category_QA',
             'choose_the_correct_candidate',
