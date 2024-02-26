@@ -20,7 +20,6 @@ def load_pretaining_model(model_name_or_path, quantization_args=None):
                                               use_fast=True, 
                                               pad_token='<pad>')
     config = AutoConfig.from_pretrained(model_name_or_path)
-
     model = AutoModelForCausalLM.from_pretrained(model_name_or_path, 
                                                  quantization_config=bnb_config if quantization_args else None, 
                                                  config=config)

@@ -2,7 +2,7 @@ from torch.optim.optimizer import Optimizer as Optimizer
 from torch.utils import data
 from transformers import Trainer, DataCollatorForLanguageModeling
 from peft import prepare_model_for_kbit_training
-from peft import LoraConfig, get_peft_model
+from peft import LoraConfig, get_peft_model, PeftModel
 from accelerate import Accelerator
 
 from argparse import ArgumentParser
@@ -12,8 +12,7 @@ import torch
 from data_ops.fars_instruct_dataset import FarsInstructDataset
 from modeling import load_pretaining_model
 from utils import *
-from callbacks import LLMEvaluationCallback,LLMCNeptuneCallback
-from transformers.integrations import NeptuneCallback
+from callbacks import LLMEvaluationCallback
 
 
 def print_trainable_parameters(model):
@@ -63,8 +62,9 @@ def main(configs, args):
     model, tokenizer = load_pretaining_model(model_args.model_path, quantization_args)
     model.gradient_checkpointing_enable()
     model.config.use_cache = False 
+    model.config.pretraining_tp = 1 
     model = prepare_model_for_kbit_training(model)
- 
+    
     lora_config = LoraConfig(
         r=quantization_args.lora_rank, 
         lora_alpha=quantization_args.lora_alpha, 
@@ -73,7 +73,13 @@ def main(configs, args):
         task_type="CAUSAL_LM"
     )
 
-    model = get_peft_model(model, lora_config)
+    print(f"Peft Model id: {model_args.peft_model}")
+    if model_args.peft_model != None:
+        model = PeftModel.from_pretrained(model, model_args.peft_model)
+    else:
+        model = get_peft_model(model, lora_config)
+
+    model.resize_token_embeddings(len(tokenizer))
 
     print(f'base model: {model_args.model_path}')
     print_trainable_parameters(model)

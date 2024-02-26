@@ -68,6 +68,7 @@ class ModelArgs:
     model_path: str
     tokenizer_path: str
     vocab_size: int
+    peft_model: str = None
 
 class TrainingArgs(TrainingArguments):
   def __init__(self, datasets, instruction_template, shots, buffer_size, max_len, pin_memory, **kwargs):

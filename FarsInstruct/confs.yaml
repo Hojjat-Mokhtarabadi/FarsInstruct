@@ -8,19 +8,27 @@ dataset_args:
     streaming: false
 
 model_args:
-    tokenizer_path: './home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw'
-    model_path: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw'
+    # tokenizer_path: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw'
+    # model_path: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw'
+    # peft_model: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/llama2.snapp-digi-pn_sum-syntran-qa-pharaphrase-reading_comp-parsi_sent/checkpoint-3200'
+
+    #tokenizer_path: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/llama2.snapp-digi-pn_sum-syntran-qa-pharaphrase-reading_comp-parsi_sent/checkpoint-3200'
+    #model_path: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/llama2.snapp-digi-pn_sum-syntran-qa-pharaphrase-reading_comp-parsi_sent/checkpoint-3200'
+
     # tokenizer_path: HooshvareLab/gpt2-fa
     # model_path: HooshvareLab/gpt2-fa
-    #tokenizer_path: "universitytehran/PersianMind-v1.0"
-    #model_path: "universitytehran/PersianMind-v1.0"
-    #tokenizer_path: '/media/abbas/Backup/mGPT-1.3B-persian/'
-    #model_path: '/media/abbas/Backup/mGPT-1.3B-persian/'
+
+    tokenizer_path: /media/abbas/Backup/PersianMind-v1.0
+    model_path: /media/abbas/Backup/PersianMind-v1.0
+
+    # tokenizer_path: '/media/abbas/Backup/mGPT-1.3B-persian/'
+    # model_path: '/media/abbas/Backup/mGPT-1.3B-persian/'
+
     #vocab_size: 25000
     vocab_size: 42001
 
 training_args:
-    run_name: llama2.snapp-digi-pn_sum-syntran-qa-pharaphrase-reading_comp-parsi_sent
+    run_name: persian_mind.snapp-digi-pn_sum-syntran-qa-pharaphrase-reading_comp-parsi_sent
     datasets: PNLPhub/snappfood-sentiment-analysis,PNLPhub/digikala-sentiment-analysis,pn_summary,SLPL/syntran-fa,SajjadAyoubi/persian_qa,persiannlp/parsinlu_query_paraphrasing,parsinlu_reading_comprehension,persiannlp/parsinlu_sentiment
     instruction_template: llama
     shots: 3
@@ -28,7 +36,7 @@ training_args:
     pin_memory: true
     buffer_size: 10000
     max_len: 512
-    output_dir: ./results/llama2.snapp-digi-pn_sum-syntran-qa-pharaphrase-reading_comp-parsi_sent
+    output_dir: ./results/persian_mind.snapp-digi-pn_sum-syntran-qa-pharaphrase-reading_comp-parsi_sent
     # evaluation_strategy: "steps"
     num_train_epochs: 1
     max_steps: -1
