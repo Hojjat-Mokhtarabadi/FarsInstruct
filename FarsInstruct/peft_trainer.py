@@ -1,18 +1,19 @@
-from torch.optim.optimizer import Optimizer as Optimizer
+import numpy as np
+import torch
 from torch.utils import data
+from torch.optim.optimizer import Optimizer as Optimizer
 from transformers import Trainer, DataCollatorForLanguageModeling
 from peft import prepare_model_for_kbit_training
 from peft import LoraConfig, get_peft_model, PeftModel
 from accelerate import Accelerator
-
+from accelerate.utils import ProjectConfiguration
 from argparse import ArgumentParser
-import numpy as np
-import torch
 
 from data_ops.fars_instruct_dataset import FarsInstructDataset
 from modeling import load_pretaining_model
+from callbacks import LLMTensorboardCallback
 from utils import *
-from callbacks import LLMEvaluationCallback
+
 
 
 def print_trainable_parameters(model):
@@ -36,12 +37,12 @@ def main(configs, args):
     model_args = ModelArgs(**configs['model_args'])
     training_args = TrainingArgs(**configs['training_args'], )
     quantization_args = QuantizationArgs(**configs['quantization_args'])
-    accelerator = Accelerator(cpu=False, log_with="wandb")
 
+    config = ProjectConfiguration(project_dir=".", logging_dir=training_args.logging_dir)
+    accelerator = Accelerator(cpu=False, log_with="tensorboard", project_config=config)
     accelerator.init_trackers(
-        project_name="FarsInstruct", 
-        config=configs,
-        init_kwargs={"wandb": {"entity": "farsinstruct"}}
+        project_name=training_args.run_name
+        #config
     )
 
     #if accelerator.is_main_process:
@@ -59,10 +60,9 @@ def main(configs, args):
 
      #> load model
     print('Loading model...')
-    model, tokenizer = load_pretaining_model(model_args.model_path, quantization_args)
+    model, tokenizer = load_pretaining_model(model_args.model_path, model_args.tokenizer_path, quantization_args)
     model.gradient_checkpointing_enable()
     model.config.use_cache = False 
-    model.config.pretraining_tp = 1 
     model = prepare_model_for_kbit_training(model)
     
     lora_config = LoraConfig(
@@ -80,6 +80,7 @@ def main(configs, args):
         model = get_peft_model(model, lora_config)
 
     model.resize_token_embeddings(len(tokenizer))
+    model.enable_input_require_grads()
 
     print(f'base model: {model_args.model_path}')
     print_trainable_parameters(model)
@@ -132,19 +133,10 @@ def main(configs, args):
         data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
         #accelerator=accelerator,
     )
-
-    # we instantiate the W&B callback with the trainer object and the dataset we want to sample from
-    wandb_callback = LLMEvaluationCallback(trainer, configs)
-    trainer.add_callback(wandb_callback)
     
-    #if accelerator.is_main_process:
-    #    neptune_callback = NeptuneCallback(
-    #            run=neptune_run,
-    #            log_checkpoints=None,  # Update to "last" or "best" if you want to log model checkpoints to Neptune
-    #        )
-    #    trainer.add_callback(neptune_callback)
-    #neptune_callback = LLMCNeptuneCallback(trainer,configs,neptune_run)
-    #trainer.add_callback(neptune_callback)
+    # we instantiate the callback with the trainer object and the dataset we want to sample from
+    tensorboard_callback = LLMTensorboardCallback(trainer, configs, training_args.logging_dir, training_args.run_name )
+    trainer.add_callback(tensorboard_callback)
 
     print('Start training...')
     trainer.train()  

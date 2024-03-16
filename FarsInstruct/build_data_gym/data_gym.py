@@ -22,8 +22,9 @@ class DataGym:
     def build_zs_gym(self):
         inputs = []; outputs = [] 
         for example in tqdm(self.data, total=len(self.data)):
-            result = self.template.apply(example)            
-            inputs.append(result[0])
+            result = self.template.apply(example)
+            txt = '\n'.join(result[0].split('\n\n'))          
+            inputs.append(txt)
             outputs.append(result[1])
             
         result_dict = {'inputs': inputs, 'outputs': outputs, 

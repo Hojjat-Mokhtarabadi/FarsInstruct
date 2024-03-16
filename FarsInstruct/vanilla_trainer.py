@@ -1,5 +1,6 @@
 import numpy as np
 from accelerate import Accelerator
+from accelerate.utils import LoggerType,ProjectConfiguration
 import torch
 from torch.utils import data
 from argparse import ArgumentParser
@@ -24,7 +25,9 @@ def main(configs, args):
     seed = training_args.seed
     np.random.seed(seed)
     torch.manual_seed(seed)
-    accelerator = Accelerator(cpu=False, log_with="wandb")
+    # use with ProjectConfiguration
+    config = ProjectConfiguration(project_dir=".", logging_dir="another/directory")
+    accelerator = Accelerator(cpu=False, log_with=["wandb", LoggerType.TENSORBOARD], project_config=config)
     print(f"Run name: {training_args.run_name}")
     print(f"seed: {training_args.seed}")
     print(f"device: {accelerator.device}")

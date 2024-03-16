@@ -1,16 +1,17 @@
-from torch.utils.data import DataLoader    
+import json
 import torch
-from tqdm import tqdm
-import argparse
-from argparse import ArgumentParser
-import warnings
-from transformers import AutoTokenizer
-import evaluate
-from accelerate import Accelerator
 import numpy as np
+from tqdm import tqdm
+import warnings
+import evaluate
+from transformers import AutoTokenizer
+from argparse import ArgumentParser
+from accelerate import Accelerator
+from torch.utils.data import DataLoader 
+
 from transformers import DataCollatorWithPadding
 from hazm import sent_tokenize
-import json
+
 from prettytable import PrettyTable
 
 from FarsInstruct.evaluation.data_collator import DataCollatorForMultipleChoice
@@ -18,7 +19,7 @@ from FarsInstruct.evaluation.eval_dataset import FarsInstructEvalDataset
 from FarsInstruct.evaluation.model import DecoderModel, load_causal_model
 from FarsInstruct.evaluation.temp_list import TEMP_LIST
 
-from FarsInstruct.utils import EvaluationArgs, DatasetArgs, TrainingArgs, load_yml_file
+from FarsInstruct.utils import EvaluationArgs, DatasetArgs, load_yml_file
 
 #! ignore sourceTensor.clone().detach() warning
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -44,21 +45,21 @@ class LMEvaluation:
                                                             padding_side='right')
         self.tokenizer.pad_token = self.tokenizer.eos_token
 
-    def run_eval(self, current_model, step:int = 0):
+    def run_eval(self, current_model, step:int = 0, write_out: bool = False):
         #> setup
         tbl = PrettyTable()
         tbl.field_names = ["ds_name", "temp_name", "result"]
         self.model = current_model
-        # Remove "Setting pad_token_id to eos_token_id" warning!
-        self.model.config.pad_token_id  = self.model.config.eos_token_id
-
         print(f"device: {self.accelerator.device}")
 
         #> load model
         print('Loading model...')
         print(f'Peft model id: {self.eval_args.peft_model_id}')
         multiple_choice_model = DecoderModel(self.eval_args.model_path, self.eval_args.peft_model_id, current_model)
-        causal_model = load_causal_model(self.eval_args.model_path, self.eval_args.peft_model_id, current_model)
+        # causal_model = load_causal_model(self.eval_args.model_path, self.eval_args.peft_model_id, current_model)
+        causal_model = current_model
+        # Remove "Setting pad_token_id to eos_token_id" warning!
+        # self.model.config.pad_token_id  = self.model.config.eos_token_id
 
         print(f'base model: {self.eval_args.model_path}')
         print("Note that if base model and peft model are 'None', the evaluation function is using the model under training!")
@@ -103,6 +104,11 @@ class LMEvaluation:
             tbl.add_row([res['ds_name'], res['temp_name'], res['result']])
 
         print(tbl)
+        
+        if write_out:
+            with open(f'../evaluation/{self.run_name}_results.txt', 'w') as f:
+                f.write(str(tbl))
+
         # print("#### Generated Samples ####")
         with open('../evaluation_results/samples.json', 'w+') as f:
             json.dump({f'Samples at step {step}': samples}, f)
@@ -279,8 +285,9 @@ class LMEvaluation:
 if __name__ == "__main__":
     parser = ArgumentParser("Fars Insturct Evaluation")
     parser.add_argument('--split', choices=['test', 'validation'], required=True)
+    parser.add_argument('--write_out', action='store_true')
     args = parser.parse_args()
     configs = load_yml_file('confs.yaml')
 
-    lm_eval = LMEvaluation()
-    lm_eval.run_eval(configs, args.split)
+    lm_eval = LMEvaluation(configs, None, args.split)
+    lm_eval.run_eval(current_model=None, step=-1, write_out=args.write_out)

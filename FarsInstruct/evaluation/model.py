@@ -23,19 +23,23 @@ def load_causal_model(model_name_or_path, peft_model_id, current_model):
 class DecoderModel(nn.Module):
     def __init__(self, model_name_or_path: str, peft_model_id = None, current_model = None):
         super(DecoderModel, self).__init__()
+
+        from transformers import BitsAndBytesConfig
+        quantization_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_use_double_quant=True,
+                    bnb_4bit_quant_type="nf4")
         
         if current_model != None:
             self._model = current_model
         else:
-            if peft_model_id != None:
-                config = PeftConfig.from_pretrained(peft_model_id)
-            else:
-                config = AutoConfig.from_pretrained(model_name_or_path)
-
-            self._model = AutoModelForCausalLM.from_pretrained(model_name_or_path, config=config)
+            config = AutoConfig.from_pretrained(model_name_or_path)
+            self._model = AutoModelForCausalLM.from_pretrained(model_name_or_path, config=config, quantization_config=quantization_config)
 
             if peft_model_id != None:
                 self._model = PeftModel.from_pretrained(self._model, peft_model_id)
+
+            self._model.print_trainable_parameters()
 
 
     def forward(self, batch):

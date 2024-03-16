@@ -1,11 +1,10 @@
-from transformers import AutoTokenizer, AutoConfig, GPT2LMHeadModel, AutoModelForCausalLM
 import torch
-from torch import nn
+from transformers import AutoTokenizer, AutoConfig, AutoModelForCausalLM
 from argparse import ArgumentParser
 
 
 
-def load_pretaining_model(model_name_or_path, quantization_args=None):
+def load_pretaining_model(model_name_or_path, tokenizer_path, quantization_args=None):
     if quantization_args:
         from transformers import BitsAndBytesConfig
         bnb_config = BitsAndBytesConfig(
@@ -14,11 +13,11 @@ def load_pretaining_model(model_name_or_path, quantization_args=None):
             bnb_4bit_quant_type=quantization_args.quant_type,
             bnb_4bit_compute_dtype=torch.bfloat16
         )
-
-        
-    tokenizer = AutoTokenizer.from_pretrained(model_name_or_path,
+  
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_path,
                                               use_fast=True, 
-                                              pad_token='<pad>')
+                                              pad_token='<pad>',
+                                              padding_side='right')
     config = AutoConfig.from_pretrained(model_name_or_path)
     model = AutoModelForCausalLM.from_pretrained(model_name_or_path, 
                                                  quantization_config=bnb_config if quantization_args else None, 
@@ -33,16 +32,3 @@ if __name__ == "__main__":
 
     sent = 'فردا یک قرار کاری با علی دارم'
     #model, tokenizer = load_model(args)
-
-
-
-
-"""
-metric_list:
-  - metric: !function utils.rouge
-    aggregation: mean
-    higher_is_better: true
-
-
-"""
-

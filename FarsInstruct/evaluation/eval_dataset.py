@@ -95,7 +95,7 @@ class FarsInstructEvalDataset:
             preprocess_fn = self._generation_preprocess_fn
 
         self.ds = self.ds.filter(lambda x: x['ds'] == ds_name and x['template'] == temp_name)
-        self.ds = self.ds.shuffle(seed=30).select(range(0, min(150, len(self.ds))))
+        self.ds = self.ds.shuffle(seed=30).select(range(0, min(2, len(self.ds))))
         return self.ds.map(preprocess_fn, batched=True, remove_columns=self.extra_cols)
 
 

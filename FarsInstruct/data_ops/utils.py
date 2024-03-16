@@ -20,7 +20,7 @@ def normalization(text):
         # Strip the leading and the trailing white spaces
         sentence = sentence.strip()
         # Remove the spaces before punctuations
-        sentence = patterns["NO_SPACE_BEFORE"].sub("", sentence)
+        # sentence = patterns["NO_SPACE_BEFORE"].sub("", sentence)
 
         snt += sentence
     return snt
@@ -66,7 +66,7 @@ def load_meta_data():
 
 ### --- sampling functions ---
 def sample_dataset(raw_data, ds_name):  
-   min_chunk = 48_000
+   min_chunk = 18_000
    ds_list = []
    for ds in ds_name:
     raw_data_filterd = raw_data.filter(lambda ex: ex["ds"] == ds) 

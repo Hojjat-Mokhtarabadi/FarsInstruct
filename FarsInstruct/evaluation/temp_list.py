@@ -3,14 +3,30 @@ TEMP_LIST = {
         'PNLPhub/FarsTail' : [
             'can_you_infer',
             'does_this_imply',
-            'do_they_relate'
+            'do_they_relate',
+            'confidence',
+            'comparison',
+            # 'claim_relation',
+            # 'evaluate'
         ],
         'persiannlp/parsinlu_entailment' : [
             'GPT3_Style',
             'based_on_the_previous_passage',
             'can_you_infer',
             'consider_always_sometimes_never',
-            'does_this_imply'
+            'does_this_imply',
+            'confidence',
+            'evaluate',
+            # 'claim_relation',
+            'classify',
+            'comparison',
+            
+        ],    
+        'persiannlp/parsinlu_query_paraphrasing': [
+            'compare_2_sents',
+            'give_sent1_can_sent2_paraphrase',
+            'given_sent1_sent2_paraphrase',
+            'is_it_paraphrase'
         ],
         'PNLPhub/DigiMag' : [
             'classify_content',
@@ -24,8 +40,10 @@ TEMP_LIST = {
             'what_categ_is_the_content_is'
         ],
         'persiannlp/parsinlu_sentiment': [
+            'question_review_aspect',
             'question_aspect',
-            'review_aspect'
+            'review_aspect',
+            'question_aspect2'
         ],
         'pn_summary' : [
             'classify_summary',
@@ -81,13 +99,6 @@ TEMP_LIST = {
             'give_short_answer_fs',
             'give_short_answers_zs',
             'question_context_zs'
-        ],
-        'persiannlp/parsinlu_query_paraphrasing': [
-            'compare_2_sents_fs',
-            'gen_new_paraphrase_fs',
-            'give_sent1_can_sent2_paraphrase_zs',
-            'given_sent1_sent2_paraphrase_fs',
-            'is_it_paraphrase_zs'
         ],
         'persiannlp/parsinlu_sentiment': [
             'aspect_category_review_zs',
