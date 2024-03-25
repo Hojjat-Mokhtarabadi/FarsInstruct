@@ -28,5 +28,9 @@ class LLMTensorboardCallback(TensorBoardCallback):
         for x in all_results:
             for key in x['result']:
                 self.writer.add_scalar(f"logs/evaluating/{x['ds_name']}/{x['temp_name']}/{key}",x['result'][key],self.trainer.state.global_step)
+        for sample in samples:
+            for i, token in enumerate(['input','preds','label']):
+                self.writer.add_text(f"logs/evaluating/{sample['ds_name']}/{sample['temp_name']}/{token}",str(sample['tokens'][i][0]),self.trainer.state.global_step)
+
 
 

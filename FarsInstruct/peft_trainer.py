@@ -122,6 +122,7 @@ def main(configs, args):
 
 
     model, train_set = accelerator.prepare(model, train_set)
+    print(f"Dataset length: {len(train_set)}")
     print("### Dataset sample: ###")
     print(tokenizer.batch_decode(next(iter(train_loader))['input_ids'])[0])
 

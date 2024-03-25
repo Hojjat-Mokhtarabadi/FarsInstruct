@@ -37,6 +37,8 @@ class LMEvaluation:
         self.shots = self.eval_args.shots
         self.run_name = configs['training_args']['run_name']
 
+        self.metric = evaluate.load("accuracy")
+
         if tokenizer != None:
             self.tokenizer = tokenizer
         else:
@@ -80,8 +82,8 @@ class LMEvaluation:
                         res = self.run_multiple_choice_evaluation(ds_name, temp_name, multiple_choice_model)
                         all_results.append(res)
                         
-                        # sample = self.generate_sample(ds_name, temp_name, causal_model)
-                        # samples.append(sample)
+                        sample = self.generate_sample(ds_name, temp_name, causal_model)
+                        samples.append(sample)
                 else:
                     continue
 
@@ -114,7 +116,7 @@ class LMEvaluation:
             json.dump({f'Samples at step {step}': samples}, f)
 
 
-        #samples = {f'Samples at step {step}': samples}
+        # samples = {f'Samples at step {step}': samples}
         #all_results = {'Evaluation results': all_results}
         # self.pretty_print(samples)
         # print("#### Generated Samples stored at 'sample.json'! ####")
@@ -148,7 +150,7 @@ class LMEvaluation:
             generated_tokens = self.accelerator.unwrap_model(model).generate(
                 input_ids=batch['input_ids'],
                 attention_mask=batch['attention_mask'],
-                 max_new_tokens=5
+                max_new_tokens=20
             )
 
             generated_tokens = self.accelerator.pad_across_processes(
@@ -191,16 +193,16 @@ class LMEvaluation:
         #> start evaluation
         print(f"Start Evaluation on {ds_name}/{temp_name}...")
         model.eval()
-        metric = evaluate.load("accuracy")
         for idx, batch in tqdm(enumerate(val_dataloader), total=len(val_dataloader)):
             with torch.no_grad():
                 predictions = model(batch)
 
-                metric.add_batch(
+                self.metric.add_batch(
                 predictions=predictions,
                 references=batch["targets"])
                 
-        result = metric.compute()
+        result = self.metric.compute()
+        self.metric.reset()
         output_res = {
             'ds_name': ds_name, 
             'temp_name': temp_name, 

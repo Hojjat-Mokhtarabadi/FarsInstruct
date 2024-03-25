@@ -10,13 +10,14 @@ class DataGym:
     """
     Apply template on datasets according to they specified type (zero-shot or few-shot)
     """
-    def __init__(self, dataset_name:str, template_name: str, split: str):        
+    def __init__(self, dataset_name:str, subset_name: str, template_name: str, split: str):        
         self.dataset_name = dataset_name
+        self.subset_name = subset_name
         self.data = load_dataset(self.dataset_name, split=split)
         self.split = split
         self.template_name = template_name
         
-        self.template = DatasetTemplates(self.dataset_name)[template_name]
+        self.template = DatasetTemplates(self.dataset_name, self.subset_name)[template_name]
 
 
     def build_zs_gym(self):
@@ -30,7 +31,7 @@ class DataGym:
         result_dict = {'inputs': inputs, 'outputs': outputs, 
                        'ds': self.dataset_name, 'template': self.template_name}
         
-        save_data(result_dict, self.dataset_name, self.template_name, self.split)
+        save_data(result_dict, self.dataset_name, self.template_name, self.split, self.subset_name)
 
         return
     
@@ -66,14 +67,17 @@ class DataGym:
         result_dict = {'inputs': inputs, 'outputs': outputs, 
                        'ds': self.dataset_name, 'template': self.template_name}
         
-        save_data(result_dict, self.dataset_name, self.template_name, self.split)
+        save_data(result_dict, self.dataset_name, self.template_name, self.split, self.subset_name)
 
         return
 
 
-def save_data(result, dataset_name, template_name, split):
+def save_data(result, dataset_name, template_name, split, subset_name = None):
     df = pd.DataFrame.from_dict(result)
-    dir = f"data/{dataset_name}/{split}"
+    if subset_name == None:
+        dir = f"data/{dataset_name}/{split}"
+    else: 
+        dir = f"data/{dataset_name}_{subset_name}/{split}"
     if os.path.exists(dir):
         df.to_csv(f"{dir}/{template_name}_{split}.csv", mode='w+')
     else:

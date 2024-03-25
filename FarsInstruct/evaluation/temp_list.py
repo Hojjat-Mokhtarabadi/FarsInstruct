@@ -6,28 +6,32 @@ TEMP_LIST = {
             'do_they_relate',
             'confidence',
             'comparison',
-            # 'claim_relation',
-            # 'evaluate'
+            'claim_relation',
+            'evaluate',
+            'classify'
         ],
         'persiannlp/parsinlu_entailment' : [
             'GPT3_Style',
             'based_on_the_previous_passage',
             'can_you_infer',
-            'consider_always_sometimes_never',
             'does_this_imply',
             'confidence',
             'evaluate',
-            # 'claim_relation',
+            'claim_relation',
             'classify',
-            'comparison',
+            #'comparison',
             
         ],    
         'persiannlp/parsinlu_query_paraphrasing': [
-            'compare_2_sents',
-            'give_sent1_can_sent2_paraphrase',
-            'given_sent1_sent2_paraphrase',
-            'is_it_paraphrase'
+            'compare_two_sents',
+            'different_or_same',
+            'sucess_level',
+            'relatable_or_not',
+            'never_always',
+            'similar_or_not',
+            #'same_meaning'
         ],
+
         'PNLPhub/DigiMag' : [
             'classify_content',
             'does_it_belong_to_art',

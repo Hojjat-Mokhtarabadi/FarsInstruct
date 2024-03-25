@@ -78,7 +78,7 @@ class FarsInstructEvalDataset:
         return features
     
     def _generation_preprocess_fn(self, ex):
-        inputs = self.add_special_token(ex['inputs'])
+        inputs = ex['inputs']
         targets = ex['outputs']
         features = self.tokenizer(inputs, truncation=True, max_length=self.max_len, padding='max_length')
         labels = self.tokenizer(text_target=targets, truncation=True, max_length=self.max_len, padding='max_length')
@@ -95,7 +95,7 @@ class FarsInstructEvalDataset:
             preprocess_fn = self._generation_preprocess_fn
 
         self.ds = self.ds.filter(lambda x: x['ds'] == ds_name and x['template'] == temp_name)
-        self.ds = self.ds.shuffle(seed=30).select(range(0, min(2, len(self.ds))))
+        self.ds = self.ds.shuffle(seed=30).select(range(0, min(100, len(self.ds))))
         return self.ds.map(preprocess_fn, batched=True, remove_columns=self.extra_cols)
 
 

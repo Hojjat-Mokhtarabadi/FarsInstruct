@@ -11,12 +11,13 @@ def build_gym(ds_name: str = 'all', split: str = 'train', shots: int = 3):
         """
         for template_name in item['Prompt names']:
                 print('Generating data based on {}_{}...'.format(item['Dataset name'], template_name))
+                subset_name = item['Subset']
                 try:
                     if shots > 1:
-                        data_gym = DataGym(dataset_name, template_name, split=split)
+                        data_gym = DataGym(dataset_name, subset_name, template_name, split=split)
                         data_gym.build_fs_gym(shots=shots)
                     elif shots == 1:
-                        data_gym = DataGym(dataset_name, template_name, split=split)
+                        data_gym = DataGym(dataset_name, subset_name, template_name, split=split)
                         data_gym.build_zs_gym()
                 except Exception as e:
                     print(e)

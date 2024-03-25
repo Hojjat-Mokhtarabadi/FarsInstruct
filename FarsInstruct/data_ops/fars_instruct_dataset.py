@@ -21,7 +21,7 @@ class FarsInstructDataset:
         if dataload_mode == 'local':
             # each model accepts different insturction template. select each based on config file.
             DATA_FILES = {
-                'train': f"data/{shots}shot_instruct_dataset_train.csv", 
+                'train': f"data/mixed_instruction_dataset_train.csv", 
                 'validation': f"data/{shots}shot_instruct_dataset_validation.csv", 
                 'test': f"data/{shots}shot_instruct_dataset_test.csv"}
             self.raw_dataset = load_dataset('csv', data_files=DATA_FILES, split=split, streaming=self.stream)
