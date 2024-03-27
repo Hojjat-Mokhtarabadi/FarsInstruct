@@ -37,8 +37,6 @@ class LMEvaluation:
         self.shots = self.eval_args.shots
         self.run_name = configs['training_args']['run_name']
 
-        self.metric = evaluate.load("accuracy")
-
         if tokenizer != None:
             self.tokenizer = tokenizer
         else:
@@ -193,16 +191,16 @@ class LMEvaluation:
         #> start evaluation
         print(f"Start Evaluation on {ds_name}/{temp_name}...")
         model.eval()
+        metric = evaluate.load("accuracy")
         for idx, batch in tqdm(enumerate(val_dataloader), total=len(val_dataloader)):
             with torch.no_grad():
                 predictions = model(batch)
 
-                self.metric.add_batch(
+                metric.add_batch(
                 predictions=predictions,
                 references=batch["targets"])
                 
-        result = self.metric.compute()
-        self.metric.reset()
+        result = metric.compute()
         output_res = {
             'ds_name': ds_name, 
             'temp_name': temp_name, 

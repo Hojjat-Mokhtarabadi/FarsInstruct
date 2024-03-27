@@ -84,5 +84,5 @@ def fix():
 
 
 
-# read_data()
-fix()
+read_data()
+# fix()
