@@ -21,16 +21,19 @@ class LLMTensorboardCallback(TensorBoardCallback):
         super().on_log(args, state, control, **kwargs)
 
         print("\n#### Running Evaluation... ####")
-        all_results, samples = self.lm_eval.run_eval(current_model=self.model, step=self.trainer.state.global_step)
-        
-        
-        self.writer = SummaryWriter(log_dir=f'{self.logging_dir}/{self.run_name}')
-        for x in all_results:
-            for key in x['result']:
-                self.writer.add_scalar(f"logs/evaluating/{x['ds_name']}/{x['temp_name']}/{key}",x['result'][key],self.trainer.state.global_step)
-        for sample in samples:
-            for i, token in enumerate(['input','preds','label']):
-                self.writer.add_text(f"logs/evaluating/{sample['ds_name']}/{sample['temp_name']}/{token}",str(sample['tokens'][i][0]),self.trainer.state.global_step)
+
+        try:
+            all_results, samples = self.lm_eval.run_eval(current_model=self.model, step=self.trainer.state.global_step)
+            
+            self.writer = SummaryWriter(log_dir=f'{self.logging_dir}/{self.run_name}')
+            for x in all_results:
+                for key in x['result']:
+                    self.writer.add_scalar(f"logs/evaluating/{x['ds_name']}/{x['temp_name']}/{key}",x['result'][key],self.trainer.state.global_step)
+            for sample in samples:
+                for i, token in enumerate(['input','preds','label']):
+                    self.writer.add_text(f"logs/evaluating/{sample['ds_name']}/{sample['temp_name']}/{token}",str(sample['tokens'][i][0]),self.trainer.state.global_step)
+        except Exception as e:
+            print(e)
 
 
 

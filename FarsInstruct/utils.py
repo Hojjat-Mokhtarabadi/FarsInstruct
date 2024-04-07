@@ -50,8 +50,10 @@ class TrainingArgs(TrainingArguments):
 
 @dataclass
 class EvaluationArgs:
+    run_name: str
     model_path: str
     tokenizer_path: str
+    model_type: str
     peft_model_id: str 
     batch_size: int
     max_len: int

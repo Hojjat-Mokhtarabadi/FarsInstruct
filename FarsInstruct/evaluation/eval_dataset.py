@@ -6,10 +6,10 @@ class FarsInstructEvalDataset:
         self.ans_choices = []
         self.tokenizer = tokenizer       
         # each model accepts different instruction template, select each based on config file.
-        DATA_FILES = {
-                'train': f"data/{shots}shot_instruct_dataset_train.csv", 
-                'validation': f"data/{shots}shot_instruct_dataset_validation.csv", 
-                'test': f"data/{shots}shot_instruct_dataset_test.csv"}
+        DATA_FILES = { 
+            'validation': f"data/{shots}shot_instruct_dataset_validation.csv", 
+            'test': f"data/{shots}shot_instruct_dataset_test.csv"
+            }
         self.ds = load_dataset('csv', data_files=DATA_FILES, split=split)
         
         self.max_len = max_len
@@ -37,6 +37,10 @@ class FarsInstructEvalDataset:
             return f"{ex} <startoftext>"
         elif self.instruction_template == 'mgpt':
             return f"{ex} [INST]" 
+        elif self.instruction_template == 'none':
+            return f"{ex}"
+        else:
+            raise Exception('available instruction templates: llama, hooshvare, mgpt, other')
 
     def _likelihood_preprocess_fn(self, ex):
         bs = len(ex["inputs"])
@@ -95,7 +99,7 @@ class FarsInstructEvalDataset:
             preprocess_fn = self._generation_preprocess_fn
 
         self.ds = self.ds.filter(lambda x: x['ds'] == ds_name and x['template'] == temp_name)
-        self.ds = self.ds.shuffle(seed=30).select(range(0, min(100, len(self.ds))))
+        self.ds = self.ds.shuffle(seed=30).select(range(0, min(250, len(self.ds))))
         return self.ds.map(preprocess_fn, batched=True, remove_columns=self.extra_cols)
 
 

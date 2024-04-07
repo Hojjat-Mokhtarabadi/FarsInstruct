@@ -16,7 +16,7 @@ from prettytable import PrettyTable
 
 from FarsInstruct.evaluation.data_collator import DataCollatorForMultipleChoice
 from FarsInstruct.evaluation.eval_dataset import FarsInstructEvalDataset
-from FarsInstruct.evaluation.model import DecoderModel, load_causal_model
+from FarsInstruct.evaluation.model import DecoderModel, EncoderDecoderModel
 from FarsInstruct.evaluation.temp_list import TEMP_LIST
 
 from FarsInstruct.utils import EvaluationArgs, DatasetArgs, load_yml_file
@@ -55,8 +55,13 @@ class LMEvaluation:
         #> load model
         print('Loading model...')
         print(f'Peft model id: {self.eval_args.peft_model_id}')
-        multiple_choice_model = DecoderModel(self.eval_args.model_path, self.eval_args.peft_model_id, current_model)
-        # causal_model = load_causal_model(self.eval_args.model_path, self.eval_args.peft_model_id, current_model)
+        if self.eval_args.model_type == 'causal':
+            multiple_choice_model = DecoderModel(self.eval_args.model_path, self.eval_args.peft_model_id, current_model)
+        elif self.eval_args.model_type == 'seq2seq':
+            multiple_choice_model = EncoderDecoderModel(self.eval_args.model_path, self.eval_args.peft_model_id, current_model)
+        else:
+            raise Exception("Invalid model type!")
+        
         causal_model = current_model
         # Remove "Setting pad_token_id to eos_token_id" warning!
         # self.model.config.pad_token_id  = self.model.config.eos_token_id
@@ -80,8 +85,8 @@ class LMEvaluation:
                         res = self.run_multiple_choice_evaluation(ds_name, temp_name, multiple_choice_model)
                         all_results.append(res)
                         
-                        sample = self.generate_sample(ds_name, temp_name, causal_model)
-                        samples.append(sample)
+                        # sample = self.generate_sample(ds_name, temp_name, causal_model)
+                        # samples.append(sample)
                 else:
                     continue
 
@@ -106,7 +111,7 @@ class LMEvaluation:
         print(tbl)
         
         if write_out:
-            with open(f'../evaluation/{self.run_name}_results.txt', 'w') as f:
+            with open(f'../evaluation_results/{self.eval_args.run_name}_results.txt', 'w') as f:
                 f.write(str(tbl))
 
         # print("#### Generated Samples ####")
@@ -290,4 +295,4 @@ if __name__ == "__main__":
     configs = load_yml_file('confs.yaml')
 
     lm_eval = LMEvaluation(configs, None, args.split)
-    lm_eval.run_eval(current_model=None, step=-1, write_out=args.write_out)
+    all_result, sample = lm_eval.run_eval(current_model=None, step=-1, write_out=args.write_out)

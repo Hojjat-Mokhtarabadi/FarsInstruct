@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from transformers import AutoModelForCausalLM, AutoConfig
+from transformers import AutoModelForCausalLM, AutoConfig, AutoModelForSeq2SeqLM
 from peft import PeftConfig, PeftModel
 
 def load_causal_model(model_name_or_path, peft_model_id, current_model):
@@ -18,6 +18,43 @@ def load_causal_model(model_name_or_path, peft_model_id, current_model):
         _model = PeftModel.from_pretrained(_model, peft_model_id)
 
     return _model
+
+
+class EncoderDecoderModel(nn.Module):
+    def __init__(self, model_name_or_path: str, peft_model_id = None, current_model = None):
+        super(EncoderDecoderModel, self).__init__()
+
+        from transformers import BitsAndBytesConfig
+        quantization_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_use_double_quant=True,
+                    bnb_4bit_quant_type="nf4")
+        
+        if current_model != None:
+            self._model = current_model
+        else:
+            config = AutoConfig.from_pretrained(model_name_or_path)
+            self._model = AutoModelForSeq2SeqLM.from_pretrained(
+                model_name_or_path,
+                device_map='auto',
+                config=config)
+
+            if peft_model_id != None:
+                self._model = PeftModel.from_pretrained(self._model, peft_model_id)
+
+
+    def forward(self, batch) -> torch.Tensor:
+        model_inputs = {
+            k: batch[k]
+            for k in ["input_ids", "attention_mask", "labels"]
+        }
+        logits = self._model(**model_inputs).logits
+        masked_log_probs = batch["labels_attention_mask"].unsqueeze(-1) * torch.log_softmax(logits, dim=-1)
+        seq_token_log_probs = torch.gather(masked_log_probs, -1, batch["labels"].unsqueeze(-1))
+        seq_log_prob = seq_token_log_probs.squeeze(dim=-1).sum(dim=-1)
+        seq_log_prob = seq_log_prob.view(batch["targets"].size(0),-1)  # TODO(Victor): this reshapes works based on the assumption that all examples have the same number of choices. the pre-processing doesn't make this assumption.
+        predictions = seq_log_prob.argmax(dim=-1)
+        return predictions
 
 
 class DecoderModel(nn.Module):
@@ -38,8 +75,6 @@ class DecoderModel(nn.Module):
 
             if peft_model_id != None:
                 self._model = PeftModel.from_pretrained(self._model, peft_model_id)
-
-            self._model.print_trainable_parameters()
 
 
     def forward(self, batch):

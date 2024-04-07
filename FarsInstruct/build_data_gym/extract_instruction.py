@@ -26,7 +26,7 @@ def do_extraction(ds_name: str = 'all', split: str = 'train'):
                 else:
                     continue
 
-        return lst
+        return lst, dss
 
     prompted_datasets = load_prompted_datasets()
     ds_names = ds_name.split(',')
@@ -36,19 +36,22 @@ def do_extraction(ds_name: str = 'all', split: str = 'train'):
         dataset_name = item['Dataset name']
         
         if ds_name == 'all':
-            inst, dss = retrieve_prompt_and_apply(item)
+            r = retrieve_prompt_and_apply(item)
         else: 
             if dataset_name in ds_names:
-                    inst, dss = retrieve_prompt_and_apply(item)
+                    r = retrieve_prompt_and_apply(item)
 
-        all_inst += inst
-        all_ds += dss
+        all_inst += r['inst']
+        all_ds += r['dss']
+        
 
     print(all_inst)
 
     dd = pd.DataFrame({'instructions': all_inst, 'datasets': all_ds})
 
     dd.to_excel('data/instructions.xlsx')
+
+    return dd
 
     
 

@@ -5,7 +5,7 @@ TEMP_LIST = {
             'does_this_imply',
             'do_they_relate',
             'confidence',
-            'comparison',
+            # 'comparison',
             'claim_relation',
             'evaluate',
             'classify'
@@ -19,7 +19,7 @@ TEMP_LIST = {
             'evaluate',
             'claim_relation',
             'classify',
-            #'comparison',
+            # 'comparison',
             
         ],    
         'persiannlp/parsinlu_query_paraphrasing': [

@@ -75,7 +75,7 @@ def main(configs, args):
 
     print(f"Peft Model id: {model_args.peft_model}")
     if model_args.peft_model != None:
-        model = PeftModel.from_pretrained(model, model_args.peft_model)
+        model = PeftModel.from_pretrained(model, model_args.peft_model, is_trainable=True)
     else:
         model = get_peft_model(model, lora_config)
 
@@ -140,7 +140,7 @@ def main(configs, args):
     trainer.add_callback(tensorboard_callback)
 
     print('Start training...')
-    trainer.train()  
+    trainer.train(resume_from_checkpoint=model_args.peft_model)  
 
     # trainer.save(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
 
