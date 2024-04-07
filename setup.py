@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 requirements = [
         # 'transformers==4.33.1',
-        # 'transformers'
+        'transformers',
         'hazm',
         'pandas',
         'trl',
