@@ -61,6 +61,8 @@ def main(configs, args):
      #> load model
     print('Loading model...')
     model, tokenizer = load_pretaining_model(model_args.model_path, model_args.tokenizer_path, quantization_args)
+    tokenizer.pad_token = tokenizer.eos_token_id 
+    model.config.pad_token_id = tokenizer.pad_token_id
     model.gradient_checkpointing_enable()
     model.config.use_cache = False 
     model = prepare_model_for_kbit_training(model)
@@ -140,7 +142,10 @@ def main(configs, args):
     trainer.add_callback(tensorboard_callback)
 
     print('Start training...')
-    trainer.train(resume_from_checkpoint=model_args.peft_model)  
+    # trainer.train(resume_from_checkpoint=model_args.peft_model)  
+
+    trainer.train()  
+
 
     # trainer.save(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
 

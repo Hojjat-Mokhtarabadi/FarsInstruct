@@ -87,6 +87,12 @@ TEMP_LIST = {
             'recommendation',
             'to_which_does_belong',
             'what_is_sentiment'
+        ],
+
+        "PNLPhub/C-ExaPPC": [
+            "similar", 
+            "different_point",
+            "same_point",
         ]
   },
 

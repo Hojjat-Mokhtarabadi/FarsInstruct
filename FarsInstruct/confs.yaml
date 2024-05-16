@@ -3,7 +3,7 @@
 # hooshvare: HooshvareLab/gpt2-fa
 
 dataset_args:
-    dataset_path: data/mixed_instruction_dataset_train_25-20k_minchunk.csv
+    dataset_path: data/1shot_instruct_dataset_train.csv
     streaming: false
 
 model_args:
@@ -24,47 +24,59 @@ model_args:
     #tokenizer_path: '/media/abbas/Backup/mGPT-1.3B-persian/'
     #model_path: '/media/abbas/Backup/mGPT-1.3B-persian/'
 
-    tokenizer_path : /media/abbas/Backup/Mistral-7B-Instruct-v0.2
-    model_path : /media/abbas/Backup/Mistral-7B-Instruct-v0.2
+    # tokenizer_path : /media/abbas/Backup/Mistral-7B-Instruct-v0.2
+    # model_path : /media/abbas/Backup/Mistral-7B-Instruct-v0.2
+    # peft_model: /home/hojjat/workstation/FarsInstruct/FarsInstruct/results/macro_train_mistral_exa_pn_sum/checkpoint-900
 
-    #tokenizer_path : '/media/abbas/Backup/Maral-7B-alpha-1'
-    #model_path : '/media/abbas/Backup/Maral-7B-alpha-1'
+    # tokenizer_path : /home/hojjat/workstation/FarsInstruct/FarsInstruct/results/hf_ckpt_macro_mistral_exa_pn_sum
+    # model_path : /home/hojjat/workstation/FarsInstruct/FarsInstruct/results/hf_ckpt_macro_mistral_exa_pn_sum
+
+    # model_path: /media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki
+    # tokenizer_path: /media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki
+
+    # model_path: /media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki_syntran_exa.BASE.pnsum_wiki_syntran
+    # tokenizer_path: /media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki_syntran_exa.BASE.pnsum_wiki_syntran
+
+    model_path: /media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki_syntran_exa_absa.BASE.pnsum_wiki_syntran_exa
+    tokenizer_path: /media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki_syntran_exa_absa.BASE.pnsum_wiki_syntran_exa
+
 
     #vocab_size: 25000
     vocab_size: 42001
 
 training_args:
-    run_name: mistral.train-on-col-2-3.eval-on-col-1-shot-mix
-    datasets: persiannlp/parsinlu_sentiment,PNLPhub/digikala-sentiment-analysis,pn_summary,wiki_summary,PNLPhub/DigiMag,PNLPhub/Persian-News,SLPL/syntran-fa,SajjadAyoubi/persian_qa,parsinlu_reading_comprehension,persiannlp/parsinlu_translation_fa_en,persiannlp/parsinlu_translation_en_fa,PNLPhub/PEYMA,PNLPhub/parsinlu-multiple-choice,PNLPhub/C-ExaPPC,PNLPhub/Pars-ABSA,sciq,trivia_qa_unfiltered,persian_ner,p3_xlwic,adversarial_qa_droberta,adversarial_qa_dbert,adversarial_qa_dbidaf
-    #datasets: persiannlp/parsinlu_sentiment
-    instruction_template: none
+    run_name: macro_train_mistral_pn_sum_wiki_syntran_exa_absa_qa.BASE.pnsum_wiki_syntran_exa_absa
+    # datasets: persiannlp/parsinlu_sentiment,PNLPhub/digikala-sentiment-analysis,pn_summary,wiki_summary,PNLPhub/DigiMag,PNLPhub/Persian-News,SLPL/syntran-fa,SajjadAyoubi/persian_qa,parsinlu_reading_comprehension,persiannlp/parsinlu_translation_fa_en,persiannlp/parsinlu_translation_en_fa,PNLPhub/PEYMA,PNLPhub/parsinlu-multiple-choice,PNLPhub/C-ExaPPC,PNLPhub/Pars-ABSA,sciq,trivia_qa_unfiltered,persian_ner,p3_xlwic,adversarial_qa_droberta,adversarial_qa_dbert,adversarial_qa_dbidaf
+    # datasets: pn_summary,SLPL/syntran-fa,SajjadAyoubi/persian_qa,PNLPhub/C-ExaPPC,parsinlu_reading_comprehension
+    datasets: pn_summary,wiki_summary,SLPL/syntran-fa,PNLPhub/C-ExaPPC,PNLPhub/Pars-ABSA,SajjadAyoubi/persian_qa
+    instruction_template: llama
     shots: 1
-    seed: 32
+    seed: 16
     pin_memory: true
     buffer_size: 10000
     max_len: 512
-    output_dir: ./results/mistral.train-on-col-2-3.eval-on-col-1-shot-mix
+    output_dir: ./results/macro_train_mistral_pn_sum_wiki_syntran_exa_absa_qa.BASE.pnsum_wiki_syntran_exa_absa
     # evaluation_strategy: "steps"
     num_train_epochs: 1
     max_steps: -1
-    save_steps: 500
-    logging_steps: 500
+    save_steps: 100
+    logging_steps: 100
     logging_dir: /home/hojjat/workstation/tensorboardlog
     per_device_train_batch_size: 8
-    gradient_accumulation_steps: 8
-    learning_rate: 0.001
+    gradient_accumulation_steps: 4
+    learning_rate: 0.0005
     optim: paged_adamw_8bit
     lr_scheduler_type: linear
-    warmup_steps: 600
+    warmup_steps: 200
     gradient_checkpointing: false
     bf16: true
     fp16: false
-    weight_decay: 0.001
+    weight_decay: 0.01
     report_to: tensorboard
 
 
 evaluation_args:
-    run_name: mistral7B-col1-bs8-maxlen512
+    run_name: mistral7B-persianmind-digi_pn_sum-syntran-qa-exa-parsinlu
     #model_path: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
     #tokenizer_path: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
     #peft_model_id: ./results/llama2.2.snapp-digi-pn_sum-syntran-qa-pharaphrase-reading_comp-parsi_sent/checkpoint-6200
@@ -104,9 +116,10 @@ evaluation_args:
     model_type: causal
     peft_model_id: null
 
-    datasets: PNLPhub/FarsTail,persiannlp/parsinlu_entailment,persiannlp/parsinlu_query_paraphrasing,PNLPhub/snappfood-sentiment-analysis
+    # datasets: PNLPhub/FarsTail,persiannlp/parsinlu_entailment,PNLPhub/C-ExaPPC,PNLPhub/snappfood-sentiment-analysis
     # datasets: persiannlp/parsinlu_entailment
-    instruction_template: none
+    datasets: null
+    instruction_template: llama
     shots: 1
     task_type: multiple_choice # 'generate_until'
     batch_size: 8
@@ -116,6 +129,6 @@ quantization_args:
     load_in_4bit: true
     double_quant: true
     quant_type: "nf4"
-    lora_rank: 16
-    lora_alpha: 32 
+    lora_rank: 32
+    lora_alpha: 64 
     lora_dropout: 0.05 
