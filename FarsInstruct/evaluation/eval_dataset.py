@@ -2,13 +2,14 @@ from datasets import load_dataset
 import json
 
 class FarsInstructEvalDataset:
-    def __init__(self, tokenizer, max_len: int, instruction_template: str, split: str, shots: int, **kwargs):
+    def __init__(self, tokenizer, max_len: int, instruction_template: str, split: str, shots: int, path: str, **kwargs):
         self.ans_choices = []
         self.tokenizer = tokenizer       
         # each model accepts different instruction template, select each based on config file.
         DATA_FILES = { 
-            'validation': f"data/{shots}shot_instruct_dataset_validation.csv", 
-            'test': f"data/{shots}shot_instruct_dataset_test.csv"
+            # 'validation': f"data/1shot_instruct_dataset_test_entailment-sentiment-paraphrase.csv", 
+            # 'test': f"data/1shot_instruct_dataset_test_entailment-sentiment-pharaphrase.csv"
+            'test': path
             }
         self.ds = load_dataset('csv', data_files=DATA_FILES, split=split)
         
@@ -37,8 +38,12 @@ class FarsInstructEvalDataset:
             return f"{ex} <startoftext>"
         elif self.instruction_template == 'mgpt':
             return f"{ex} [INST]" 
+        elif self.instruction_template == 'ava':
+            return f"<|im_start|>Human:{ex}<|im_end|>\n<im_start>Assistant:"
         elif self.instruction_template == 'none':
             return f"{ex}"
+        elif self.instruction_template == "persian_mind":
+            return f"You: {ex}\nPersianMind:"
         else:
             raise Exception('available instruction templates: llama, hooshvare, mgpt, other')
 
@@ -82,7 +87,7 @@ class FarsInstructEvalDataset:
         return features
     
     def _generation_preprocess_fn(self, ex):
-        inputs = ex['inputs']
+        inputs = self.add_special_token(ex['inputs'])
         targets = ex['outputs']
         features = self.tokenizer(inputs, truncation=True, max_length=self.max_len, padding='max_length')
         labels = self.tokenizer(text_target=targets, truncation=True, max_length=self.max_len, padding='max_length')
@@ -100,7 +105,7 @@ class FarsInstructEvalDataset:
 
         self.ds = self.ds.filter(lambda x: x['ds'] == ds_name and x['template'] == temp_name)
         self.ds = self.ds.shuffle(seed=30).select(range(0, min(200, len(self.ds))))
-        return self.ds.map(preprocess_fn, batched=True, remove_columns=self.extra_cols)
+        return self.ds.map(preprocess_fn, batched=False, remove_columns=self.extra_cols)
 
 
 
