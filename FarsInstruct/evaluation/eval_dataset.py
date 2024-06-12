@@ -2,14 +2,14 @@ from datasets import load_dataset
 import json
 
 class FarsInstructEvalDataset:
-    def __init__(self, tokenizer, max_len: int, instruction_template: str, split: str, shots: int, path: str, **kwargs):
+    def __init__(self, tokenizer, max_len: int, instruction_template: str, split: str, shots: int, path: str = "swh", **kwargs):
         self.ans_choices = []
         self.tokenizer = tokenizer       
         # each model accepts different instruction template, select each based on config file.
         DATA_FILES = { 
             # 'validation': f"data/1shot_instruct_dataset_test_entailment-sentiment-paraphrase.csv", 
             # 'test': f"data/1shot_instruct_dataset_test_entailment-sentiment-pharaphrase.csv"
-            'test': path
+            'test': "/mnt/beegfs/wrkdir/u111187/Hojjat_Workstation/FarsInstruct/FarsInstruct/data/1shot_instruct_dataset_test_all.csv"
             }
         self.ds = load_dataset('csv', data_files=DATA_FILES, split=split)
         
@@ -39,7 +39,7 @@ class FarsInstructEvalDataset:
         elif self.instruction_template == 'mgpt':
             return f"{ex} [INST]" 
         elif self.instruction_template == 'ava':
-            return f"<|im_start|>Human:{ex}<|im_end|>\n<im_start>Assistant:"
+            return f"<|im_start|>{ex}<|im_end|>\n<|im_start|>"
         elif self.instruction_template == 'none':
             return f"{ex}"
         elif self.instruction_template == "persian_mind":
@@ -104,7 +104,7 @@ class FarsInstructEvalDataset:
             preprocess_fn = self._generation_preprocess_fn
 
         self.ds = self.ds.filter(lambda x: x['ds'] == ds_name and x['template'] == temp_name)
-        self.ds = self.ds.shuffle(seed=30).select(range(0, min(200, len(self.ds))))
+        self.ds = self.ds.shuffle(seed=32).select(range(0, min(120, len(self.ds))))
         return self.ds.map(preprocess_fn, batched=False, remove_columns=self.extra_cols)
 
 
