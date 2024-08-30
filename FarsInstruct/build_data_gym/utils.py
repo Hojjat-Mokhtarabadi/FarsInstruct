@@ -26,12 +26,11 @@ def load_prompted_datasets():
     return results
 
    
-def read_all_and_convert_t0_csv(ds_name, split, shots):
+def read_all_and_convert_t0_csv(ds_name, split, shots, output_path):
     """
     Read all generated datasets and concatinate them to insturct_dataset
     """
-    ds_path = f'data/{shots}shot_instruct_dataset_{split}.csv'
-
+    ds_path = output_path
     ds_names = ds_name.split(',')
     all_dfs = pd.DataFrame(columns=['inputs', 'outputs', 'ds', 'template'])
     all_files = list(DATA_PATH.rglob('*.*'))
@@ -43,10 +42,11 @@ def read_all_and_convert_t0_csv(ds_name, split, shots):
 
         if 'sample_data' in file.parent.name:
             continue
-        if ds_name != 'all' and file_parent_name not in ds_names:
-            continue
+       # if ds_name != 'all' and file_parent_name not in ds_names:
+       #     continue
         
         if file.name.endswith('.csv') and split == file.parent.name:
+            print(file.parent.parent.name)
             df = pd.read_csv(file)
             all_dfs = pd.concat([all_dfs, df])
 

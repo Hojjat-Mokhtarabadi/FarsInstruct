@@ -9,14 +9,15 @@ requirements = [
         'scikit-learn',
         'bitsandbytes',
         'peft',
-        'evaluate'
+        'evaluate',
+        'prettytable'
 ]
 
 setup(
     name='FarsInstruct',
     version='0.1',
     author='Hojjat Mokhtarabadi',
-    python_requires="==3.9.*",
+    python_requires=">3.9.*",
     install_requires=requirements,
     packages=find_packages(exclude=['promptsource', 'results', 'wandb', 'checkpoints'])
 )

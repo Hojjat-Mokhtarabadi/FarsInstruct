@@ -89,11 +89,18 @@ checkpoint/
 checkpoints/
 results/
 wandb/
+base_checkpoints/
 *.csv
 *.zip
 *.json
 empty.ipynb
 scratch_pad.ipynb
+*.swp
+lora_checkpoints/
+venv/
+wiki_summary/
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
 
 # Distribution / packaging
 bin/

@@ -46,6 +46,9 @@ class FarsInstructDataset:
         elif self.instruction_template == 'mgpt':
             prompt = f"{prompt} [INST]"     
 
+        elif self.instruction_template == "alpaca":
+            prompt = f"<|im_start|>{prompt}<|im_end|>\n<|im_start|>"
+
         return prompt
     
     
@@ -54,9 +57,9 @@ class FarsInstructDataset:
         preprocess the inputs example and tokenize it. 
          - features.keys() --> (input_ids, attention_mask)
         """
-        input = self.preprocess(example['inputs'])
+        input_ = self.preprocess(example['inputs'])
         target = example['outputs']
-        prompt = input + normalization(target)
+        prompt = input_ + normalization(target)+"<|im_end|><|end_of_text|>"
         features = self.tokenizer(prompt, truncation=True, max_length=self.max_len, padding='max_length')
         
         return features

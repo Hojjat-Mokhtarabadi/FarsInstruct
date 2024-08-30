@@ -40,9 +40,10 @@ class LMEvaluation:
         if tokenizer != None:
             self.tokenizer = tokenizer
         else:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.eval_args.tokenizer_path, 
-                                                            pad_token='<pad>', 
-                                                            padding_side='right')
+            self.tokenizer = AutoTokenizer.from_pretrained(self.eval_args.tokenizer_path,
+                                                            use_fast=True,
+                                                            add_bos=True,
+                                                            padding_side="left")
         self.tokenizer.pad_token = self.tokenizer.eos_token
 
     def run_eval(self, current_model, step:int = 0, write_out: bool = False):

@@ -6,12 +6,13 @@ from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer  # noqa: F402
 
 # BASE_MODEL = "/media/abbas/Backup/PersianMind-v1.0"
-# BASE_MODEL = "/media/abbas/Backup/Mistral-7B-Instruct-v0.2"
-# BASE_MODEL = "/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/hf_ckpt_macro_mistral_exa_pn_sum"
-# BASE_MODEL = "/media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki"
-# BASE_MODEL = "/media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki_syntran.BASE.pnsum_wiki"
-BASE_MODEL = "/media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki_syntran_exa_absa.BASE.pnsum_wiki_syntran_exa"
+#BASE_MODEL = "./base_checkpoints/llama3-8b-instruct"
+#BASE_MODEL = "./lora_checkpoints/hf_ckpt_macro_llama3_parsinlu_enfa_faen_pnsum_wikisum_exappc_sajjadqa_persiannews"
+#BASE_MODEL = "./lora_checkpoints/hf_ckpt_micro_ava_sajjadqa--3_pnsum--2_slpl--genqwitha-qora_wikisum--3_digi--whichctg_persiannews--chscatg_parssentiment--revasp-revcat_exap--rel-ordr_absa--plr_pner--fndprsn_readcomp--fndans-qc"
 
+#BASE_MODEL = "./lora_checkpoints/hf_ckpt_micro_train_ava_sajjadqa--3_pnsum--2_slpl--3_wikisum--3_digi--whichctg_persiannews--2_parssentiment--revasp-revcat_exap--rel-ordr_absa--3_pner--fndprsn_reacomp--fndans-qc_trnsenfa--prven"
+#  hf_ckpt_micro_ava_sajjadqa--qacatg-titlgen-genqWRa_pnsum--sumartcl-whatctgblngsto_slpl--genqwitha-qora_wikisum--artclsum-gnralans_digi--whichctg_persiannews--chscatg_parssentiment--revasp-revcat_exap--rel-ordr_absa--plr_pner--fndprsn_readcomp--fndans-qc"
+BASE_MODEL = "./base_checkpoints/ava-llama3-v2"
 
 tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
 
@@ -27,27 +28,17 @@ first_weight_old = first_weight.clone()
 
 lora_model = PeftModel.from_pretrained(
     base_model,
-    "/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/macro_train_mistral_pn_sum_wiki_syntran_exa_absa_qa.BASE.pnsum_wiki_syntran_exa_absa/checkpoint-1300",
-    # "/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/macro_train_mistral_pn_sum_wiki_syntran_exa_absa.BASE.pnsum_wiki_syntran_exa/checkpoint-1800",
-    # "FarsInstruct/results/macro_train_mistral_pn_sum_wiki_syntran_exa.BASE.pnsum_wiki_syntran/checkpoint-1400",
-    # "/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/macro_train_mistral_pn_sum_wiki_syntran.BASE.pnsum_wiki/checkpoint-1400",
-    # "/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/macro_train_mistral_pn_sum_wiki/checkpoint-1500",
-    # "/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/macro_train_mistral_exa_pn_sum_wiki.with_base.mistral_exa_pnsum/checkpoint-900",
-    # "/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/macro_train_mistral_exa_pn_sum_digi/checkpoint-1500",
-    # "/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/macro_train_mistral_exa_pn_sum/checkpoint-900",
-    # "/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/macro_train_mistral_exa_all/checkpoint-900",
-    # "/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/macro_train_persianmind_exa_different_point/checkpoint-300",
-    # "/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/persianmind-pn_sum-syntran-qa-exa-reading_comp/checkpoint-4500",
-    # "/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/mistral.train-on-col-2-3.eval-on-col-1-shot-mix/checkpoint-3000",
+    "./FarsInstruct/results/ava_raw_fine_tune_v2_/checkpoint-9950",
+    #"./FarsInstruct/results/micro_train_ava_sajjadqa--3_pnsum--2_slpl--3_wikisum--3_digi--whichctg_persiannews--2_parssentiment--revasp-revcat_exap--rel-ordr_absa--3_pner--fndprsn_reacomp--fndans-qc_trnsenfa--prven_faen--trnsen/checkpoint-1110",
+   # "./FarsInstruct/results/ava_raw_fine_tune_with_really_small_samples/checkpoint-870",
+   # "./FarsInstruct/results/micro_train_ava_sajjadqa--3_pnsum--2_slpl--genqwitha-qora_wikisum--artclsum-gnralans_digi--whichctg_persiannews--chscatg_parssentiment--revasp-revcat_exap--rel-ordr_absa--plr_pner--fndprsn_reacomp--fndans-qc/checkpoint-780",
     device_map={"": "cpu"},
     torch_dtype=torch.float16,
 )
 
-
 lora_model = lora_model.merge_and_unload()
 
 lora_model.train(False)
-
 # did we do anything?
 assert not torch.allclose(first_weight_old, first_weight)
 
@@ -58,8 +49,10 @@ deloreanized_sd = {
     if "lora" not in k
 }
 
-dirr = "/media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki_syntran_exa_absa_qa.BASE.pnsum_wiki_syntran_exa_absa.checkpoint-1300"
-
+#dirr = "./lora_checkpoints/hf_ckpt_micro_train_ava_sajjadqa--3_pnsum--2_slpl--3_wikisum--3_digi--whichctg_persiannews--2_parssentiment--revasp-revcat_exap--rel-ordr_absa--3_pner--fndprsn_reacomp--fndans-qc_trnsenfa--prven_faen--trnsen"
+#dirr = "./lora_checkpoints/hf_ckpt_ava_raw_fine_tune_with_really_small_samples"
+dirr = "./lora_checkpoints/hf_ckpt_ava_raw_lora_finetuned"
+print("Saving merged model...")
 base_model.save_pretrained(
     dirr, state_dict=deloreanized_sd, max_shard_size="1000MB"
 )

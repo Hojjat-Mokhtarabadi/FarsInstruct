@@ -11,7 +11,7 @@ from argparse import ArgumentParser
 
 from data_ops.fars_instruct_dataset import FarsInstructDataset
 from modeling import load_pretaining_model
-from callbacks import LLMTensorboardCallback
+# from callbacks import LLMTensorboardCallback
 from utils import *
 
 
@@ -38,12 +38,12 @@ def main(configs, args):
     training_args = TrainingArgs(**configs['training_args'], )
     quantization_args = QuantizationArgs(**configs['quantization_args'])
 
-    config = ProjectConfiguration(project_dir=".", logging_dir=training_args.logging_dir)
-    accelerator = Accelerator(cpu=False, log_with="tensorboard", project_config=config)
-    accelerator.init_trackers(
-        project_name=training_args.run_name
-        #config
-    )
+    # config = ProjectConfiguration(project_dir=".", logging_dir=training_args.logging_dir)
+    accelerator = Accelerator(cpu=False)
+    # accelerator.init_trackers(
+    #     project_name=training_args.run_name
+    #     #config
+    # )
 
     #if accelerator.is_main_process:
         # Initialise your wandb run, passing wandb parameters and any config information
@@ -55,27 +55,34 @@ def main(configs, args):
     seed = training_args.seed
     np.random.seed(seed)
     torch.manual_seed(seed)
-    print(f"seed: {training_args.seed}")
-    print(f"device: {accelerator.device}")
 
-     #> load model
-    print('Loading model...')
+    if accelerator.is_main_process:
+        print(f"seed: {training_args.seed}")
+        print('Loading model...')
+
+    print(f"device: {accelerator.device}")
+    #> load model
     model, tokenizer = load_pretaining_model(model_args.model_path, model_args.tokenizer_path, quantization_args)
-    tokenizer.pad_token = tokenizer.eos_token_id 
+    # tokenizer.pad_token = tokenizer.eos_token_id 
+    tokenizer.pad_token = tokenizer.convert_ids_to_tokens(tokenizer.eos_token_id)
     model.config.pad_token_id = tokenizer.pad_token_id
     model.gradient_checkpointing_enable()
     model.config.use_cache = False 
     model = prepare_model_for_kbit_training(model)
-    
+   
+    target_modules = ['q_proj','k_proj','v_proj','o_proj','gate_proj','down_proj','up_proj','lm_head']
+
     lora_config = LoraConfig(
         r=quantization_args.lora_rank, 
         lora_alpha=quantization_args.lora_alpha, 
         lora_dropout=quantization_args.lora_dropout, 
+        target_modules = target_modules,
         bias="none", 
         task_type="CAUSAL_LM"
     )
 
-    print(f"Peft Model id: {model_args.peft_model}")
+    if accelerator.is_main_process:
+        print(f"Peft Model id: {model_args.peft_model}")
     if model_args.peft_model != None:
         model = PeftModel.from_pretrained(model, model_args.peft_model, is_trainable=True)
     else:
@@ -84,49 +91,54 @@ def main(configs, args):
     model.resize_token_embeddings(len(tokenizer))
     model.enable_input_require_grads()
 
-    print(f'base model: {model_args.model_path}')
-    print_trainable_parameters(model)
+    if accelerator.is_main_process:
+        print(f'base model: {model_args.model_path}')
+        print_trainable_parameters(model)
+        print('Preparing dataset...')
 
     #> load dataset
-    print('Preparing dataset...')
     if data_args.streaming:
-        train_set = FarsInstructDataset(tokenizer, 
-                                        max_len=training_args.max_len, 
-                                        split='train', 
-                                        stream=True, 
-                                        dataload_mode=args.dataload_mode, 
-                                        dataset_path=data_args.dataset_path, 
-                                        instruction_template=training_args.instruction_template,
-                                        datasets=training_args.datasets,
-                                        shots=training_args.shots)
-        train_set = train_set.get_tokenized_data(in_torch_format=False)
-        train_set = train_set.shuffle(seed, buffer_size=training_args.buffer_size)
+        with accelerator.main_process_first():
+            train_set = FarsInstructDataset(tokenizer, 
+                                            max_len=training_args.max_len, 
+                                            split='train', 
+                                            stream=True, 
+                                            dataload_mode=args.dataload_mode, 
+                                            dataset_path=data_args.dataset_path, 
+                                            instruction_template=training_args.instruction_template,
+                                            datasets=training_args.datasets,
+                                            shots=training_args.shots)
+            train_set = train_set.get_tokenized_data(in_torch_format=False)
+            train_set = train_set.shuffle(seed, buffer_size=training_args.buffer_size)
 
         train_loader = data.DataLoader(train_set, pin_memory=training_args.pin_memory,
                                        batch_size=training_args.per_device_train_batch_size)
 
     else:
-        train_set = FarsInstructDataset(tokenizer, 
-                                        max_len=training_args.max_len, 
-                                        split='train', 
-                                        stream=False, 
-                                        dataload_mode=args.dataload_mode, 
-                                        dataset_path=data_args.dataset_path, 
-                                        instruction_template=training_args.instruction_template,
-                                        datasets=training_args.datasets,
-                                        shots=training_args.shots)
-        train_set = train_set.get_tokenized_data(in_torch_format=True)
+        with accelerator.main_process_first():
+            train_set = FarsInstructDataset(tokenizer, 
+                                            max_len=training_args.max_len, 
+                                            split='train', 
+                                            stream=False, 
+                                            dataload_mode=args.dataload_mode, 
+                                            dataset_path=data_args.dataset_path, 
+                                            instruction_template=training_args.instruction_template,
+                                            datasets=training_args.datasets,
+                                            shots=training_args.shots)
+            train_set = train_set.get_tokenized_data(in_torch_format=True)
         
         random_sampler = data.RandomSampler(train_set, replacement=True, num_samples=training_args.max_steps if training_args.max_steps != -1 else len(train_set))
         train_loader = data.DataLoader(train_set, sampler=random_sampler, pin_memory=training_args.pin_memory,  
                                        batch_size=training_args.per_device_train_batch_size)
 
 
-
-    model, train_set = accelerator.prepare(model, train_set)
-    print(f"Dataset length: {len(train_set)}")
-    print("### Dataset sample: ###")
-    print(tokenizer.batch_decode(next(iter(train_loader))['input_ids'])[0])
+    
+    accelerator.wait_for_everyone()
+    #model, train_set = accelerator.prepare(model, train_set)
+    if accelerator.is_main_process:
+        print(f"Dataset length: {len(train_set)}")
+        print("### Dataset sample: ###")
+        print(tokenizer.batch_decode(next(iter(train_loader))['input_ids'])[0])
 
     trainer = Trainer(
         model=model,
@@ -138,13 +150,13 @@ def main(configs, args):
     )
     
     # we instantiate the callback with the trainer object and the dataset we want to sample from
-    tensorboard_callback = LLMTensorboardCallback(trainer, configs, training_args.logging_dir, training_args.run_name )
-    trainer.add_callback(tensorboard_callback)
+    # tensorboard_callback = LLMTensorboardCallback(trainer, configs, training_args.logging_dir, training_args.run_name )
+    # trainer.add_callback(tensorboard_callback)
 
-    print('Start training...')
-    # trainer.train(resume_from_checkpoint=model_args.peft_model)  
-
-    trainer.train()  
+    if accelerator.is_main_process:
+        print('Start training...')
+    trainer.train(resume_from_checkpoint=model_args.peft_model)  
+    # trainer.train()  
 
 
     # trainer.save(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
