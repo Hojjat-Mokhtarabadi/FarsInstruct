@@ -1,0 +1,43 @@
++-----------------------------------------------------------------------------------------+
+|                mistral7B-persianmind-digi_pn_sum-syntran-qa-exa-parsinlu                |
++----------------------------------------+--------+------+-----------+--------+-----------+
+|                Section                 | Score  | Type | Precision | Recall | F-Measure |
++----------------------------------------+--------+------+-----------+--------+-----------+
+|            PNLPhub/FarsTail            |        |      |           |        |           |
+| PNLPhub/FarsTail - label_to_hypothesis |        |      |           |        |           |
+|                                        | rougeL | low  |   7.06    | 16.19  |    9.49   |
+|                                        | rougeL | mid  |   10.82   | 33.20  |   14.80   |
+|                                        | rougeL | high |   15.17   | 51.86  |   20.53   |
+|  PNLPhub/FarsTail - label_to_premise   |        |      |           |        |           |
+|                                        | rougeL | low  |   11.90   | 12.82  |   11.98   |
+|                                        | rougeL | mid  |   25.32   | 20.36  |   18.88   |
+|                                        | rougeL | high |   41.85   | 28.60  |   26.42   |
+|    PNLPhub/FarsTail - can_you_infer    |        |      |           |        |           |
+|                                        | rougeL | low  |   5.95    | 10.00  |    9.92   |
+|                                        | rougeL | mid  |   32.00   | 40.00  |   33.33   |
+|                                        | rougeL | high |   62.00   | 70.00  |   63.33   |
+|   PNLPhub/FarsTail - does_this_imply   |        |      |           |        |           |
+|                                        | rougeL | low  |   33.33   | 100.00 |   50.00   |
+|                                        | rougeL | mid  |   33.33   | 100.00 |   50.00   |
+|                                        | rougeL | high |   33.33   | 100.00 |   50.00   |
+|   PNLPhub/FarsTail - do_they_relate    |        |      |           |        |           |
+|                                        | rougeL | low  |   23.33   | 70.00  |   35.00   |
+|                                        | rougeL | mid  |   30.00   | 90.00  |   45.00   |
+|                                        | rougeL | high |   33.33   | 100.00 |   50.00   |
+|     PNLPhub/FarsTail - confidence      |        |      |           |        |           |
+|                                        | rougeL | low  |   0.45    |  5.00  |    0.87   |
+|                                        | rougeL | mid  |   15.45   | 20.00  |   12.92   |
+|                                        | rougeL | high |   40.23   | 35.00  |   30.00   |
+|   PNLPhub/FarsTail - claim_relation    |        |      |           |        |           |
+|                                        | rougeL | low  |   22.00   | 30.00  |   23.33   |
+|                                        | rougeL | mid  |   52.00   | 60.00  |   53.33   |
+|                                        | rougeL | high |   82.00   | 90.00  |   83.33   |
+|      PNLPhub/FarsTail - evaluate       |        |      |           |        |           |
+|                                        | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                        | rougeL | mid  |   20.00   | 30.00  |   24.00   |
+|                                        | rougeL | high |   40.00   | 60.00  |   48.00   |
+|      PNLPhub/FarsTail - classify       |        |      |           |        |           |
+|                                        | rougeL | low  |   8.78    | 40.00  |   12.95   |
+|                                        | rougeL | mid  |   18.12   | 55.00  |   24.61   |
+|                                        | rougeL | high |   27.51   | 70.00  |   36.68   |
++----------------------------------------+--------+------+-----------+--------+-----------+

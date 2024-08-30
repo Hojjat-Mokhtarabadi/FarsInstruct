@@ -1,0 +1,144 @@
+######### PATHS
+# llama: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
+# hooshvare: HooshvareLab/gpt2-fa
+
+dataset_args:
+    dataset_path: data/1shot_ava_instruct_dataset_train_final.csv
+    streaming: false
+
+model_args:
+    #tokenizer_path: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw'
+    #model_path: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw'
+    # peft_model: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/llama2.snapp-digi-pn_sum-syntran-qa-pharaphrase-reading_comp-parsi_sent/checkpoint-3200'
+
+    # tokenizer_path: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/llama2.snapp-digi-pn_sum-syntran-qa-pharaphrase-reading_comp-parsi_sent/checkpoint-3200'
+    # model_path: '/home/hojjat/workstation/FarsInstruct/FarsInstruct/results/llama2.snapp-digi-pn_sum-syntran-qa-pharaphrase-reading_comp-parsi_sent/checkpoint-3200'
+
+    # tokenizer_path: HooshvareLab/gpt2-fa
+    # model_path: HooshvareLab/gpt2-fa
+
+    # tokenizer_path: /media/abbas/Backup/PersianMind-v1.0
+    # model_path: /media/abbas/Backup/PersianMind-v1.0
+    # peft_model: /home/hojjat/workstation/FarsInstruct/FarsInstruct/results/persianmind.train-on-col-2-3.eval-on-col-1-shot-mix/checkpoint-3500
+
+    #tokenizer_path: '/media/abbas/Backup/mGPT-1.3B-persian/'
+    #model_path: '/media/abbas/Backup/mGPT-1.3B-persian/'
+
+    # tokenizer_path : /media/abbas/Backup/Mistral-7B-Instruct-v0.2
+    # model_path : /media/abbas/Backup/Mistral-7B-Instruct-v0.2
+    # peft_model: /home/hojjat/workstation/FarsInstruct/FarsInstruct/results/macro_train_mistral_exa_pn_sum/checkpoint-900
+
+    # tokenizer_path : /home/hojjat/workstation/FarsInstruct/FarsInstruct/results/hf_ckpt_macro_mistral_exa_pn_sum
+    # model_path : /home/hojjat/workstation/FarsInstruct/FarsInstruct/results/hf_ckpt_macro_mistral_exa_pn_sum
+
+    # model_path: /media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki
+    # tokenizer_path: /media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki
+
+    # model_path: /media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki_syntran_exa.BASE.pnsum_wiki_syntran
+    # tokenizer_path: /media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki_syntran_exa.BASE.pnsum_wiki_syntran
+
+    # model_path: /media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki_syntran_exa_absa.BASE.pnsum_wiki_syntran_exa
+    # tokenizer_path: /media/abbas/Backup/hf_ckpt_macro_mistral_pn_sum_wiki_syntran_exa_absa.BASE.pnsum_wiki_syntran_exa
+
+  # model_path: ../lora_checkpoints/hf_ckpt_macro_llama3_parsinlu_enfa_faen_pnsum_wikisum_exappc_sajjadqa_persiannews_parsinlusentiment
+  # tokenizer_path: ../lora_checkpoints/hf_ckpt_macro_llama3_parsinlu_enfa_faen_pnsum_wikisum_exappc_sajjadqa_persiannews_parsinlusentiment
+      #peft_model: ./results/macro_train_llama3-instruct_parsinlu_enfa_faen_pnsum_wikisum_exappc_sajjadqa_persiannews/checkpoint-4550
+
+  #model_path: ../lora_checkpoints/hf_ckpt_micro_train_ava_sajjadqa--3_pnsum--2_slpl--3_wikisum--3_digi--whichctg_persiannews--2_parssentiment--revasp-revcat_exap--rel-ordr_absa--3_pner--fndprsn_reacomp--fndans-qc_trnsenfa--prven_faen--trnsen  
+  # tokenizer_path: ../lora_checkpoints/hf_ckpt_micro_train_ava_sajjadqa--3_pnsum--2_slpl--3_wikisum--3_digi--whichctg_persiannews--2_parssentiment--revasp-revcat_exap--rel-ordr_absa--3_pner--fndprsn_reacomp--fndans-qc_trnsenfa--prven_faen--trnsen
+    model_path: ../base_checkpoints/ava-llama3-v2
+    tokenizer_path: ../base_checkpoints/ava-llama3-v2
+    #vocab_size: 25000
+    vocab_size: 42001
+
+training_args:
+  #    run_name: ava_raw_fine_tune_with_really_small_samples
+    run_name: micro_train_ava_sajjadqa--qacatg-titlgen-genqwithrespa_pnsum--sumartcl-whatcatgblngsto_slpl--genqwitha-qora_wikisum--artclsum-gnralans_digi--whichctg_persiannews--chscatg_parssentiment--revasp-revcat_exap--rel-ordr_absa--plr-retpos_pner--fndprsn_readcomp--fndans-qc
+  #    run_name: macro_train_llama3_parsinlu_enfa_faen_pnsum_wikisum_exappc_sajjadqa_persiannews_parsinlusentiment_persian_ner
+  # datasets: persiannlp/parsinlu_sentiment,PNLPhub/digikala-sentiment-analysis,pn_summary,wiki_summary,PNLPhub/DigiMag,PNLPhub/Persian-News,SLPL/syntran-fa,SajjadAyoubi/persian_qa,parsinlu_reading_comprehension,persiannlp/parsinlu_translation_fa_en,persiannlp/parsinlu_translation_en_fa,PNLPhub/PEYMA,PNLPhub/parsinlu-multiple-choice,PNLPhub/C-ExaPPC,PNLPhub/Pars ABSA,sciq,trivia_qa_unfiltered,persian_ner,p3_xlwic,adversarial_qa_droberta,adversarial_qa_dbert,adversarial_qa_dbidaf
+  #    datasets: persiannlp/parsinlu_sentiment,wiki_summary,pn_summary,SajjadAyoubi/persian_qa,PNLPhub/C-ExaPPC,PNLPhub/Persian-News,persiannlp/parsinlu_translation_fa_en,persiannlp/parsinlu_translation_en_fa,persian_ner
+    datasets: SajjadAyoubi/persian_qa,pn_summary,SLPL/syntran-fa,wiki_summary,PNLPhub/DigiMag,PNLPhub/Persian-News,persiannlp/parsinlu_sentiment,PNLPhub/C-ExaPPC,PNLPhub/Pars-ABSA,persian_ner,parsinlu_reading_comprehension,persiannlp/parsinlu_translation_en_fa,persiannlp/parsinlu_translation_fa_en
+    instruction_template: alpaca 
+    shots: 1
+    seed: 557
+    pin_memory: true
+    buffer_size: 10000
+    max_len: 512
+    output_dir: ./results/ava_raw_fine_tune_v2_
+      #output_dir: ./results/micro_train_ava_sajjadqa--3_pnsum--2_slpl--3_wikisum--3_digi--whichctg_persiannews--2_parssentiment--revasp-revcat_exap--3_absa--3_pner--fndprsn_reacomp--fndans-qc_trnsenfa--prven_faen--trnsen
+    # evaluation_strategy: "steps"
+    num_train_epochs: 4
+    max_steps: -1
+    save_steps: 50
+    logging_steps: 50
+    # logging_dir: /home/hojjat/workstation/tensorboardlog
+    per_device_train_batch_size: 16 
+    gradient_accumulation_steps: 1
+    learning_rate: 0.0006
+    optim: paged_adamw_8bit
+    lr_scheduler_type: constant
+    warmup_steps: 25
+    gradient_checkpointing: false
+    bf16: false
+    fp16: true
+    weight_decay: 0.1
+    ddp_find_unused_parameters: False
+
+
+evaluation_args:
+    run_name: ava_fined_with_really_small_samples
+    #model_path: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
+    #tokenizer_path: /home/hojjat/workstation/FarsInstruct/FarsInstruct/checkpoints/Llama2-7b-hf-raw
+    #peft_model_id: ./results/llama2.2.snapp-digi-pn_sum-syntran-qa-pharaphrase-reading_comp-parsi_sent/checkpoint-6200
+   
+    # tokenizer_path: /media/abbas/Backup/PersianMind-v1.0
+    # model_path: /media/abbas/Backup/PersianMind-v1.0
+    # model_type: causal
+    # peft_model_id: null
+
+    # tokenizer_path: /media/abbas/Backup/aya
+    # model_path: /media/abbas/Backup/aya
+    # peft_model_id: null
+    # model_type: seq2seq
+    
+    # tokenizer_path : /media/abbas/Backup/PersianMind-v1.0
+    # model_path : /home/hojjat/workstation/FarsInstruct/FarsInstruct/results/fianl_hf_ckpt
+    # peft_model_id: null
+    # model_type: causal
+
+    # tokenizer_path : /media/abbas/Backup/Mistral-7B-Instruct-v0.2
+    # model_path : /media/abbas/Backup/Mistral-7B-Instruct-v0.2
+    # peft_model_id: null
+    # model_type: causal
+
+    # tokenizer_path : /media/abbas/Backup/mGPT-1.3B-persian/
+    # model_path : /media/abbas/Backup/mGPT-1.3B-persian/
+    # peft_model_id: null
+    # model_type: causal
+
+    # tokenizer_path : /media/abbas/Backup/mGPT-1.3B-persian/
+    # model_path : /media/abbas/Backup/mGPT-1.3B-persian/
+    # peft_model_id: null
+    # model_type: causal
+    
+    tokenizer_path: /mnt/beegfs/wrkdir/u111187/Hojjat_Workstation/FarsInstruct/lora_checkpoints/hf_ckpt_micro_ava_sajjadqa--qacatg-titlgen-genqWRa_pnsum--sumartcl-whatctgblngsto_slpl--genqwitha-qora_wikisum--artclsum-gnralans_digi--whichctg_persiannews--chscatg_parssentiment--revasp-revcat_exap--rel-ordr_absa--plr
+    model_path: /mnt/beegfs/wrkdir/u111187/Hojjat_Workstation/FarsInstruct/lora_checkpoints/hf_ckpt_micro_ava_sajjadqa--qacatg-titlgen-genqWRa_pnsum--sumartcl-whatctgblngsto_slpl--genqwitha-qora_wikisum--artclsum-gnralans_digi--whichctg_persiannews--chscatg_parssentiment--revasp-revcat_exap--rel-ordr_absa--plr
+    model_type: causal
+    peft_model_id: null
+
+    datasets: PNLPhub/FarsTail,PNLPhub/snappfood-sentiment-analysis,persiannlp/parsinlu_query_paraphrasing
+    # datasets: persiannlp/parsinlu_entailment
+    #datasets: null
+    instruction_template: ava
+    shots: 1
+    task_type: multiple_choice # 'generate_until'
+    batch_size: 8
+    max_len: 64 
+
+quantization_args:
+    load_in_4bit: false
+    double_quant: true
+    quant_type: "nf4"
+    lora_rank: 16
+    lora_alpha: 8 
+    lora_dropout: 0.05 

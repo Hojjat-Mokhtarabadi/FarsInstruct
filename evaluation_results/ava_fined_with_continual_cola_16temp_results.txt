@@ -1,0 +1,23 @@
++----------------------------------------+----------------------+-----------------------------------+
+|                ds_name                 |      temp_name       |               result              |
++----------------------------------------+----------------------+-----------------------------------+
+|            PNLPhub/FarsTail            |    can_you_infer     |        {'accuracy': 0.324}        |
+|            PNLPhub/FarsTail            |   does_this_imply    |        {'accuracy': 0.324}        |
+|            PNLPhub/FarsTail            |    do_they_relate    |         {'accuracy': 0.34}        |
+|            PNLPhub/FarsTail            |      confidence      |  {'accuracy': 0.3373333333333333} |
+|            PNLPhub/FarsTail            |    claim_relation    |  {'accuracy': 0.3426666666666667} |
+|            PNLPhub/FarsTail            |       evaluate       | {'accuracy': 0.33266666666666667} |
+|            PNLPhub/FarsTail            |       classify       | {'accuracy': 0.32466666666666666} |
+| persiannlp/parsinlu_query_paraphrasing |  compare_two_sents   |        {'accuracy': 0.514}        |
+| persiannlp/parsinlu_query_paraphrasing |  different_or_same   |  {'accuracy': 0.4786666666666667} |
+| persiannlp/parsinlu_query_paraphrasing |     sucess_level     | {'accuracy': 0.48133333333333334} |
+| persiannlp/parsinlu_query_paraphrasing |   relatable_or_not   |  {'accuracy': 0.4866666666666667} |
+| persiannlp/parsinlu_query_paraphrasing |     never_always     |  {'accuracy': 0.4613333333333333} |
+| persiannlp/parsinlu_query_paraphrasing |    similar_or_not    | {'accuracy': 0.48333333333333334} |
+|  PNLPhub/snappfood-sentiment-analysis  |      is_it_neg       |  {'accuracy': 0.5253333333333333} |
+|  PNLPhub/snappfood-sentiment-analysis  |   is_it_pos_or_neg   |        {'accuracy': 0.488}        |
+|  PNLPhub/snappfood-sentiment-analysis  |      is_it_pos       |  {'accuracy': 0.4713333333333333} |
+|  PNLPhub/snappfood-sentiment-analysis  |    recommendation    |  {'accuracy': 0.5053333333333333} |
+|  PNLPhub/snappfood-sentiment-analysis  | to_which_does_belong |  {'accuracy': 0.5506666666666666} |
+|  PNLPhub/snappfood-sentiment-analysis  |  what_is_sentiment   |  {'accuracy': 0.6233333333333333} |
++----------------------------------------+----------------------+-----------------------------------+

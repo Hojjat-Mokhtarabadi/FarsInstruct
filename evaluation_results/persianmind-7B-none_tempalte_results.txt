@@ -1,0 +1,31 @@
++----------------------------------------+-------------------------------+--------------------+
+|                ds_name                 |           temp_name           |       result       |
++----------------------------------------+-------------------------------+--------------------+
+|            PNLPhub/FarsTail            |         can_you_infer         | {'accuracy': 0.41} |
+|            PNLPhub/FarsTail            |        does_this_imply        | {'accuracy': 0.41} |
+|            PNLPhub/FarsTail            |         do_they_relate        | {'accuracy': 0.31} |
+|            PNLPhub/FarsTail            |           confidence          | {'accuracy': 0.28} |
+|            PNLPhub/FarsTail            |         claim_relation        | {'accuracy': 0.31} |
+|            PNLPhub/FarsTail            |            evaluate           | {'accuracy': 0.31} |
+|            PNLPhub/FarsTail            |            classify           | {'accuracy': 0.41} |
+|     persiannlp/parsinlu_entailment     |           GPT3_Style          | {'accuracy': 0.41} |
+|     persiannlp/parsinlu_entailment     | based_on_the_previous_passage | {'accuracy': 0.33} |
+|     persiannlp/parsinlu_entailment     |         can_you_infer         | {'accuracy': 0.33} |
+|     persiannlp/parsinlu_entailment     |        does_this_imply        | {'accuracy': 0.33} |
+|     persiannlp/parsinlu_entailment     |           confidence          | {'accuracy': 0.41} |
+|     persiannlp/parsinlu_entailment     |            evaluate           | {'accuracy': 0.33} |
+|     persiannlp/parsinlu_entailment     |         claim_relation        | {'accuracy': 0.26} |
+|     persiannlp/parsinlu_entailment     |            classify           | {'accuracy': 0.33} |
+| persiannlp/parsinlu_query_paraphrasing |       compare_two_sents       | {'accuracy': 0.61} |
+| persiannlp/parsinlu_query_paraphrasing |       different_or_same       | {'accuracy': 0.39} |
+| persiannlp/parsinlu_query_paraphrasing |          sucess_level         | {'accuracy': 0.39} |
+| persiannlp/parsinlu_query_paraphrasing |        relatable_or_not       | {'accuracy': 0.61} |
+| persiannlp/parsinlu_query_paraphrasing |          never_always         | {'accuracy': 0.39} |
+| persiannlp/parsinlu_query_paraphrasing |         similar_or_not        | {'accuracy': 0.61} |
+|  PNLPhub/snappfood-sentiment-analysis  |           is_it_neg           | {'accuracy': 0.43} |
+|  PNLPhub/snappfood-sentiment-analysis  |        is_it_pos_or_neg       | {'accuracy': 0.43} |
+|  PNLPhub/snappfood-sentiment-analysis  |           is_it_pos           | {'accuracy': 0.57} |
+|  PNLPhub/snappfood-sentiment-analysis  |         recommendation        | {'accuracy': 0.57} |
+|  PNLPhub/snappfood-sentiment-analysis  |      to_which_does_belong     | {'accuracy': 0.57} |
+|  PNLPhub/snappfood-sentiment-analysis  |       what_is_sentiment       | {'accuracy': 0.57} |
++----------------------------------------+-------------------------------+--------------------+
