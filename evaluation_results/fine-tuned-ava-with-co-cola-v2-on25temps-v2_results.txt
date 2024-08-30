@@ -1,0 +1,228 @@
++-----------------------------------------------------------------------------------------------------------------+
+|                                   fine-tuned-ava-with-co-cola-v2-on25temps-v2                                   |
++----------------------------------------------------------------+--------+------+-----------+--------+-----------+
+|                            Section                             | Score  | Type | Precision | Recall | F-Measure |
++----------------------------------------------------------------+--------+------+-----------+--------+-----------+
+|                        PNLPhub/FarsTail                        |        |      |           |        |           |
+|             PNLPhub/FarsTail - label_to_hypothesis             |        |      |           |        |           |
+|                                                                | rougeL | low  |   2.10    |  6.83  |    3.25   |
+|                                                                | rougeL | mid  |   6.47    | 22.80  |    9.50   |
+|                                                                | rougeL | high |   12.46   | 42.02  |   18.21   |
+|              PNLPhub/FarsTail - label_to_premise               |        |      |           |        |           |
+|                                                                | rougeL | low  |   7.34    |  6.70  |    6.71   |
+|                                                                | rougeL | mid  |   13.51   | 14.46  |   12.77   |
+|                                                                | rougeL | high |   20.25   | 23.08  |   19.16   |
+|                PNLPhub/FarsTail - can_you_infer                |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   23.33   | 30.00  |   25.00   |
+|                                                                | rougeL | high |   50.00   | 60.00  |   50.00   |
+|               PNLPhub/FarsTail - does_this_imply               |        |      |           |        |           |
+|                                                                | rougeL | low  |   2.59    | 100.00 |    5.04   |
+|                                                                | rougeL | mid  |   2.99    | 100.00 |    5.79   |
+|                                                                | rougeL | high |   3.62    | 100.00 |    6.97   |
+|               PNLPhub/FarsTail - do_they_relate                |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | high |   0.00    |  0.00  |    0.00   |
+|                 PNLPhub/FarsTail - confidence                  |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   3.90    | 15.00  |    5.08   |
+|                                                                | rougeL | high |   11.13   | 30.00  |   14.08   |
+|                 PNLPhub/FarsTail - comparison                  |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.40    |  2.00  |    0.66   |
+|                                                                | rougeL | mid  |   1.69    |  8.50  |    2.80   |
+|                                                                | rougeL | high |   3.16    | 15.50  |    5.27   |
+|               PNLPhub/FarsTail - claim_relation                |        |      |           |        |           |
+|                                                                | rougeL | low  |   1.10    | 20.00  |    2.09   |
+|                                                                | rougeL | mid  |   13.28   | 45.00  |   15.64   |
+|                                                                | rougeL | high |   33.67   | 70.00  |   36.52   |
+|                  PNLPhub/FarsTail - evaluate                   |        |      |           |        |           |
+|                                                                | rougeL | low  |   2.55    | 40.00  |    4.84   |
+|                                                                | rougeL | mid  |   15.71   | 70.00  |   20.53   |
+|                                                                | rougeL | high |   34.24   | 100.00 |   41.74   |
+|                 persiannlp/parsinlu_entailment                 |        |      |           |        |           |
+|          persiannlp/parsinlu_entailment - GPT3_Style           |        |      |           |        |           |
+|                                                                | rougeL | low  |   2.00    | 50.00  |    3.88   |
+|                                                                | rougeL | mid  |   6.48    | 80.00  |   10.85   |
+|                                                                | rougeL | high |   13.49   | 100.00 |   21.54   |
+| persiannlp/parsinlu_entailment - based_on_the_previous_passage |        |      |           |        |           |
+|                                                                | rougeL | low  |   10.09   | 100.00 |   16.55   |
+|                                                                | rougeL | mid  |   18.94   | 100.00 |   29.35   |
+|                                                                | rougeL | high |   27.58   | 100.00 |   41.74   |
+|         persiannlp/parsinlu_entailment - can_you_infer         |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | high |   0.00    |  0.00  |    0.00   |
+|        persiannlp/parsinlu_entailment - does_this_imply        |        |      |           |        |           |
+|                                                                | rougeL | low  |   14.65   | 60.00  |   18.73   |
+|                                                                | rougeL | mid  |   44.01   | 80.00  |   46.86   |
+|                                                                | rougeL | high |   73.34   | 100.00 |   75.61   |
+|          persiannlp/parsinlu_entailment - confidence           |        |      |           |        |           |
+|                                                                | rougeL | low  |   9.35    | 85.00  |   16.62   |
+|                                                                | rougeL | mid  |   14.68   | 95.00  |   24.45   |
+|                                                                | rougeL | high |   21.33   | 100.00 |   33.84   |
+|           persiannlp/parsinlu_entailment - evaluate            |        |      |           |        |           |
+|                                                                | rougeL | low  |   1.91    | 20.00  |    3.47   |
+|                                                                | rougeL | mid  |   4.87    | 43.33  |    8.62   |
+|                                                                | rougeL | high |   8.58    | 66.67  |   15.05   |
+|        persiannlp/parsinlu_entailment - claim_relation         |        |      |           |        |           |
+|                                                                | rougeL | low  |   3.95    | 65.00  |    7.42   |
+|                                                                | rougeL | mid  |   4.92    | 80.00  |    9.27   |
+|                                                                | rougeL | high |   5.81    | 95.00  |   10.93   |
+|           persiannlp/parsinlu_entailment - classify            |        |      |           |        |           |
+|                                                                | rougeL | low  |   12.87   | 50.00  |   17.83   |
+|                                                                | rougeL | mid  |   22.86   | 55.00  |   28.14   |
+|                                                                | rougeL | high |   32.31   | 65.00  |   37.34   |
+|          persiannlp/parsinlu_entailment - comparison           |        |      |           |        |           |
+|                                                                | rougeL | low  |   1.41    | 10.00  |    2.47   |
+|                                                                | rougeL | mid  |   3.65    | 26.33  |    6.39   |
+|                                                                | rougeL | high |   5.79    | 41.01  |   10.10   |
+|             persiannlp/parsinlu_query_paraphrasing             |        |      |           |        |           |
+|   persiannlp/parsinlu_query_paraphrasing - compare_two_sents   |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.31    | 10.00  |    0.61   |
+|                                                                | rougeL | mid  |   1.20    | 40.00  |    2.33   |
+|                                                                | rougeL | high |   2.13    | 70.00  |    4.14   |
+|   persiannlp/parsinlu_query_paraphrasing - different_or_same   |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.47    | 20.00  |    0.92   |
+|                                                                | rougeL | mid  |   1.40    | 50.00  |    2.72   |
+|                                                                | rougeL | high |   2.37    | 80.00  |    4.59   |
+|     persiannlp/parsinlu_query_paraphrasing - sucess_level      |        |      |           |        |           |
+|                                                                | rougeL | low  |   3.59    | 55.00  |    6.77   |
+|                                                                | rougeL | mid  |   5.24    | 70.00  |    9.47   |
+|                                                                | rougeL | high |   7.56    | 85.00  |   12.88   |
+|   persiannlp/parsinlu_query_paraphrasing - relatable_or_not    |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | high |   0.00    |  0.00  |    0.00   |
+|     persiannlp/parsinlu_query_paraphrasing - never_always      |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.96    | 30.00  |    1.86   |
+|                                                                | rougeL | mid  |   2.26    | 60.00  |    4.34   |
+|                                                                | rougeL | high |   3.90    | 90.00  |    7.39   |
+|    persiannlp/parsinlu_query_paraphrasing - similar_or_not     |        |      |           |        |           |
+|                                                                | rougeL | low  |   12.02   | 100.00 |   19.89   |
+|                                                                | rougeL | mid  |   18.48   | 100.00 |   29.89   |
+|                                                                | rougeL | high |   25.00   | 100.00 |   40.00   |
+|                        PNLPhub/DigiMag                         |        |      |           |        |           |
+|                PNLPhub/DigiMag - generate_text                 |        |      |           |        |           |
+|                                                                | rougeL | low  |   19.48   |  3.76  |    6.25   |
+|                                                                | rougeL | mid  |   26.34   |  5.27  |    8.63   |
+|                                                                | rougeL | high |   32.03   |  6.65  |   10.85   |
+|          PNLPhub/DigiMag - in_which_categ_would_it_go          |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.21    |  3.33  |    0.40   |
+|                                                                | rougeL | mid  |   6.16    | 26.67  |    8.79   |
+|                                                                | rougeL | high |   16.90   | 53.33  |   23.48   |
+|               PNLPhub/DigiMag - classify_content               |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.29    |  3.33  |    0.53   |
+|                                                                | rougeL | mid  |   18.06   | 26.67  |   19.60   |
+|                                                                | rougeL | high |   42.51   | 53.33  |   45.73   |
+|            PNLPhub/DigiMag - does_it_belong_to_art             |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | high |   0.00    |  0.00  |    0.00   |
+|            PNLPhub/DigiMag - does_it_belong_to_book            |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   15.00   | 20.00  |   16.67   |
+|                                                                | rougeL | high |   40.00   | 50.00  |   40.00   |
+|          PNLPhub/DigiMag - does_it_belong_to_cosmetic          |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   3.83    | 20.00  |    5.95   |
+|                                                                | rougeL | high |   10.50   | 50.00  |   15.95   |
+|            PNLPhub/DigiMag - does_it_belong_to_game            |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   2.86    | 20.00  |    4.69   |
+|                                                                | rougeL | high |   7.86    | 50.00  |   12.69   |
+|          PNLPhub/DigiMag - does_it_belong_to_general           |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | high |   0.00    |  0.00  |    0.00   |
+|            PNLPhub/DigiMag - does_it_belong_to_shop            |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | high |   0.00    |  0.00  |    0.00   |
+|           PNLPhub/DigiMag - does_it_belong_to_techno           |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | high |   0.00    |  0.00  |    0.00   |
+|              PNLPhub/digikala-sentiment-analysis               |        |      |           |        |           |
+|     PNLPhub/digikala-sentiment-analysis - generate_comment     |        |      |           |        |           |
+|                                                                | rougeL | low  |   5.14    |  9.17  |    6.35   |
+|                                                                | rougeL | mid  |   7.59    | 13.10  |    7.87   |
+|                                                                | rougeL | high |   10.43   | 17.87  |    9.44   |
+|          PNLPhub/digikala-sentiment-analysis - is_avg          |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   0.29    | 10.00  |    0.56   |
+|                                                                | rougeL | high |   0.86    | 30.00  |    1.67   |
+|          PNLPhub/digikala-sentiment-analysis - is_bad          |        |      |           |        |           |
+|                                                                | rougeL | low  |   3.72    | 100.00 |    7.16   |
+|                                                                | rougeL | mid  |   4.65    | 100.00 |    8.85   |
+|                                                                | rougeL | high |   5.95    | 100.00 |   11.16   |
+|         PNLPhub/digikala-sentiment-analysis - is_good          |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.45    | 10.00  |    0.87   |
+|                                                                | rougeL | mid  |   10.91   | 40.00  |   15.07   |
+|                                                                | rougeL | high |   25.45   | 70.00  |   34.20   |
+|     PNLPhub/digikala-sentiment-analysis - is_it_pos_or_neg     |        |      |           |        |           |
+|                                                                | rougeL | low  |   3.11    | 40.00  |    5.81   |
+|                                                                | rougeL | mid  |   6.87    | 70.00  |   12.19   |
+|                                                                | rougeL | high |   12.00   | 90.00  |   20.48   |
+|        PNLPhub/digikala-sentiment-analysis - is_perfect        |        |      |           |        |           |
+|                                                                | rougeL | low  |   3.26    | 70.00  |    6.23   |
+|                                                                | rougeL | mid  |   4.67    | 90.00  |    8.84   |
+|                                                                | rougeL | high |   5.97    | 100.00 |   11.25   |
+|       PNLPhub/digikala-sentiment-analysis - is_terrible        |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.71    | 20.00  |    1.36   |
+|                                                                | rougeL | mid  |   1.82    | 50.00  |    3.50   |
+|                                                                | rougeL | high |   3.50    | 80.00  |    6.65   |
+|      PNLPhub/digikala-sentiment-analysis - specify_categ       |        |      |           |        |           |
+|                                                                | rougeL | low  |   1.95    | 30.00  |    3.72   |
+|                                                                | rougeL | mid  |   4.89    | 60.00  |    8.89   |
+|                                                                | rougeL | high |   8.71    | 90.00  |   15.46   |
+|       PNLPhub/digikala-sentiment-analysis - star_rating        |        |      |           |        |           |
+|                                                                | rougeL | low  |   35.98   | 60.00  |   41.67   |
+|                                                                | rougeL | mid  |   55.00   | 75.00  |   58.33   |
+|                                                                | rougeL | high |   76.00   | 90.00  |   76.71   |
+|    PNLPhub/digikala-sentiment-analysis - what_is_sentiment     |        |      |           |        |           |
+|                                                                | rougeL | low  |   8.18    | 70.00  |   14.54   |
+|                                                                | rougeL | mid  |   12.02   | 90.00  |   21.01   |
+|                                                                | rougeL | high |   15.29   | 100.00 |   26.43   |
+|              PNLPhub/snappfood-sentiment-analysis              |        |      |           |        |           |
+|      PNLPhub/snappfood-sentiment-analysis - gen_sentiment      |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   0.36    | 10.00  |    0.69   |
+|                                                                | rougeL | high |   1.07    | 30.00  |    2.07   |
+|        PNLPhub/snappfood-sentiment-analysis - feelings         |        |      |           |        |           |
+|                                                                | rougeL | low  |   4.83    | 17.14  |    7.55   |
+|                                                                | rougeL | mid  |   7.20    | 24.29  |   10.94   |
+|                                                                | rougeL | high |   9.49    | 31.43  |   14.36   |
+|        PNLPhub/snappfood-sentiment-analysis - is_it_neg        |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | high |   0.00    |  0.00  |    0.00   |
+|    PNLPhub/snappfood-sentiment-analysis - is_it_pos_or_neg     |        |      |           |        |           |
+|                                                                | rougeL | low  |   24.92   | 100.00 |   32.30   |
+|                                                                | rougeL | mid  |   44.35   | 100.00 |   53.63   |
+|                                                                | rougeL | high |   65.42   | 100.00 |   74.13   |
+|        PNLPhub/snappfood-sentiment-analysis - is_it_pos        |        |      |           |        |           |
+|                                                                | rougeL | low  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | mid  |   0.00    |  0.00  |    0.00   |
+|                                                                | rougeL | high |   0.00    |  0.00  |    0.00   |
+|     PNLPhub/snappfood-sentiment-analysis - recommendation      |        |      |           |        |           |
+|                                                                | rougeL | low  |   21.94   | 100.00 |   24.18   |
+|                                                                | rougeL | mid  |   46.53   | 100.00 |   49.82   |
+|                                                                | rougeL | high |   75.55   | 100.00 |   78.00   |
+|  PNLPhub/snappfood-sentiment-analysis - to_which_does_belong   |        |      |           |        |           |
+|                                                                | rougeL | low  |   2.28    | 70.00  |    4.40   |
+|                                                                | rougeL | mid  |   3.22    | 90.00  |    6.22   |
+|                                                                | rougeL | high |   3.81    | 100.00 |    7.33   |
+|    PNLPhub/snappfood-sentiment-analysis - what_is_sentiment    |        |      |           |        |           |
+|                                                                | rougeL | low  |   8.55    | 100.00 |   13.48   |
+|                                                                | rougeL | mid  |   22.41   | 100.00 |   31.30   |
+|                                                                | rougeL | high |   36.27   | 100.00 |   49.11   |
+|       PNLPhub/snappfood-sentiment-analysis - possibility       |        |      |           |        |           |
+|                                                                | rougeL | low  |   1.56    |  5.00  |    2.32   |
+|                                                                | rougeL | mid  |   4.14    | 12.00  |    6.08   |
+|                                                                | rougeL | high |   6.83    | 21.00  |   10.28   |
+|          PNLPhub/snappfood-sentiment-analysis - rate           |        |      |           |        |           |
+|                                                                | rougeL | low  |   66.48   | 85.00  |   67.76   |
+|                                                                | rougeL | mid  |   85.74   | 95.00  |   86.38   |
+|                                                                | rougeL | high |  100.00   | 100.00 |   100.00  |
++----------------------------------------------------------------+--------+------+-----------+--------+-----------+

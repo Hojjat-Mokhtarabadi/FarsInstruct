@@ -101,22 +101,24 @@ class LMEvaluation:
                 try:
                     temp_list1 = generate_until_templates[ds]
                     for temp_name in temp_list1:
-                        res, scores, dec_preds, dec_labels = self.run_generate_until_evaluation(ds, temp_name, causal_model)    
+                        res, scores, dec_preds, dec_labels, dec_inputs = self.run_generate_until_evaluation(ds, temp_name, causal_model)    
                         all_results.append(res)
                         all_scores.append(scores)
-                        temp_list += temp_list1
-                        samples[temp_name] = [dec_preds, dec_labels]
+                        samples[temp_name] = [dec_inputs, dec_preds, dec_labels]
+                        print(scores)
+                    temp_list += temp_list1
                 except Exception as e:
                     print(f"{e}")
                     
                 try:
                     temp_list2 = multiple_choice_templates[ds]
                     for temp_name in temp_list2:
-                        res, scores, dec_preds, dec_labels = self.run_generate_until_evaluation(ds, temp_name, causal_model)    
+                        res, scores, dec_preds, dec_labels, dec_inputs = self.run_generate_until_evaluation(ds, temp_name, causal_model)    
                         all_results.append(res)
                         all_scores.append(scores)
-                        temp_list += temp_list2
-                        samples[temp_name] = [dec_preds, dec_labels]
+                        samples[temp_name] = [dec_inputs, dec_preds, dec_labels]
+                        print(scores)
+                    temp_list += temp_list2
                 except Exception as e:
                     print(f"{e}")
                     
@@ -307,9 +309,10 @@ class LMEvaluation:
         #> start evaluation
         print(f'Start evaluation on {ds_name}/{temp_name}...')
         model.eval()
-        metric = datasets.load_metric('rouge')
+        metric = datasets.load_metric('./rouge')
         dec_preds = []
         dec_labels = []
+        dec_inputs = []
         for step, batch in enumerate(val_dataloader):
             with torch.no_grad():
                 generated_tokens = self.accelerator.unwrap_model(model).generate(
@@ -317,7 +320,7 @@ class LMEvaluation:
                     attention_mask=batch['attention_mask'],
                     max_new_tokens=64,
                     top_k=10,
-                    eos_token_id=128001
+                    # eos_token_id=128001
                 )
 
                 generated_tokens = self.accelerator.pad_across_processes(
@@ -332,7 +335,8 @@ class LMEvaluation:
                 labels = np.where(labels != -100, labels, self.tokenizer.pad_token_id)
                 if isinstance(generated_tokens, tuple):
                     generated_tokens = generated_tokens[0]
-                    
+
+                decoded_inputs = self.tokenizer.batch_decode(generated_tokens[:, :batch['input_ids'].shape[1]], skip_special_tokens=True) 
                 decoded_preds = self.tokenizer.batch_decode(generated_tokens[:, batch['input_ids'].shape[1]:], skip_special_tokens=True)
                 decoded_labels = self.tokenizer.batch_decode(labels, skip_special_tokens=True)
 
@@ -342,8 +346,9 @@ class LMEvaluation:
                     references=decoded_labels,
                 )
 
-            dec_preds = decoded_preds
-            dec_labels = decoded_labels
+            dec_inputs += decoded_inputs
+            dec_preds += decoded_preds
+            dec_labels += decoded_labels
 
         scores = metric.compute(
             rouge_types=["rouge1", "rouge2", "rougeL", "rougeLsum"], 
@@ -360,7 +365,7 @@ class LMEvaluation:
 
         # print(output_res, '\n')
 
-        return output_res, scores, dec_preds, dec_labels
+        return output_res, scores, dec_preds, dec_labels, dec_inputs
 
 
 if __name__ == "__main__":
