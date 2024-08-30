@@ -5,10 +5,10 @@ TEMP_LIST = {
             'does_this_imply',
             'do_they_relate',
             'confidence',
-            # 'comparison',
+            'comparison',
             'claim_relation',
             'evaluate',
-            'classify'
+            # 'classify'
         ],
         'persiannlp/parsinlu_entailment' : [
             'GPT3_Style',
@@ -19,7 +19,7 @@ TEMP_LIST = {
             'evaluate',
             'claim_relation',
             'classify',
-            # 'comparison',
+            'comparison'
             
         ],    
         'persiannlp/parsinlu_query_paraphrasing': [
@@ -41,7 +41,6 @@ TEMP_LIST = {
             'does_it_belong_to_general',
             'does_it_belong_to_shop',
             'does_it_belong_to_techno',
-            'what_categ_is_the_content_is'
         ],
         'persiannlp/parsinlu_sentiment': [
             'question_review_aspect',
@@ -75,10 +74,10 @@ TEMP_LIST = {
             'most_correct_answer'
         ],
         'PNLPhub/Persian-News' : [
-            'choose_category_zs',
-            'choose_label_id_and_label_zs',
-            'classify_content_zs',
-            'title_to_text_zs'
+            'choose_category',
+            'choose_label_id_and_label',
+            'classify_content',
+            'title_to_text'
         ],
         'PNLPhub/snappfood-sentiment-analysis' : [
             'is_it_neg',
@@ -86,7 +85,9 @@ TEMP_LIST = {
             'is_it_pos',
             'recommendation',
             'to_which_does_belong',
-            'what_is_sentiment'
+            'what_is_sentiment',
+            'possibility',
+            'rate'
         ],
 
         "PNLPhub/C-ExaPPC": [
@@ -98,22 +99,24 @@ TEMP_LIST = {
 
     'generate_until': {
         'PNLPhub/FarsTail': [
-            'label_to_hypothesis_zs',
-            'label_to_premise_zs'
+            'label_to_hypothesis',
+            'label_to_premise'
         ],
+        # 'persiannlp/parsinlu_entailment': [],
+        # 'persiannlp/parsinlu_query_paraphrasing': [],
         'PNLPhub/DigiMag': [
-            'generate_class_fs',
-            'in_which_categ_would_it_go_fs'
+            'generate_text',
+            'in_which_categ_would_it_go'
         ],
         'parsinlu_reading_comprehension': [
-            'give_short_answer_fs',
-            'give_short_answers_zs',
-            'question_context_zs'
+            'give_short_answer',
+            'give_short_answers',
+            'question_context'
         ],
         'persiannlp/parsinlu_sentiment': [
-            'aspect_category_review_zs',
-            'question_aspect_example_id_fs',
-            'question_category_zs'
+            'aspect_category_review',
+            'question_aspect_example_id',
+            'question_category'
         ],
         'pn_summary' : [
             'gen_article_with_summary_zs',
@@ -125,22 +128,25 @@ TEMP_LIST = {
             'summarize_the_article_zs'
         ],
         'PNLPhub/digikala-sentiment-analysis' : [
-            'generate_sentiment_fs'
+            'generate_comment'
         ],
         'PNLPhub/parsinlu-multiple-choice' : [
-            'write_answer_fs'
+            'write_answer'
         ],
         'PNLPhub/Persian-News' : [
-            'gen_category_for_content_zs'
+            'gen_category_for_content',
+            'title_to_text',
+            'gen_second_half'
         ],
         'PNLPhub/snappfood-sentiment-analysis' : [
-            'gen_sentiment_fs'
+            'gen_sentiment',
+            'feelings'
         ],
         'SajjadAyoubi/persian_qa' : [
-            'answer_Q_A_zs',
-            'answer_question_give_text_fs',
-            'generate_question_fs',
-            'generate_question_wrt_answer_fs'
+            'answer_Q_A',
+            'answer_question_give_text',
+            'generate_question',
+            'generate_question_wrt_answer'
         ],
         'SLPL/syntran-fa' : [
             'answer_question_fs',
