@@ -103,12 +103,7 @@ class LMEvaluation:
                 try:
                     temp_list1 = generate_until_templates[ds]
                     for temp_name in temp_list1:
-<<<<<<< HEAD
                         res, scores, dec_preds, dec_labels, dec_inputs = self.run_generate_until_evaluation(ds, temp_name, causal_model)    
-=======
-                        print(temp_name)
-                        res, scores, dec_preds, dec_labels = self.run_generate_until_evaluation(ds, temp_name, causal_model)    
->>>>>>> 3b75be4 (new changes added)
                         all_results.append(res)
                         all_scores.append(scores)
                         samples[temp_name] = [dec_inputs, dec_preds, dec_labels]
@@ -328,13 +323,8 @@ class LMEvaluation:
                     input_ids=batch['input_ids'],
                     attention_mask=batch['attention_mask'],
                     max_new_tokens=64,
-<<<<<<< HEAD
-                    top_k=10,
-                    # eos_token_id=128001
-=======
                     do_sample=True,
                     eos_token_id=self.tokenizer.eos_token_id
->>>>>>> 3b75be4 (new changes added)
                 )
 
                 generated_tokens = self.accelerator.pad_across_processes(
