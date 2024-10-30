@@ -93,6 +93,8 @@ base_checkpoints/
 *.csv
 *.zip
 *.json
+*.txt
+*.swo
 empty.ipynb
 scratch_pad.ipynb
 *.swp

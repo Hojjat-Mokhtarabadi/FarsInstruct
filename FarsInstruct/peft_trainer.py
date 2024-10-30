@@ -3,6 +3,7 @@ import torch
 from torch.utils import data
 from torch.optim.optimizer import Optimizer as Optimizer
 from transformers import Trainer, DataCollatorForLanguageModeling
+from trl import DataCollatorForCompletionOnlyLM
 from peft import prepare_model_for_kbit_training
 from peft import LoraConfig, get_peft_model, PeftModel
 from accelerate import Accelerator
@@ -13,8 +14,6 @@ from data_ops.fars_instruct_dataset import FarsInstructDataset
 from modeling import load_pretaining_model
 # from callbacks import LLMTensorboardCallback
 from utils import *
-
-
 
 def print_trainable_parameters(model):
     """
@@ -62,9 +61,10 @@ def main(configs, args):
 
     print(f"device: {accelerator.device}")
     #> load model
+    # quantization_args = None
     model, tokenizer = load_pretaining_model(model_args.model_path, model_args.tokenizer_path, quantization_args)
     # tokenizer.pad_token = tokenizer.eos_token_id 
-    tokenizer.pad_token = tokenizer.convert_ids_to_tokens(tokenizer.eos_token_id)
+    tokenizer.pad_token = tokenizer.convert_ids_to_tokens(128001)
     model.config.pad_token_id = tokenizer.pad_token_id
     model.gradient_checkpointing_enable()
     model.config.use_cache = False 
@@ -140,12 +140,14 @@ def main(configs, args):
         print("### Dataset sample: ###")
         print(tokenizer.batch_decode(next(iter(train_loader))['input_ids'])[0])
 
+    response_template = " ### Response:"
+    collator = DataCollatorForCompletionOnlyLM(response_template, tokenizer=tokenizer)
     trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=train_set,
-        tokenizer=tokenizer,
-        data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
+        #tokenizer=tokenizer,
+        data_collator=collator,
         #accelerator=accelerator,
     )
     

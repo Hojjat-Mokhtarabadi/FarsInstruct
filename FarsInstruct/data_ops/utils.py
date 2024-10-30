@@ -37,6 +37,7 @@ def load_meta_data():
 def sample_dataset(raw_data, ds_name):  
    #min_chunk = 2000
    ds_list = []
+   """
    temp_list = {
            "title_generate": 120, 
            "question_or_answer_catg": 120,
@@ -66,6 +67,29 @@ def sample_dataset(raw_data, ds_name):
            "translate_english": 120,
            "similar": 15_000
            }
+    """
+   temp_list = {
+           "answer_Q_A": 50,
+           "find_question_answer": 50,
+           "star_rating": 50,
+           "does_it_belong_to_book": 70,
+           "is_good": 50,
+           "which_category": 50,
+           "satisfaction": 50,
+           "generate_question_wrt_answer": 50,
+           "summarize": 50,
+           "category_aspect_question": 50,
+           "gen_second_half": 50,
+           "select_correct_class": 50,
+           "question_context": 50,
+           "generate_term": 50,
+           "classify_content": 90,
+           "gen_q_with_long_short_ans": 50,
+           "title_summary": 1000,
+           "generate_reason": 50,
+           "polysemous": 50,
+           "general_answer": 20500
+    }
    for ds in ds_name:
     #if ds == "SajjadAyoubi/persian_qa":
     #    min_chunk = 10_000
@@ -73,8 +97,8 @@ def sample_dataset(raw_data, ds_name):
     #    min_chunk = 100
    
     for k, v in temp_list.items():
-        raw_data_filterd = raw_data.filter(lambda ex: ex["ds"] == ds and ex["template"] == k)
-        raw_data_filterd = raw_data_filterd.shuffle(seed=random.randint(1, 2000)).select(range(0, min(10_000, len(raw_data_filterd))))
+        raw_data_filterd = raw_data.filter(lambda ex: ex["dataset"] == ds and ex["template"] == k)
+        raw_data_filterd = raw_data_filterd.shuffle(seed=random.randint(1,2000)).select(range(0, min(v, len(raw_data_filterd))))
         ds_list.append(raw_data_filterd)
      
     '''

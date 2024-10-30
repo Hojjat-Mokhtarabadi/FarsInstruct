@@ -43,10 +43,10 @@ class LMEvaluation:
         else:
             self.tokenizer = AutoTokenizer.from_pretrained(self.eval_args.tokenizer_path,
                                                            use_fast=True,
-                                                           add_bos_token=True,
-                                                           padding_side='left'
+                                                           add_bos_token=True
                                                            )
-        self.tokenizer.pad_token = self.tokenizer.eos_token
+        # self.tokenizer.pad_token = self.tokenizer.convert_ids_to_tokens(128001)
+        
 
     def run_eval(self, current_model, step:int = 0, write_out: bool = False):
         #> setup
@@ -78,6 +78,8 @@ class LMEvaluation:
                                                 device_map="auto")
         # Remove "Setting pad_token_id to eos_token_id" warning!
         # self.model.config.pad_token_id  = self.model.config.eos_token_id
+        # causal_model.config.pad_token_id  = self.tokenizer.pad_token_id
+        
 
         print(f'base model: {self.eval_args.model_path}')
         print("Note that if base model and peft model are 'None', the evaluation function is using the model under training!")
@@ -101,7 +103,12 @@ class LMEvaluation:
                 try:
                     temp_list1 = generate_until_templates[ds]
                     for temp_name in temp_list1:
+<<<<<<< HEAD
                         res, scores, dec_preds, dec_labels, dec_inputs = self.run_generate_until_evaluation(ds, temp_name, causal_model)    
+=======
+                        print(temp_name)
+                        res, scores, dec_preds, dec_labels = self.run_generate_until_evaluation(ds, temp_name, causal_model)    
+>>>>>>> 3b75be4 (new changes added)
                         all_results.append(res)
                         all_scores.append(scores)
                         samples[temp_name] = [dec_inputs, dec_preds, dec_labels]
@@ -251,7 +258,8 @@ class LMEvaluation:
                                                max_len=self.eval_args.max_len, 
                                                instruction_template=self.eval_args.instruction_template,
                                                split=self.split,
-                                               shots=self.shots)
+                                               shots=self.shots,
+                                               path=self.data_args.dataset_path)
         encoded_dataset = self.val_set.get_tokenized_data(ds_name=ds_name, temp_name=temp_name, multiple_choice=True)
         data_collator = DataCollatorForMultipleChoice(self.tokenizer)
         val_dataloader = DataLoader(encoded_dataset, collate_fn=data_collator, batch_size=self.eval_args.batch_size)
@@ -298,7 +306,8 @@ class LMEvaluation:
                                     max_len=self.eval_args.max_len, 
                                     instruction_template=self.eval_args.instruction_template,
                                     split=self.split,
-                                    shots=self.shots)
+                                    shots=self.shots,
+                                    path=self.data_args.dataset_path)
         encoded_dataset = self.val_set.get_tokenized_data(ds_name=ds_name, temp_name=temp_name, multiple_choice=False)
         data_collator = DataCollatorWithPadding(self.tokenizer,
                                                 return_tensors='pt')
@@ -319,8 +328,13 @@ class LMEvaluation:
                     input_ids=batch['input_ids'],
                     attention_mask=batch['attention_mask'],
                     max_new_tokens=64,
+<<<<<<< HEAD
                     top_k=10,
                     # eos_token_id=128001
+=======
+                    do_sample=True,
+                    eos_token_id=self.tokenizer.eos_token_id
+>>>>>>> 3b75be4 (new changes added)
                 )
 
                 generated_tokens = self.accelerator.pad_across_processes(
