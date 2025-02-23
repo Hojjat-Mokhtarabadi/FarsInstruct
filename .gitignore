@@ -103,6 +103,7 @@ venv/
 wiki_summary/
 .ipynb_checkpoints/
 */.ipynb_checkpoints/*
+evaluation_results/
 
 # Distribution / packaging
 bin/

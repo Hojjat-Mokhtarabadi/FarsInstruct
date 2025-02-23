@@ -10,8 +10,6 @@ from transformers import AutoModelForCausalLM, AutoTokenizer  # noqa: F402
 #BASE_MODEL = "./lora_checkpoints/hf_ckpt_macro_llama3_parsinlu_enfa_faen_pnsum_wikisum_exappc_sajjadqa_persiannews"
 #BASE_MODEL = "./lora_checkpoints/hf_ckpt_micro_ava_sajjadqa--3_pnsum--2_slpl--genqwitha-qora_wikisum--3_digi--whichctg_persiannews--chscatg_parssentiment--revasp-revcat_exap--rel-ordr_absa--plr_pner--fndprsn_readcomp--fndans-qc"
 
-#BASE_MODEL = "./lora_checkpoints/hf_ckpt_cola_1answerqa_2ansq_3sumartcl_4titlegen_5artsum_6slctcls_7genshrt_8smlr_9extra_10torc_11gtws_12art_13por_14rp_15gpt_16loc_17sr_18wh"
-#  hf_ckpt_micro_ava_sajjadqa--qacatg-titlgen-genqWRa_pnsum--sumartcl-whatctgblngsto_slpl--genqwitha-qora_wikisum--artclsum-gnralans_digi--whichctg_persiannews--chscatg_parssentiment--revasp-revcat_exap--rel-ordr_absa--plr_pner--fndprsn_readcomp--fndans-qc"
 BASE_MODEL = "./lora_checkpoints/limcola_18"
 # BASE_MODEL = "./base_checkpoints/ava-llama3-v2"
 
@@ -26,32 +24,22 @@ base_model = AutoModelForCausalLM.from_pretrained(
 
 first_weight = base_model.model.layers[0].self_attn.q_proj.weight
 first_weight_old = first_weight.clone()
-print("here")
 lora_model = PeftModel.from_pretrained(
     base_model,
     "./FarsInstruct/results/limcola_19/checkpoint-85",
-    #"./FarsInstruct/results/micro_train_ava_sajjadqa--3_pnsum--2_slpl--3_wikisum--3_digi--whichctg_persiannews--2_parssentiment--revasp-revcat_exap--rel-ordr_absa--3_pner--fndprsn_reacomp--fndans-qc_trnsenfa--prven_faen--trnsen/checkpoint-1110",
-   # "./FarsInstruct/results/ava_raw_fine_tune_with_really_small_samples/checkpoint-870",
-   # "./FarsInstruct/results/micro_train_ava_sajjadqa--3_pnsum--2_slpl--genqwitha-qora_wikisum--artclsum-gnralans_digi--whichctg_persiannews--chscatg_parssentiment--revasp-revcat_exap--rel-ordr_absa--plr_pner--fndprsn_reacomp--fndans-qc/checkpoint-780",
     device_map={"": "cpu"},
     torch_dtype=torch.float16,
 )
-print("hh")
 lora_model = lora_model.merge_and_unload()
-print("hf")
 lora_model.train(False)
 # did we do anything?
 assert not torch.allclose(first_weight_old, first_weight)
-print("hl")
 lora_model_sd = lora_model.state_dict()
 deloreanized_sd = {
     k.replace("base_model.model.", ""): v
     for k, v in lora_model_sd.items()
     if "lora" not in k
 }
-print("hiu")
-#dirr = "./lora_checkpoints/hf_ckpt_micro_train_ava_sajjadqa--3_pnsum--2_slpl--3_wikisum--3_digi--whichctg_persiannews--2_parssentiment--revasp-revcat_exap--rel-ordr_absa--3_pner--fndprsn_reacomp--fndans-qc_trnsenfa--prven_faen--trnsen"
-#dirr = "./lora_checkpoints/hf_ckpt_ava_raw_fine_tune_with_really_small_samples"
 dirr = "./lora_checkpoints/limcola_19"
 print("Saving merged model...")
 base_model.save_pretrained(

@@ -2,8 +2,6 @@ import torch
 from transformers import AutoTokenizer, AutoConfig, AutoModelForCausalLM
 from argparse import ArgumentParser
 
-
-
 def load_pretaining_model(model_name_or_path, tokenizer_path, quantization_args=None):
     if quantization_args:
         from transformers import BitsAndBytesConfig
