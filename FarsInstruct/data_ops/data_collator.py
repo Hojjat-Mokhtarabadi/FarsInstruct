@@ -13,6 +13,7 @@ from transformers import TextDataset, DataCollatorForLanguageModeling
 class DataCollatorForMultipleChoice:
     """
     Data collator that will dynamically pad the inputs for multiple choice received.
+    Copied from https://github.com/bigscience-workshop/t-zero/blob/master/t0/data_collator.py
 
     Args:
         tokenizer (:class:`~transformers.PreTrainedTokenizer` or :class:`~transformers.PreTrainedTokenizerFast`):
