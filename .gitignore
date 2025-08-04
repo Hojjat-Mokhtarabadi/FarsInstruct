@@ -100,9 +100,11 @@ scratch_pad.ipynb
 *.swp
 lora_checkpoints/
 venv/
+.venv/
 wiki_summary/
 .ipynb_checkpoints/
 */.ipynb_checkpoints/*
+evaluation_results/
 
 # Distribution / packaging
 bin/

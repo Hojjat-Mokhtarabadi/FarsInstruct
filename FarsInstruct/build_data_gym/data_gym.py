@@ -10,23 +10,20 @@ class DataGym:
     """
     Apply template on datasets according to they specified type (zero-shot or few-shot)
     """
-    def __init__(self, dataset_name:str, subset_name: str, template_name: str, split: str, min_samples: int = 0):        
+    def __init__(self, dataset_name:str, subset_name: str, template_name: str, split: str):        
         self.dataset_name = dataset_name
         self.subset_name = subset_name
         self.split = split
         self.template_name = template_name
 
-        try:
-            self.data = load_dataset(self.dataset_name, split=split)
-        except:
-            self.data = load_dataset("../wiki_summary", split=split)
+        self.data = load_dataset(self.dataset_name, split=split)
             
-        if min_samples != 0:
-            self.data = self.data.shuffle(seed=1531).select(range(0, min(min_samples, len(self.data))))
-
         self.template = DatasetTemplates(self.dataset_name, self.subset_name)[template_name]
 
     def build_zs_gym(self):
+        """
+        Generate the data gym in zero-shot manner
+        """
         inputs = []; outputs = [] 
         for example in tqdm(self.data, total=len(self.data)):
             result = self.template.apply(example)
@@ -42,6 +39,9 @@ class DataGym:
         return
     
     def build_fs_gym(self, shots):
+        """
+        Generate the data gyme in few-shot manner
+        """
         inputs = []; outputs = []
 
         def remove_instruction(x):

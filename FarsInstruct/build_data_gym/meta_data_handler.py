@@ -2,7 +2,6 @@ from promptsource.templates import DatasetTemplates
 from .utils import load_prompted_datasets
 import json
 
-
 def get_meta_data(dataset_name, subset_name, template_name):
     template = DatasetTemplates(dataset_name, subset_name)[template_name]
     meta_data = {
@@ -14,7 +13,6 @@ def get_meta_data(dataset_name, subset_name, template_name):
                 }
     
     return meta_data
-
 
 def generate_meta_data_file():
     meta_data_dict = {}
@@ -32,5 +30,4 @@ def generate_meta_data_file():
     with open("data/metadata.json", 'w', encoding='utf-8') as f:
         json.dump(meta_data_dict, f)
         print('Metadata created!')
-
 
