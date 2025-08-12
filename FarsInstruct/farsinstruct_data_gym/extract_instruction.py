@@ -53,9 +53,6 @@ def do_extraction(ds_name: str = 'all', split: str = 'train'):
 
     return dd
 
-    
-
-        
 def extract_instruction(dataset_name:str, subset_name: str, template_name: str, split: str):        
     dataset_name = dataset_name
     subset_name = subset_name
@@ -74,7 +71,6 @@ def extract_instruction(dataset_name:str, subset_name: str, template_name: str, 
     return instruction
             
 
-   
 if __name__ == "__main__":
     do_extraction()
 

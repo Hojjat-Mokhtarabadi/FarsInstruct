@@ -1,5 +1,6 @@
 import yaml
-from dataclasses import dataclass
+from typing import List
+from dataclasses import dataclass, field
 from transformers import TrainingArguments
 import os
 #import neptune
@@ -28,26 +29,25 @@ def gather_host_params():
 
 @dataclass
 class DatasetArgs:
+    dataset_family: str
     dataset_path: str
-    streaming: bool
+    language: str
+    categories: List[str]
 
 @dataclass
 class ModelArgs:
+    model_family: str
     model_path: str
     tokenizer_path: str
-    vocab_size: int
     peft_model: str = None
 
 class TrainingArgs(TrainingArguments):
-  def __init__(self, datasets, instruction_template, shots, buffer_size, max_len, pin_memory, **kwargs):
-    super().__init__(**kwargs)
-    self.buffer_size: int = buffer_size
-    self.max_len: int = max_len
-    self.pin_memory: bool = pin_memory
-    self.datasets: str = datasets
-    self.instruction_template: str = instruction_template
-    self.shots: int = shots
-
+    def __init__(self, buffer_size, max_len, pin_memory, **kwargs):
+        super().__init__(**kwargs)
+        self.buffer_size: int = buffer_size
+        self.max_len: int = max_len
+        self.pin_memory: bool = pin_memory
+    
 @dataclass
 class EvaluationArgs:
     run_name: str
@@ -64,7 +64,7 @@ class EvaluationArgs:
 
 @dataclass
 class QuantizationArgs:
-    load_in_4bit: bool
+    load_in_8bit: bool
     double_quant: bool
     quant_type: str
     lora_rank: int 

@@ -105,6 +105,9 @@ wiki_summary/
 .ipynb_checkpoints/
 */.ipynb_checkpoints/*
 evaluation_results/
+data/farsinstruct_data/
+data/sni_data/
+
 
 # Distribution / packaging
 bin/

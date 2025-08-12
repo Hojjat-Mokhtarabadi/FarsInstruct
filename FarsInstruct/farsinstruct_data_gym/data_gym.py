@@ -90,7 +90,7 @@ def save_data(result, dataset_name, template_name, split, subset_name = None):
         os.makedirs(dir)
         df.to_csv(f"{dir}/{template_name}_{split}.csv", mode='w+')
 
-   
+        
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument('--template_name', type=str, required=True)

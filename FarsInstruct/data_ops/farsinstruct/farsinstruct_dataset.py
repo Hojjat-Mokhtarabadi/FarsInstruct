@@ -1,7 +1,7 @@
 from tokenizers.processors import TemplateProcessing
 from datasets import load_dataset
 import pandas as pd
-from .utils import *
+from data_ops.farsinstruct.utils import *
 
 
 class FarsInstructDataset:
