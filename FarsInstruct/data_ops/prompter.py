@@ -14,18 +14,24 @@ class Prompter:
             model_temp = yaml.safe_load(f)[self.model_family]
             
         return model_temp
+    
+    def get_response_key(self):
+        if self.model_family == "llama3x":
+            return "<|start_header_id|>assistant<|end_header_id|>"
+        if self.model_family == "qwen3":
+            return "<|im_start|>assistant\n"
 
-    def render(self, msg: str, prompt_format: str = "sft", render_for_dataset_map: bool = True, **kwargs):
-        if prompt_format == "pretraining":
-            template = Template(self.model_temp[0]['pretrain_prompt'])
+    def render(self, msg: str, prompt_format: str = "sft", **kwargs):
+        if prompt_format == "pretrain":
+            template = Template(self.model_temp[0]['pretrain'])
             rendered = template.render(user_message=msg)
 
         elif prompt_format == "sft":
-            template = Template(self.model_temp[1]['instruct_prompt'])
+            template = Template(self.model_temp[1]['instruct'])
             rendered = template.render(user_message=msg)
             
-        elif prompt_format == "multi_choice_prompt":
-            template = Template(self.model_temp[2]["multi_choice_prompt"])
+        elif prompt_format == "multi_choice":
+            template = Template(self.model_temp[2]["multi_choice"])
             rendered = template.render(user_message=msg, op1=kwargs['op1'], op2=kwargs['op2'], op3=kwargs['op3'], op4=kwargs['op4'])
             
         elif phase == "none":

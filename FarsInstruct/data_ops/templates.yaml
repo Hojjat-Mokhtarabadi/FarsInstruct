@@ -1,9 +1,9 @@
 llama3x:
-  - pretrain_prompt: "<|begin_of_text|>{{ user_message}}"
-  - instruct_prompt: "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{{ user_message}}<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
-  - multi_choice_prompt: "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{{ user_message}}\n\nOptions:\nA - {{op1}}\nB - {{op2}}\nC - {{op3}}\nD - {{op4}}<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+  - pretrain: "<|begin_of_text|>{{ user_message}}"
+  - instruct: "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{{ user_message}}<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+  - multi_choice: "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{{ user_message}}\n\nOptions:\nA - {{op1}}\nB - {{op2}}\nC - {{op3}}\nD - {{op4}}<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
   
 qwen3:
-  - pretrain_prompt: ""
-  - instruct_prompt: "<|im_start|>user\n{{user_message}}<|im_end|>\n<|im_start|>assistant\n" 
+  - pretrain: "{{user_message}}"
+  - instruct: "<|im_start|>user\n{{user_message}}<|im_end|>\n<|im_start|>assistant\n\n" 
   

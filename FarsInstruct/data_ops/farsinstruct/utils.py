@@ -1,10 +1,11 @@
+import random
+import json
 from datasets import concatenate_datasets, Dataset
+from tqdm import tqdm
+
 from .text_cleaning import (map_to_persian, 
                            split_into_sentences, 
                            patterns)
-import json
-from tqdm import tqdm
-import random
 
 def normalization(text):   
     text = text.replace("[n]", " ")
@@ -27,17 +28,15 @@ def normalization(text):
     return text
 
 def load_meta_data():
-  with open('data/metadata.json', 'r', encoding='utf-8') as f:
-      meta_data = json.load(f)
-
-  return meta_data 
-
+    with open('data/metadata.json', 'r', encoding='utf-8') as f:
+        meta_data = json.load(f)
+    return meta_data 
 
 ### --- sampling functions ---
 def sample_dataset(raw_data, ds_name):
-   #min_chunk = 2000
-   ds_list = []
-   temp_list = {
+    #min_chunk = 2000
+    ds_list = []
+    temp_list = {
            "answer_Q_A": 50,
            "find_question_answer": 50,
            "star_rating": 50,
@@ -59,40 +58,11 @@ def sample_dataset(raw_data, ds_name):
            "polysemous": 50,
            "general_answer": 20500
     }
-    for ds in ds_name:
-     for k, v in temp_list.items():
-         raw_data_filterd = raw_data.filter(lambda ex: ex["dataset"] == ds and ex["template"] == k)
-         raw_data_filterd = raw_data_filterd.shuffle(seed=random.randint(1,2000)).select(range(0, min(v, len(raw_data_filterd))))
-         ds_list.append(raw_data_filterd)
-     
-    '''
-    min_chunk = 11_000
-    raw_data_filterd = raw_data.filter(lambda ex: ex["ds"] == ds)
-    raw_data_filterd = raw_data_filterd.shuffle(seed=random.randint(1, 2000)).select(range(0, min(min_chunk, len(raw_data_filterd))))
     
-    ds_list.append(raw_data_filterd)
-    '''
-    '''
-    raw_data_filterd = raw_data.filter(lambda ex: ex["ds"] == ds)
-    temps = raw_data_filterd.unique("template")
-    for temp in temps:
-        if temp == "title_generate":
-            min_chunk = 100
-        elif temp == "question_or_answer_catg":
-            min_chunk = 100
-        elif temp == "generate_question_wrt_answer":
-            min_chunk = 100
-        elif temp == "summarize_the_article":
-            min_chunk = 100
-        elif temp == "what_category_it_belongs_to":
-            min_chunk = 10_000
-        else:
-            min_chunk = 0
-
-        raw_data_filterd_temp = raw_data_filterd.filter(lambda ex: ex["template"] == temp)
-        #samp_size = (min_chunk // len(temps))
-        raw_data_filterd_temp = raw_data_filterd_temp.shuffle(seed=random.randint(1, 2000)).select(range(0, min(128, len(raw_data_filterd_temp))))
-        ds_list.append(raw_data_filterd_temp)
-    '''
-
-   return concatenate_datasets(ds_list)
+    for ds in ds_name:
+        for k, v in temp_list.items():
+            raw_data_filterd = raw_data.filter(lambda ex: ex["dataset"] == ds and ex["template"] == k)
+            raw_data_filterd = raw_data_filterd.shuffle(seed=random.randint(1,2000)).select(range(0, min(v, len(raw_data_filterd))))
+            ds_list.append(raw_data_filterd)
+            
+    return concatenate_datasets(ds_list)

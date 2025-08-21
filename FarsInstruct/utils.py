@@ -31,6 +31,7 @@ def gather_host_params():
 class DatasetArgs:
     dataset_family: str
     dataset_path: str
+    max_examples: int
     language: str
     categories: List[str]
 
@@ -64,7 +65,7 @@ class EvaluationArgs:
 
 @dataclass
 class QuantizationArgs:
-    load_in_8bit: bool
+    load_in_4bit: bool
     double_quant: bool
     quant_type: str
     lora_rank: int 

@@ -3,9 +3,11 @@ qwen3_8b: &QWEN3_8B "/mnt/beegfs/wrkdir/u111187/Hojjat_Workstation/models/qwen3-
 dataset_args:
     dataset_family: sni
     dataset_path: wrkdir/Hojjat_Workstation/instruction_tuning/FarsInstruct/data/sni_data/natural-instructions
+    max_examples: 1000
     language: Persian
     categories: 
-        - Textual Entailment
+        # - Textual Entailment
+        - Paraphrasing
     
 model_args:
     model_family: qwen3
@@ -13,19 +15,20 @@ model_args:
     tokenizer_path: *QWEN3_8B
 
 training_args:
-    run_name: #Set your run name 
+    run_name: first #Set your run name 
     seed: 32
     pin_memory: true
+    dataloader_pin_memory: false
     buffer_size: 10000
-    max_len: 512
-    output_dir: ../output_loras/
+    max_len: 650
+    output_dir: ../adapter_checkpoints/
     # evaluation_strategy: "steps"
     num_train_epochs: 5
     max_steps: -1
     save_steps: 10
     logging_steps: 50
     # logging_dir: /home/hojjat/workstation/tensorboardlog
-    per_device_train_batch_size: 16
+    per_device_train_batch_size: 8
     gradient_accumulation_steps: 1
     learning_rate: 0.0006
     optim: adamw_torch
@@ -33,12 +36,12 @@ training_args:
     gradient_checkpointing: false
     bf16: false
     fp16: true
-    weight_decay: 0.07
     ddp_find_unused_parameters: False
+    remove_unused_columns: False
 
 
 quantization_args:
-    load_in_8bit: true
+    load_in_4bit: true
     double_quant: false
     quant_type: "nf4"
     lora_rank: 8

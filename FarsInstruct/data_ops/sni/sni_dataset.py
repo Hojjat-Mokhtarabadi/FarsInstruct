@@ -15,53 +15,55 @@ from data_ops.prompter import Prompter
 
 CACHE_DIR = "/mnt/beegfs/wrkdir/u111187/Hojjat_Workstation/instruction_tuning/FarsInstruct/data/sni_data"
 
-class SNIDataset(DS):
-    def __init__(self, tokenizer: AutoTokenizer, max_len: int, lang: str, model_family: str, 
+class SNIDataset:
+    def __init__(self, tokenizer: AutoTokenizer, max_len: int, max_task_examples: int, lang: str, model_family: str, 
                              categories: Optional[List[str]] = None, cache_dir: str = CACHE_DIR):
         self.tasks_dir = None
         self.cache_dir: str = cache_dir
-        self.task_data = {}
+        self.task_files = []  # Just store filenames
         self.tokenizer = tokenizer
         self.max_len = max_len
+        self.max_task_examples = max_task_examples
         
         self.prompter = Prompter(model_family)
         
         # load dataset if not available and load all tasks
         self.download_data()
         self.ds = self.build_dataset(lang, categories)
+
         
-    def __len__(self):
-        return len(self.ds)
-    
-    def __getitem__(self, idx):
-        inputs = self.ds[idx]["input"]
-        targets = self.ds[idx]["target"]
-        new_inputs = self.prompter.render(inputs, phase="sft")
+    def get_tokenized_data(self, in_torch_format: bool):
+        self.tokenized_ds = self.ds.map(self.tokenize_fn, batched=True, desc="tokenizing data...")
         
-        return dict(
-            encoded_input=self.tokenizer(new_inputs, padding=False, truncation=False, return_tensors="pt", add_special_tokens=False),
-            encoded_target=self.tokenizer(targets, padding=False, truncation=False, return_tensors="pt", add_special_tokens=False)
-        )
-                                           
-    def tokenize_input(self, example):
-        return self.tokenizer(
-            example["input"],
-            padding=False, 
-            truncation=False,
-            return_tensors="pt",
-            add_special_tokens=False
-        )
-                                           
-    def tokenize_full(self, example):
-        full_prmpt = example["new_input"] + example["target"]
-        return self.tokenizer(
-            full_prmpt,
+        if in_torch_format:
+            return self.tokenized_ds.with_format("torch", columns=["input_ids", "attention_mask"])
+        else:
+            return self.tokenized_ds
+        
+
+    def tokenize_fn(self, examples):
+        formatted_exp = []
+        inputs = examples["input"]
+        outputs = examples["target"]
+                
+        for i , o in zip(inputs, outputs):
+            input_ = self.prompter.render(i, prompt_format="sft")
+            output_ = o
+            full_prompt = input_ + output_
+            formatted_exp.append(full_prompt)
+                         
+        tokenized = self.tokenizer(
+            formatted_exp,
             padding="max_length", 
             truncation=True,
-            max_len=self.max_len,
+            max_length=self.max_len,
             return_tensors="pt",
             add_special_tokens=False
-        )
+        )   
+        
+        del formatted_exp
+        
+        return tokenized
         
         
     def download_data(self, force_download: bool = False):
@@ -105,24 +107,26 @@ class SNIDataset(DS):
         self._load_all_tasks()
         print(f"Downloaded dataset to {dataset_path}")
 
-    
+        
     def _load_all_tasks(self):
-        """Load all task JSON files into memory."""
+        """Load task JSON files into memory."""
         if not self.tasks_dir or not os.path.exists(self.tasks_dir):
             raise ValueError("Tasks directory not found. Please download the dataset first.")
 
-        print("Loading all tasks...")
-        task_files = [f for f in os.listdir(self.tasks_dir) if f.endswith('.json')]
+        print("Getting task file list...")
+        self.task_files = [f for f in os.listdir(self.tasks_dir) if f.endswith('.json')]
+        print(f"Found {len(self.task_files)} task files")
 
-        for task_file in tqdm(task_files, desc="Loading tasks"):
-            task_name = task_file.replace('.json', '')
-            task_path = os.path.join(self.tasks_dir, task_file)
-
-            try:
-                with open(task_path, 'r', encoding='utf-8') as f:
-                    self.task_data[task_name] = json.load(f)
-            except Exception as e:
-                print(f"Error loading {task_file}: {e}")
+        
+    def _load_single_task(self, task_file: str) -> Dict:
+        """Load a single task file on demand."""
+        task_path = os.path.join(self.tasks_dir, task_file)
+        try:
+            with open(task_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Error loading {task_file}: {e}")
+            return {}
 
             
     def _create_instruction(self, task_data: Dict, instance: Dict) -> str:
@@ -162,45 +166,42 @@ class SNIDataset(DS):
         return "\n".join(instruction_parts)
     
     
-    def discover_language_tasks(self, language: str) -> Dict[str, List[Tuple[str, Dict]]]:
+    def discover_language_tasks(self, language: str) -> Dict[str, List[str]]:
         """
-        Automatically discover all tasks that support a given language and group by category.
-
-        Args:
-            language: Language to discover tasks for
-
-        Returns:
-            Dictionary mapping categories to list of (task_name, task_data) tuples
+        Discover task files that support a language without loading all data.
+        Returns category -> list of task filenames mapping.
         """
         category_tasks = defaultdict(list)
-
-        for task_name, task_data in self.task_data.items():
-            # Check if language is in input or output languages
+        
+        print(f"Discovering tasks for language: {language}...")
+        
+        for task_file in tqdm(self.task_files, desc="Scanning tasks"):
+            # Load task data on demand
+            task_data = self._load_single_task(task_file)
+            if not task_data:
+                continue
+                
+            # Check if language is supported
             input_langs = task_data.get('Input_language', [])
             output_langs = task_data.get('Output_language', [])
 
-            # Handle both string and list formats
             if isinstance(input_langs, str):
                 input_langs = [input_langs]
             if isinstance(output_langs, str):
                 output_langs = [output_langs]
 
-            # Check if the language is supported
             if language in input_langs or language in output_langs:
-                # Get categories from the task
                 categories = task_data.get('Categories', [])
                 if isinstance(categories, str):
                     categories = [categories]
-
-                # If no categories specified, use a default category
                 if not categories:
                     categories = ['Uncategorized']
 
-                # Add task to all its categories
                 for category in categories:
-                    category_tasks[category].append((task_name, task_data))
-
+                    category_tasks[category].append(task_file)
+        
         return dict(category_tasks)
+    
     
     def save_language_tasks_to_json(self, language: str, output_path: Optional[str] = None,
                                    save_full_tasks: bool = False) -> str:
@@ -252,8 +253,6 @@ class SNIDataset(DS):
         return output_path
 
     
-    
-
     def build_dataset(self, language: str, categories: Optional[List[str]] = None) -> Dataset:
         """
         Build a HuggingFace dataset for the specified language.
@@ -265,7 +264,7 @@ class SNIDataset(DS):
         Returns:
             HuggingFace Dataset with columns: input, target, task_name, category_name
         """
-        if not self.task_data:
+        if not self.task_files:
             raise ValueError("No tasks loaded. Please download the dataset first.")
 
         # Discover all tasks for the language
@@ -283,8 +282,15 @@ class SNIDataset(DS):
 
         def generate_examples() -> Generator[dict, None, None]:
             total_examples = 0
+            outer_break = False
             for category, task_list in tqdm(language_tasks.items(), desc="Processing categories"):
-                for task_name, task_data in task_list:
+                for task_file in task_list:
+                    # Load task data on demand
+                    task_data = self._load_single_task(task_file)
+                    if not task_data:
+                        continue
+                        
+                    task_name = task_file.replace('.json', '')
                     instances = task_data.get('Instances', [])
 
                     for instance in instances:
@@ -306,13 +312,24 @@ class SNIDataset(DS):
                             'category_name': category
                         }
                         total_examples += 1
-
+                        
+                        if self.max_task_examples is not None and total_examples >= self.max_task_examples:
+                            outer_break = True
+                            break
+                            
+                    if outer_break:
+                        break
+                        
+                    # Clear task_data from memory after processing
+                    del task_data
+                        
             # These prints happen after generation, but since it's lazy, they'll run post-build
             print(f"\nDataset created successfully!")
             print(f"Total examples: {total_examples}")
             print(f"Categories included: {sorted(language_tasks.keys())}")
 
-        dataset = Dataset.from_generator(generate_examples)
+        print("Building dataset from generator...")
+        dataset = Dataset.from_generator(generate_examples, writer_batch_size=200)
 
         # Total unique tasks requires loading, but to avoid memory, compute separately if needed
         # For now, approximate or skip; if crucial, use dataset.unique('task_name') after build (low mem)
