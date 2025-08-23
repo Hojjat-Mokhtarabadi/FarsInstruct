@@ -107,6 +107,7 @@ wiki_summary/
 evaluation_results/
 data/farsinstruct_data/
 data/sni_data/
+adapter_checkpoints/
 
 
 # Distribution / packaging
