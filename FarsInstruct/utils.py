@@ -1,3 +1,5 @@
+import json
+from pathlib import Path
 import yaml
 from typing import List
 from dataclasses import dataclass, field
@@ -5,6 +7,25 @@ from transformers import TrainingArguments
 import os
 #import neptune
 import platform
+
+
+def save_training_args(data_args, model_args, train_args, quant_args, path):
+    data_args = vars(data_args)
+    model_args = vars(model_args)
+    train_args = vars(train_args)
+    quant_args = vars(quant_args)
+    all_args = data_args | model_args | train_args | quant_args
+    
+    my_args = ["run_name", "dataset_family", "language", "categories", "max_examples", "model_family", "model_path", "max_len", "output_dir", "per_device_train_batch_size", "gradient_accumulation_steps", "learning_rate", "num_train_epochs", "save_steps", "seed", "bf16", "fp16", "lora_rank", "lora_alpha", "lora_dropout", "load_in_8bit", "load_in_4bit", "quant_type"]
+    ret_args = {}
+    
+    for i in my_args:
+        for k, v in all_args.items():
+            if k == i:
+                ret_args[k] = v
+    
+    with open(Path(path) / "training_args.json" , "w") as file:
+        json.dump(ret_args, file, indent=4)
 
 def load_yml_file(pth):
     with open(pth, 'r') as f:
@@ -40,7 +61,7 @@ class ModelArgs:
     model_family: str
     model_path: str
     tokenizer_path: str
-    peft_model: str = None
+    peft_module_path: str = None
 
 class TrainingArgs(TrainingArguments):
     def __init__(self, buffer_size, max_len, pin_memory, **kwargs):
@@ -65,6 +86,7 @@ class EvaluationArgs:
 
 @dataclass
 class QuantizationArgs:
+    load_in_8bit: bool
     load_in_4bit: bool
     double_quant: bool
     quant_type: str

@@ -6,6 +6,7 @@ def load_pretaining_model(model_name_or_path, tokenizer_path, quantization_args=
     if quantization_args:
         from transformers import BitsAndBytesConfig
         bnb_config = BitsAndBytesConfig(
+            load_in_8bit=quantization_args.load_in_8bit,
             load_in_4bit=quantization_args.load_in_4bit,
             bnb_4bit_use_double_quant=quantization_args.double_quant,
             bnb_4bit_quant_type=quantization_args.quant_type,

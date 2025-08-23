@@ -87,9 +87,9 @@ def main(configs, args):
     )
 
     if accelerator.is_main_process:
-        print(f"Peft Model id: {model_args.peft_model}")
-    if model_args.peft_model != None:
-        model = PeftModel.from_pretrained(model, model_args.peft_model, is_trainable=True)
+        print(f"Peft Model id: {model_args.peft_module_path}")
+    if model_args.peft_module_path != None:
+        model = PeftModel.from_pretrained(model, model_args.peft_module_path, is_trainable=True)
     else:
         model = get_peft_model(model, lora_config)
 
@@ -167,8 +167,9 @@ def main(configs, args):
 
     if accelerator.is_main_process:
         print('Start training...')
-    trainer.train(resume_from_checkpoint=model_args.peft_model)  
+    trainer.train(resume_from_checkpoint=model_args.peft_module_path)  
     # trainer.train()  
+    save_training_args(data_args, model_args, training_args, quantization_args, training_args.output_dir)
 
     # trainer.save(f'./checkpoints/{training_args.desc}.{training_args.max_steps}.bs{training_args.per_device_train_batch_size}')
 
