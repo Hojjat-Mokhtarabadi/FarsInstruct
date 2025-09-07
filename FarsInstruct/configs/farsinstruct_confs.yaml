@@ -49,7 +49,8 @@ evaluation_args:
     # model_type: causal
     # peft_model_id: null
 
-    datasets: PNLPhub/FarsTail,PNLPhub/snappfood-sentiment-analysis,persiannlp/parsinlu_query_paraphrasing,persiannlp/parsinlu_entailment
+    #datasets: PNLPhub/FarsTail,PNLPhub/snappfood-sentiment-analysis,persiannlp/parsinlu_query_paraphrasing,persiannlp/parsinlu_entailment
+    datasets: PNLPhub/snappfood-sentiment-analysis
     # datasets: persiannlp/parsinlu_entailment
     #datasets: null
     instruction_template: ava
@@ -57,6 +58,9 @@ evaluation_args:
     task_type: 'generate_until'
     batch_size: 1
     max_len: 128
+    # New fields to control evaluation
+    metrics: rouge,bleu
+    language: fa
 
 quantization_args:
     load_in_4bit: false

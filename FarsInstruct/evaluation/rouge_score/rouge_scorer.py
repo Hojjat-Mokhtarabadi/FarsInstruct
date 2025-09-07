@@ -38,8 +38,14 @@ from __future__ import print_function
 import collections
 import re
 
-from nltk.stem import porter
-import hazm
+try:
+    from nltk.stem import porter  # nltk might be optional if not using English stemming
+except Exception:
+    porter = None
+try:
+    import hazm
+except Exception:
+    hazm = None
 import six
 from six.moves import map
 from six.moves import range
@@ -76,9 +82,12 @@ class RougeScorer(scoring.BaseScorer):
         self.lang = lang
 
         if lang == 'fa':
-            self._stemmer = hazm.Stemmer() if use_stemmer else None
+            self._stemmer = hazm.Stemmer() if (use_stemmer and hazm is not None) else None
+        elif lang == 'ar':
+            # No built-in Arabic stemmer in deps; keep None unless integrated later
+            self._stemmer = None
         else:
-            self._stemmer = porter.PorterStemmer() if use_stemmer else None
+            self._stemmer = porter.PorterStemmer() if (use_stemmer and porter is not None) else None
 
     def score(self, target, prediction):
         """Calculates rouge scores between the target and prediction.

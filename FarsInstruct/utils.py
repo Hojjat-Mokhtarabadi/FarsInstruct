@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 import yaml
-from typing import List
+from typing import List, Optional
 from dataclasses import dataclass, field
 from transformers import TrainingArguments
 import os
@@ -50,11 +50,12 @@ def gather_host_params():
 
 @dataclass
 class DatasetArgs:
-    dataset_family: str
-    dataset_path: str
-    max_examples: int
-    language: str
-    categories: List[str]
+    dataset_path: Optional[str] = None
+    streaming: bool = False
+    dataset_family: Optional[str] = None
+    max_examples: Optional[int] = None
+    language: Optional[str] = None
+    categories: List[str] = field(default_factory=list)
 
 @dataclass
 class ModelArgs:
@@ -83,6 +84,9 @@ class EvaluationArgs:
     instruction_template: str
     shots: int
     task_type: str
+    # New optional fields for pluggable, multilingual evaluation
+    metrics: str = "rouge"
+    language: str = "fa"
 
 @dataclass
 class QuantizationArgs:

@@ -23,12 +23,15 @@ from __future__ import print_function
 import re
 import six
 import string
-import hazm
+try:
+    import hazm  # optional; only used for Persian stemming if available
+except Exception:
+    hazm = None
 
 PERSIAN_ALPHA = "\u0621-\u0628\u062A-\u063A\u0641-\u0642\u0644-\u0648\u064E-\u0651\u0655\u067E\u0686\u0698\u06A9\u06AF\u06BE\u06CC"  # noqa: E501
 PERSIAN_DIGIT = "\u06F0-\u06F9"
 
-COMMON_ARABIC_ALPHA = "\u0629\u0643\u0649-\u064B\u064D\u06D5"
+COMMON_ARABIC_ALPHA = "\u0629\u0643\u0649-\u064B\u064D\u06D5\u0623\u0624\u0625\u0622\u0620\u0640\u064a"  # add hamza forms and tatweel, ya variants
 COMMON_ARABIC_DIGIT = "\u0660-\u0669"
 
 
@@ -52,6 +55,12 @@ def tokenize(text, stemmer, lang='en'):
     if lang == 'fa':
         _rgx += PERSIAN_ALPHA + PERSIAN_DIGIT
         _rgx += COMMON_ARABIC_ALPHA + COMMON_ARABIC_DIGIT
+    elif lang == 'ar':
+        # Arabic letters and digits including common Persian overlap
+        arabic_alpha = "\u0621-\u063A\u0641-\u064A\u0670-\u0671\u0679-\u0688\u068E-\u06D3\u06FA-\u06FF"
+        arabic_digit = COMMON_ARABIC_DIGIT
+        _rgx += arabic_alpha + arabic_digit
+        _rgx += COMMON_ARABIC_ALPHA
 
     # Convert everything to lowercase.
     text = text.lower()

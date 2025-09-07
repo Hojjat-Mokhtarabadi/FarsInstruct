@@ -1,5 +1,6 @@
 from datasets import load_dataset
 import json
+import os
 
 class FarsInstructEvalDataset:
     def __init__(self, tokenizer, max_len: int, instruction_template: str, split: str, shots: int, path: str = "swh", **kwargs):
@@ -7,7 +8,22 @@ class FarsInstructEvalDataset:
         self.tokenizer = tokenizer 
         print(path)
         # each model accepts different instruction template, select each based on config file.
-        self.ds = load_dataset(path, split=split, cache_dir="/mnt/beegfs/wrkdir/u111187/Hojjat_Workstation/farsinstruct_data")
+        # Use HF default cache or honor HF_DATASETS_CACHE if provided; avoid hardcoded read-only paths.
+        cache_dir = os.environ.get("HF_DATASETS_CACHE", None)
+        try:
+            if cache_dir:
+                os.makedirs(cache_dir, exist_ok=True)
+                self.ds = load_dataset(path, split=split, cache_dir=cache_dir)
+            else:
+                self.ds = load_dataset(path, split=split)
+        except Exception as e:
+            # Fallback to user home cache if the provided cache is not writable (e.g., /mnt read-only)
+            fallback_cache = os.path.expanduser("~/.cache/huggingface/datasets")
+            try:
+                os.makedirs(fallback_cache, exist_ok=True)
+            except Exception:
+                pass
+            self.ds = load_dataset(path, split=split, cache_dir=fallback_cache)
         
         self.max_len = max_len
         self.extra_cols = self.ds.column_names
