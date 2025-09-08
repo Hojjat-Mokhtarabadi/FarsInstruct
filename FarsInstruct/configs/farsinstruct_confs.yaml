@@ -49,8 +49,8 @@ evaluation_args:
     # model_type: causal
     # peft_model_id: null
 
-    #datasets: PNLPhub/FarsTail,PNLPhub/snappfood-sentiment-analysis,persiannlp/parsinlu_query_paraphrasing,persiannlp/parsinlu_entailment
-    datasets: PNLPhub/snappfood-sentiment-analysis
+    datasets: PNLPhub/FarsTail,PNLPhub/snappfood-sentiment-analysis,persiannlp/parsinlu_query_paraphrasing,persiannlp/parsinlu_entailment
+    #datasets: PNLPhub/snappfood-sentiment-analysis
     # datasets: persiannlp/parsinlu_entailment
     #datasets: null
     instruction_template: ava
